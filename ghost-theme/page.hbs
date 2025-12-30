@@ -1,0 +1,19 @@
+{{!< default}} {{#post}} <article class="py-10 md:py-16 bg-white">
+    <div class="container-custom max-w-4xl">
+        <header class="mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-gray-900 leading-tight">{{title}}</h1>
+        </header>
+
+        {{#if feature_image}}
+        <figure class="mb-8 md:mb-12 -mx-3 sm:mx-0">
+            <img src="{{img_url feature_image size='xl'}}" alt="{{title}}"
+                class="w-full h-full object-cover rounded-none sm:rounded-lg">
+        </figure>
+        {{/if}}
+
+        <div class="prose prose-sm sm:prose-base lg:prose-lg max-w-none">
+            {{content}}
+        </div>
+    </div>
+    </article>
+    {{/post}}

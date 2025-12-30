@@ -1,0 +1,122 @@
+version: '3.8'
+
+# Production Configuration for ISSCLOUD VPS (Classic S Plan)
+services:
+  ghost:
+    # Use local build or your own Docker registry
+    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-ghost:latest
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      url: https://oInvestigador.pt
+      NODE_ENV: production
+      database__client: mysql2
+      database__connection__host: ${DB_HOST}
+      database__connection__port: ${DB_PORT}
+      database__connection__user: ${DB_USER}
+      database__connection__password: ${DB_PASSWORD}
+      database__connection__database: ${DB_NAME}
+      mail__transport: SMTP
+      mail__options__service: SendGrid
+      mail__options__auth__user: apikey
+      mail__options__auth__pass: ${SENDGRID_API_KEY}
+      mail__from: noreply@oInvestigador.pt
+      privacy__useTinfoil: "false"
+    volumes:
+      - ghost_content:/var/lib/ghost/content
+      - ./ghost-theme:/var/lib/ghost/content/themes/o-investigador
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/v3/admin/site/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  api:
+    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-api:latest
+    restart: always
+    depends_on:
+      - postgres
+      - ghost
+    environment:
+      NODE_ENV: production
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GHOST_API_URL: http://ghost:2368
+      GHOST_API_KEY: ${GHOST_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      API_PORT: 3000
+      AWS_REGION: eu-west-1
+      AWS_BUCKET: ${AWS_BUCKET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      CORS_ORIGIN: https://oInvestigador.pt
+      RATE_LIMIT_WINDOW: 15m
+      RATE_LIMIT_MAX_REQUESTS: 100
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  admin:
+    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-admin:latest
+    restart: always
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: https://api.oInvestigador.pt
+      VITE_GHOST_URL: https://ghost.oInvestigador.pt
+      VITE_ENV: production
+    networks:
+      - o-investigador-network
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    depends_on:
+      - ghost
+      - api
+      - admin
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx-prod.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/ssl/:/etc/nginx/ssl/:ro
+      - /etc/letsencrypt/:/etc/letsencrypt/:ro
+    networks:
+      - o-investigador-network
+
+volumes:
+  postgres_data:
+  ghost_content:
+
+
+networks:
+  o-investigador-network:
+    driver: bridge

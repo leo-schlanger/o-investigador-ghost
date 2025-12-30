@@ -1,0 +1,32 @@
+<footer class="bg-gray-900 text-white py-10 md:py-12">
+    <div class="container-custom">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">{{@site.title}}</h3>
+                <p class="text-gray-400 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">{{@site.description}}</p>
+            </div>
+            <div class="text-center md:text-left">
+                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">Links</h3>
+                <ul class="space-y-3 text-sm text-gray-400">
+                    {{navigation type="secondary"}}
+                </ul>
+            </div>
+            <div class="text-center md:text-left">
+                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">Social</h3>
+                <div class="flex justify-center md:justify-start gap-6">
+                    {{#if @site.facebook}}
+                    <a href="{{facebook_url @site.facebook}}" target="_blank" rel="noopener"
+                        class="hover:text-brand-accent transition text-sm">Facebook</a>
+                    {{/if}}
+                    {{#if @site.twitter}}
+                    <a href="{{twitter_url @site.twitter}}" target="_blank" rel="noopener"
+                        class="hover:text-brand-accent transition text-sm">Twitter</a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+        <div class="mt-10 md:mt-12 pt-8 border-t border-gray-800 text-center text-xs md:text-sm text-gray-500">
+            &copy; {{date format="YYYY"}} {{@site.title}}. Todos os direitos reservados.
+        </div>
+    </div>
+</footer>

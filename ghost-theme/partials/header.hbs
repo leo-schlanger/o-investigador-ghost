@@ -1,0 +1,113 @@
+<header class="sticky top-0 z-50 bg-white border-b-2 border-brand shadow-md">
+    <nav class="max-w-7xl mx-auto px-3 sm:px-4 h-14 md:h-16 flex items-center justify-between">
+
+        {{!-- Left: Branding - Smaller on mobile --}}
+        <div class="flex items-center gap-3 md:gap-6">
+            <a href="{{@site.url}}" class="flex items-center gap-2 md:gap-3 group">
+                {{#if @site.logo}}
+                <img src="{{@site.logo}}" alt="{{@site.title}}"
+                    class="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-brand-accent transition">
+                {{else}}
+                <img src="{{asset 'images/logo.jpg'}}" alt="{{@site.title}}"
+                    class="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover">
+                {{/if}}
+                <div class="flex flex-col">
+                    <span
+                        class="font-display font-bold text-sm md:text-xl text-brand leading-none uppercase tracking-tight">O
+                        Investigador</span>
+                    <span
+                        class="text-[8px] md:text-[10px] text-gray-500 font-medium tracking-widest uppercase hidden sm:block">Jornalismo
+                        Independente</span>
+                </div>
+            </a>
+
+            {{!-- Desktop Menu - Hidden on mobile --}}
+            <div class="hidden lg:flex items-center gap-6 pl-6 border-l border-gray-200 h-8">
+                {{navigation}}
+            </div>
+        </div>
+
+        {{!-- Right: Actions --}}
+        <div class="flex items-center gap-2 md:gap-4">
+            <button
+                class="p-2 text-gray-500 hover:text-brand transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                data-ghost-search title="Pesquisar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+            <a href="#/portal/signin"
+                class="text-xs md:text-sm font-semibold text-gray-600 hover:text-brand hidden md:block">Entrar</a>
+            <a href="#/portal/signup" class="btn-primary text-xs px-3 md:px-4 py-2">
+                Assinar
+            </a>
+
+            {{!-- Mobile Menu Button - Only on mobile/tablet --}}
+            <button
+                class="lg:hidden p-2 text-gray-600 hover:text-brand transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                id="mobile-menu-btn" aria-label="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </nav>
+</header>
+
+{{!-- Desktop Category Sub-bar (Categories) - Hidden on mobile --}}
+<div class="bg-brand text-white text-xs md:text-sm py-2 overflow-x-auto hidden md:block">
+    <div class="container-custom flex gap-4 md:gap-6 justify-center font-medium">
+        <a href="/tag/politica" class="hover:text-brand-accent transition whitespace-nowrap">Política</a>
+        <a href="/tag/economia" class="hover:text-brand-accent transition whitespace-nowrap">Economia</a>
+        <a href="/tag/justica" class="hover:text-brand-accent transition whitespace-nowrap">Justiça</a>
+        <a href="/tag/internacional" class="hover:text-brand-accent transition whitespace-nowrap">Internacional</a>
+        <a href="/tag/tecnologia" class="hover:text-brand-accent transition whitespace-nowrap">Tecnologia</a>
+        <a href="/tag/cultura" class="hover:text-brand-accent transition whitespace-nowrap">Cultura</a>
+    </div>
+</div>
+
+{{!-- Mobile Menu Overlay - Only visible when opened --}}
+<div id="mobile-menu" class="hidden fixed inset-0 z-40 lg:hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50" id="mobile-menu-overlay"></div>
+    <div class="fixed right-0 top-0 bottom-0 w-64 bg-white shadow-xl p-6 overflow-y-auto">
+        <button class="absolute top-4 right-4 p-2 text-gray-600 hover:text-brand" id="mobile-menu-close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <nav class="mt-8 flex flex-col gap-4">
+            <a href="/tag/politica"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Política</a>
+            <a href="/tag/economia"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Economia</a>
+            <a href="/tag/justica"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Justiça</a>
+            <a href="/tag/internacional"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Internacional</a>
+            <a href="/tag/tecnologia"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Tecnologia</a>
+            <a href="/tag/cultura"
+                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Cultura</a>
+        </nav>
+    </div>
+</div>
+
+<script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const menuClose = document.getElementById('mobile-menu-close');
+    const menuOverlay = document.getElementById('mobile-menu-overlay');
+    const menu = document.getElementById('mobile-menu');
+
+    menuBtn?.addEventListener('click', () => menu?.classList.remove('hidden'));
+    menuClose?.addEventListener('click', () => menu?.classList.add('hidden'));
+    menuOverlay?.addEventListener('click', () => menu?.classList.add('hidden'));
+</script>

@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  # MySQL Database (Required for Ghost 5+)
+  mysql:
+    image: mysql:8
+    container_name: o-investigador-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infrastructure/mysql/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  # Ghost CMS
+  ghost:
+    image: ghost:5-alpine
+    container_name: o-investigador-ghost
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      url: ${GHOST_URL:-http://localhost:2368}
+      NODE_ENV: ${NODE_ENV:-development}
+      database__client: mysql2
+      database__connection__host: mysql
+      database__connection__port: 3306
+      database__connection__user: ${DB_USER}
+      database__connection__password: ${DB_PASSWORD}
+      database__connection__database: ${DB_NAME}
+      mail__transport: SMTP
+      mail__options__service: SendGrid
+      mail__options__auth__user: apikey
+      mail__options__auth__pass: ${SENDGRID_API_KEY}
+      mail__from: ${GHOST_MAIL_FROM:-noreply@oInvestigador.pt}
+      privacy__useTinfoil: "false"
+    volumes:
+      - ghost_content:/var/lib/ghost/content
+      - ./ghost-theme:/var/lib/ghost/content/themes/o-investigador
+    ports:
+      - "2368:2368"
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/v3/admin/site/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  # Custom API (Node.js)
+  api:
+    build:
+      context: ./cms-api
+      dockerfile: Dockerfile
+    container_name: o-investigador-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ghost:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GHOST_API_URL: ${GHOST_API_URL:-http://ghost:2368}
+      GHOST_API_KEY: ${GHOST_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key}
+      API_PORT: 3000
+      AWS_REGION: ${AWS_REGION:-eu-west-1}
+      AWS_BUCKET: ${AWS_BUCKET:-o-investigador-media}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      RATE_LIMIT_WINDOW: 15m
+      RATE_LIMIT_MAX_REQUESTS: 100
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./cms-api:/app
+      - /app/node_modules
+    networks:
+      - o-investigador-network
+
+  # Admin Panel (React)
+  admin:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: o-investigador-admin
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+      VITE_GHOST_URL: ${VITE_GHOST_URL:-http://localhost:2368}
+      VITE_ENV: ${NODE_ENV:-development}
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./admin-panel:/app
+      - /app/node_modules
+    networks:
+      - o-investigador-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: o-investigador-nginx
+    depends_on:
+      - ghost
+      - api
+      - admin
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - o-investigador-network
+
+volumes:
+  mysql_data:
+  ghost_content:
+
+
+networks:
+  o-investigador-network:
+    driver: bridge

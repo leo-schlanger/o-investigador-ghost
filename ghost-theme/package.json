@@ -1,0 +1,44 @@
+{
+  "name": "o-investigador-theme",
+  "description": "Premium News Theme - Ghost CMS",
+  "version": "1.0.0",
+  "author": "O Investigador Team",
+  "engines": {
+    "ghost": ">=5.0.0"
+  },
+  "config": {
+    "posts_per_page": 10,
+    "image_sizes": {
+      "xs": {
+        "width": 100
+      },
+      "sm": {
+        "width": 300
+      },
+      "md": {
+        "width": 600
+      },
+      "lg": {
+        "width": 1000
+      },
+      "xl": {
+        "width": 1200
+      },
+      "xxl": {
+        "width": 1600
+      }
+    }
+  },
+  "scripts": {
+    "dev": "tailwindcss -i ./assets/css/index.css -o ./assets/css/screen.css --watch",
+    "build": "tailwindcss -i ./assets/css/index.css -o ./assets/css/screen.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
+  }
+}

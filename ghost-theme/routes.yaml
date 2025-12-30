@@ -1,0 +1,29 @@
+routes:
+  /signup/: members/signup
+  /signin/: members/signin
+  /account/: members/account
+
+collections:
+  /:
+    permalink: /{slug}/
+    template: index
+    posts_per_page: 10
+
+  /investigacoes/:
+    permalink: /investigacoes/{slug}/
+    filter: tag:investigacoes
+    template: index
+
+  /politica/:
+    permalink: /politica/{slug}/
+    filter: tag:politica
+    template: index
+
+  /economia/:
+    permalink: /economia/{slug}/
+    filter: tag:economia
+    template: index
+
+taxonomies:
+  tag: /tag/{slug}/
+  author: /author/{slug}/
