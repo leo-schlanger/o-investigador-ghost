@@ -1,7 +1,0 @@
-FROM ghost:5-alpine
-
-# Install any extra dependencies or themes here
-# We are mounting the theme via volume in docker-compose, so this is clean for now.
-# Configuring for production usage if needed.
-
-CMD ["node", "current/index.js"]

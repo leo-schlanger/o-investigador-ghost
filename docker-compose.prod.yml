@@ -2,18 +2,39 @@ version: '3.8'
 
 # Production Configuration for ISSCLOUD VPS (Classic S Plan)
 services:
+  # MySQL Database
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./infrastructure/mysql/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  # Ghost CMS
   ghost:
-    # Use local build or your own Docker registry
-    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-ghost:latest
+    image: ghost:5-alpine
     restart: always
     depends_on:
-      - postgres
+      mysql:
+        condition: service_healthy
     environment:
       url: https://oInvestigador.pt
       NODE_ENV: production
       database__client: mysql2
-      database__connection__host: ${DB_HOST}
-      database__connection__port: ${DB_PORT}
+      database__connection__host: mysql
+      database__connection__port: 3306
       database__connection__user: ${DB_USER}
       database__connection__password: ${DB_PASSWORD}
       database__connection__database: ${DB_NAME}
@@ -27,40 +48,29 @@ services:
       - ghost_content:/var/lib/ghost/content
       - ./ghost-theme:/var/lib/ghost/content/themes/o-investigador
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/v3/admin/site/" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - o-investigador-network
 
-  postgres:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - o-investigador-network
-
+  # Custom API (Node.js)
   api:
-    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-api:latest
+    build:
+      context: ./cms-api
+      dockerfile: Dockerfile
+      target: production
     restart: always
     depends_on:
-      - postgres
-      - ghost
+      mysql:
+        condition: service_healthy
+      ghost:
+        condition: service_healthy
     environment:
       NODE_ENV: production
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
+      DB_HOST: mysql
+      DB_PORT: 3306
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -72,29 +82,34 @@ services:
       AWS_BUCKET: ${AWS_BUCKET}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      CORS_ORIGIN: https://oInvestigador.pt
+      CORS_ORIGIN: https://oInvestigador.pt,https://admin.oInvestigador.pt
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - o-investigador-network
 
+  # Admin Panel (React - static build served by nginx)
   admin:
-    image: ${DOCKER_REGISTRY:-localhost}/o-investigador-admin:latest
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+      target: production
+      args:
+        VITE_API_URL: https://api.oInvestigador.pt
+        VITE_GHOST_URL: https://oInvestigador.pt
+        VITE_ENV: production
     restart: always
     depends_on:
       - api
-    environment:
-      VITE_API_URL: https://api.oInvestigador.pt
-      VITE_GHOST_URL: https://ghost.oInvestigador.pt
-      VITE_ENV: production
     networks:
       - o-investigador-network
 
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     restart: always
@@ -107,15 +122,13 @@ services:
       - "443:443"
     volumes:
       - ./infrastructure/nginx/nginx-prod.conf:/etc/nginx/nginx.conf:ro
-      - ./infrastructure/nginx/ssl/:/etc/nginx/ssl/:ro
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
     networks:
       - o-investigador-network
 
 volumes:
-  postgres_data:
+  mysql_data:
   ghost_content:
-
 
 networks:
   o-investigador-network:

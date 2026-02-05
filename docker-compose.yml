@@ -51,7 +51,7 @@ services:
     ports:
       - "2368:2368"
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/v3/admin/site/" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/admin/site/" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,6 +63,7 @@ services:
     build:
       context: ./cms-api
       dockerfile: Dockerfile
+      target: development
     container_name: o-investigador-api
     depends_on:
       mysql:
@@ -84,7 +85,7 @@ services:
       AWS_BUCKET: ${AWS_BUCKET:-o-investigador-media}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
     ports:
@@ -92,6 +93,11 @@ services:
     volumes:
       - ./cms-api:/app
       - /app/node_modules
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - o-investigador-network
 
@@ -100,6 +106,7 @@ services:
     build:
       context: ./admin-panel
       dockerfile: Dockerfile
+      target: development
     container_name: o-investigador-admin
     depends_on:
       - api

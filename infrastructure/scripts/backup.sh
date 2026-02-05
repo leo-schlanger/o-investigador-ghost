@@ -5,9 +5,10 @@ BACKUP_DIR="./backups"
 
 mkdir -p $BACKUP_DIR
 
-# Backup PostgreSQL
-docker exec o-investigador-db pg_dump \
-  -U ghost o_investigador > \
+# Backup MySQL
+docker exec o-investigador-db mysqldump \
+  -u ghost -p"${DB_PASSWORD:-changeme_secure_password_123}" \
+  o_investigador > \
   $BACKUP_DIR/db_backup_$TIMESTAMP.sql
 
 # Comprime
@@ -17,7 +18,7 @@ gzip $BACKUP_DIR/db_backup_$TIMESTAMP.sql
 # aws s3 cp $BACKUP_DIR/db_backup_$TIMESTAMP.sql.gz \
 #   s3://o-investigador-backups/db_backup_$TIMESTAMP.sql.gz
 
-echo "✅ Backup criado: $BACKUP_DIR/db_backup_$TIMESTAMP.sql.gz"
+echo "Backup criado: $BACKUP_DIR/db_backup_$TIMESTAMP.sql.gz"
 
-# Manter apenas últimos 7 backups
+# Manter apenas ultimos 7 backups
 find $BACKUP_DIR -name "db_backup_*.sql.gz" -mtime +7 -delete
