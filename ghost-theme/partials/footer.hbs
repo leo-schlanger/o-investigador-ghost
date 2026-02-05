@@ -1,20 +1,20 @@
-<footer class="bg-brand-dark text-white">
+<footer class="bg-brand-dark text-white overflow-hidden">
 
     {{!-- Main Footer Content --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-8 sm:py-10 md:py-16">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 md:gap-8">
 
             {{!-- Brand Column --}}
             <div class="md:col-span-5">
-                <a href="{{@site.url}}" class="inline-flex flex-col leading-none mb-4">
-                    <span class="font-display font-extrabold text-white text-2xl md:text-3xl tracking-tight">
+                <a href="{{@site.url}}" class="inline-flex flex-col leading-none mb-3 sm:mb-4">
+                    <span class="font-display font-extrabold text-white text-xl sm:text-2xl md:text-3xl tracking-tight">
                         investigador
                     </span>
-                    <span class="font-display text-primary-300 text-[9px] md:text-[11px] font-normal tracking-[0.25em] self-end -mt-0.5">
+                    <span class="font-display text-primary-300 text-[8px] sm:text-[9px] md:text-[11px] font-normal tracking-[0.25em] self-end -mt-0.5">
                         jornal online
                     </span>
                 </a>
-                <p class="text-primary-200 text-sm leading-relaxed max-w-sm mt-3">
+                <p class="text-primary-200 text-xs sm:text-sm leading-relaxed max-w-sm mt-2 sm:mt-3">
                     {{@site.description}}
                 </p>
             </div>
@@ -46,7 +46,7 @@
 
     {{!-- Bottom Bar --}}
     <div class="border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 text-center text-xs md:text-sm text-primary-300">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-5 text-center text-[11px] sm:text-xs md:text-sm text-primary-300">
             &copy; {{date format="YYYY"}} {{@site.title}}. Todos os direitos reservados.
         </div>
     </div>

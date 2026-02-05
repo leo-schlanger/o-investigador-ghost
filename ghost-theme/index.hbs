@@ -1,5 +1,5 @@
 {{!< default}} {{!-- JN Layout: Boxy, Grid-based, Information Dense - Mobile First --}} <div
-    class="container-custom pt-4 md:pt-6 pb-8 md:pb-12">
+    class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
     {{!-- TOP AD: Leaderboard --}}
     {{> ad-slot type="leaderboard" label="Publicidade"}}
@@ -12,39 +12,39 @@
 
         {{!-- Main Headline (Big Photo) - Mobile First --}}
         {{#foreach featured to="1"}}
-        <div class="lg:col-span-8 group">
-            <a href="{{url}}" class="block relative aspect-[16/9] mb-3 md:mb-4 overflow-hidden">
+        <div class="lg:col-span-8 group min-w-0">
+            <a href="{{url}}" class="block relative aspect-[16/9] mb-3 md:mb-4 overflow-hidden rounded-sm">
                 {{#if feature_image}}
                 <img src="{{img_url feature_image size='xl'}}"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     alt="{{title}}">
                 {{/if}}
                 <div
-                    class="absolute bottom-0 left-0 bg-brand-accent text-white text-xs font-bold px-3 py-1 uppercase tracking-widest">
+                    class="absolute bottom-0 left-0 bg-brand-accent text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 uppercase tracking-widest">
                     {{primary_tag.name}}
                 </div>
             </a>
             <h1
-                class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-2 md:mb-3 leading-tight group-hover:text-brand-accent transition-colors">
+                class="text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-2 md:mb-3 leading-tight group-hover:text-brand-accent transition-colors">
                 <a href="{{url}}">{{title}}</a>
             </h1>
-            <p class="text-sm md:text-base lg:text-lg text-neutral-600 leading-relaxed max-w-3xl">{{excerpt}}</p>
+            <p class="text-sm md:text-base lg:text-lg text-neutral-600 leading-relaxed">{{excerpt}}</p>
         </div>
         {{/foreach}}
 
-        {{!-- Secondary List (Vertical) - Mobile: horizontal scroll, Desktop: vertical --}}
+        {{!-- Secondary List (Vertical) - Mobile: vertical compact, Desktop: vertical --}}
         <div
-            class="lg:col-span-4 flex flex-col gap-4 md:gap-6 lg:border-l border-neutral-100 lg:pl-6 xl:pl-8 mt-6 lg:mt-0">
+            class="lg:col-span-4 flex flex-col gap-3 sm:gap-4 md:gap-6 lg:border-l border-neutral-100 lg:pl-6 xl:pl-8 mt-4 sm:mt-6 lg:mt-0 min-w-0">
             {{#foreach featured from="2"}}
-            <article class="group relative">
-                <div class="mb-2">
+            <article class="group relative min-w-0">
+                <div class="mb-1 sm:mb-2">
                     <span class="tag-label">{{primary_tag.name}}</span>
                 </div>
                 <h3
-                    class="text-base md:text-lg lg:text-xl font-bold leading-snug group-hover:text-brand-accent transition-colors">
+                    class="text-sm sm:text-base md:text-lg lg:text-xl font-bold leading-snug group-hover:text-brand-accent transition-colors line-clamp-3">
                     <a href="{{url}}">{{title}}</a>
                 </h3>
-                <div class="text-xs text-neutral-400 mt-2 flex items-center gap-2">
+                <div class="text-[11px] sm:text-xs text-neutral-400 mt-1.5 sm:mt-2 flex items-center gap-2">
                     <time>{{date format="HH:mm"}}</time> | {{authors}}
                 </div>
             </article>
@@ -59,31 +59,33 @@
 
 
     {{!-- MAIN GRID: Content (8) | Sidebar (4) - Mobile First --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 md:gap-8">
 
         {{!-- LEFT COLUMN: Sections & Latest --}}
-        <div class="lg:col-span-8">
+        <div class="lg:col-span-8 min-w-0">
 
             {{!-- SECTION: Últimas (Row of Cards) - Mobile First --}}
-            <section class="mb-8 md:mb-10 lg:mb-12">
+            <section class="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
                 <h2 class="section-title">Últimas</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     {{#foreach posts limit="6"}}
-                    <article class="flex gap-3 md:gap-4 group">
-                        <a href="{{url}}" class="block w-1/3 aspect-[4/3] flex-shrink-0 overflow-hidden bg-neutral-100">
-                            {{#if feature_image}}
-                            <img src="{{img_url feature_image size='xs'}}"
-                                class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
-                                alt="{{title}}">
-                            {{/if}}
+                    <article class="flex gap-3 md:gap-4 group min-w-0">
+                        <a href="{{url}}" class="block w-24 sm:w-28 md:w-1/3 flex-shrink-0 overflow-hidden bg-neutral-100 rounded-sm">
+                            <div class="aspect-[4/3] relative">
+                                {{#if feature_image}}
+                                <img src="{{img_url feature_image size='xs'}}"
+                                    class="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:scale-105"
+                                    alt="{{title}}">
+                                {{/if}}
+                            </div>
                         </a>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col min-w-0 flex-1">
                             <span class="tag-label">{{primary_tag.name}}</span>
                             <h3
-                                class="text-sm md:text-base lg:text-lg font-bold leading-tight mb-2 group-hover:text-brand-accent transition-colors">
+                                class="text-sm md:text-base lg:text-lg font-bold leading-tight mb-1 sm:mb-2 group-hover:text-brand-accent transition-colors line-clamp-3">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <time class="text-xs text-neutral-400 mt-auto">{{date format="D MMM"}}</time>
+                            <time class="text-[11px] sm:text-xs text-neutral-400 mt-auto">{{date format="D MMM"}}</time>
                         </div>
                     </article>
                     {{/foreach}}
@@ -94,22 +96,22 @@
             {{> ad-slot type="leaderboard" label="Publicidade"}}
 
             {{!-- SECTIONS (Economy, Politics) - Mobile First --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-8 md:mt-10 lg:mt-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
 
                 {{!-- ECONOMY - Mobile First --}}
-                <div class="border-t-4 border-black pt-3 md:pt-4">
+                <div class="border-t-4 border-black pt-3 md:pt-4 min-w-0">
                     <h2
-                        class="text-lg md:text-xl lg:text-2xl font-black uppercase mb-4 md:mb-6 flex items-center gap-2">
-                        <span class="w-3 h-3 bg-brand-accent inline-block"></span> Economia
+                        class="text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mb-3 sm:mb-4 md:mb-6 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span> Economia
                     </h2>
                     {{#get "posts" limit="3" filter="tag:economia"}}
-                    <div class="flex flex-col gap-4 md:gap-6">
+                    <div class="flex flex-col gap-3 sm:gap-4 md:gap-6">
                         {{#foreach posts}}
-                        <article class="group">
-                            <h3 class="text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent">
+                        <article class="group min-w-0">
+                            <h3 class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <p class="text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
+                            <p class="text-xs sm:text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
                         </article>
                         {{/foreach}}
                     </div>
@@ -117,19 +119,19 @@
                 </div>
 
                 {{!-- POLITICS - Mobile First --}}
-                <div class="border-t-4 border-black pt-3 md:pt-4">
+                <div class="border-t-4 border-black pt-3 md:pt-4 min-w-0">
                     <h2
-                        class="text-lg md:text-xl lg:text-2xl font-black uppercase mb-4 md:mb-6 flex items-center gap-2">
-                        <span class="w-3 h-3 bg-brand-accent inline-block"></span> Política
+                        class="text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mb-3 sm:mb-4 md:mb-6 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span> Política
                     </h2>
                     {{#get "posts" limit="3" filter="tag:politica"}}
-                    <div class="flex flex-col gap-4 md:gap-6">
+                    <div class="flex flex-col gap-3 sm:gap-4 md:gap-6">
                         {{#foreach posts}}
-                        <article class="group">
-                            <h3 class="text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent">
+                        <article class="group min-w-0">
+                            <h3 class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <p class="text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
+                            <p class="text-xs sm:text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
                         </article>
                         {{/foreach}}
                     </div>
@@ -141,25 +143,25 @@
         </div>
 
         {{!-- SIDEBAR: Ads & Most Read - Mobile First --}}
-        <aside class="lg:col-span-4 space-y-6 md:space-y-8 lg:space-y-12 mt-8 lg:mt-0">
+        <aside class="lg:col-span-4 space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-12 mt-6 sm:mt-8 lg:mt-0 min-w-0">
 
             {{!-- MPU Ad --}}
             {{> ad-slot type="mpu" label="Publicidade"}}
 
             {{!-- Most Read (Mock) - Mobile First --}}
-            <div class="bg-neutral-50 p-4 md:p-6 border-t-4 border-brand-accent">
-                <h3 class="text-lg md:text-xl font-black uppercase mb-4 md:mb-6">Mais Lidas</h3>
+            <div class="bg-neutral-50 p-3 sm:p-4 md:p-6 border-t-4 border-brand-accent">
+                <h3 class="text-base sm:text-lg md:text-xl font-black uppercase mb-3 sm:mb-4 md:mb-6">Mais Lidas</h3>
                 <ol
-                    class="list-decimal list-inside space-y-3 md:space-y-4 font-bold text-sm md:text-base lg:text-lg text-neutral-900">
-                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Obras no metro
+                    class="list-decimal list-inside space-y-2.5 sm:space-y-3 md:space-y-4 font-bold text-xs sm:text-sm md:text-base lg:text-lg text-neutral-900">
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Obras no metro
                         de Lisboa derrapam</li>
-                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Novo
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Novo
                         aeroporto: Decisão final adiada</li>
-                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Inflação desce
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Inflação desce
                         para 2.3% em Portugal</li>
-                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Benfica
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Benfica
                         contrata novo avançado</li>
-                    <li class="pl-2 cursor-pointer hover:text-brand-accent">Rendas das casas aumentam 12%</li>
+                    <li class="pl-1.5 sm:pl-2 cursor-pointer hover:text-brand-accent">Rendas das casas aumentam 12%</li>
                 </ol>
             </div>
 

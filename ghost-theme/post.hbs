@@ -1,45 +1,45 @@
-{{!< default}} {{#post}} <article class="py-8 md:py-12 lg:py-16 bg-white">
-    <div class="max-w-4xl mx-auto px-3 sm:px-4 md:px-6">
+{{!< default}} {{#post}} <article class="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 overflow-hidden">
 
-        <header class="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-neutral-200">
-            <div class="flex flex-wrap gap-2 md:gap-3 mb-3 md:mb-4">
+        <header class="mb-4 sm:mb-6 md:mb-8 pb-4 sm:pb-6 md:pb-8 border-b border-neutral-200">
+            <div class="flex flex-wrap gap-1.5 sm:gap-2 md:gap-3 mb-2 sm:mb-3 md:mb-4 items-center">
                 {{#primary_tag}}
-                <a href="{{url}}" class="px-3 py-1 bg-primary-50 text-brand text-xs font-semibold rounded-full">
+                <a href="{{url}}" class="px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-50 text-brand text-[11px] sm:text-xs font-semibold rounded-full">
                     {{name}}
                 </a>
                 {{/primary_tag}}
-                <span class="text-xs md:text-sm text-neutral-500">{{reading_time}} min</span>
-                <span class="text-xs md:text-sm text-neutral-500">{{date published_at format="DD MMM YYYY"}}</span>
+                <span class="text-[11px] sm:text-xs md:text-sm text-neutral-500">{{reading_time}} min</span>
+                <span class="text-[11px] sm:text-xs md:text-sm text-neutral-500">{{date published_at format="DD MMM YYYY"}}</span>
             </div>
 
-            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 text-neutral-900 leading-tight">
+            <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 text-neutral-900 leading-tight">
                 {{title}}</h1>
 
             {{#if custom_excerpt}}
-            <p class="text-base md:text-lg lg:text-xl text-neutral-600 font-medium">{{custom_excerpt}}</p>
+            <p class="text-sm sm:text-base md:text-lg lg:text-xl text-neutral-600 font-medium">{{custom_excerpt}}</p>
             {{/if}}
         </header>
 
         {{#if feature_image}}
-        <figure class="mb-8 md:mb-10 lg:mb-12 -mx-3 sm:mx-0">
+        <figure class="mb-6 sm:mb-8 md:mb-10 lg:mb-12 -mx-3 sm:mx-0">
             <img src="{{img_url feature_image size='xl'}}" alt="{{title}}"
-                class="w-full h-full object-cover rounded-none sm:rounded-lg">
+                class="w-full h-auto object-cover rounded-none sm:rounded-lg">
             {{#if feature_image_caption}}
-            <figcaption class="text-center text-xs md:text-sm text-neutral-500 mt-2 px-3 sm:px-0">{{feature_image_caption}}
+            <figcaption class="text-center text-[11px] sm:text-xs md:text-sm text-neutral-500 mt-2 px-3 sm:px-0">{{feature_image_caption}}
             </figcaption>
             {{/if}}
         </figure>
         {{/if}}
 
         <div
-            class="prose prose-sm sm:prose-base lg:prose-lg max-w-none mb-8 md:mb-10 lg:mb-12 prose-headings:font-bold prose-a:text-primary-500 prose-img:rounded-lg">
+            class="prose prose-sm sm:prose-base lg:prose-lg max-w-none mb-6 sm:mb-8 md:mb-10 lg:mb-12 prose-headings:font-bold prose-a:text-primary-500 prose-img:rounded-lg prose-img:max-w-full prose-img:h-auto">
             {{content}}
         </div>
 
         {{!-- Related Posts - Mobile First --}}
-        <aside class="mt-12 md:mt-14 lg:mt-16 pt-12 md:pt-14 lg:pt-16 border-t border-neutral-200">
-            <h3 class="text-xl md:text-2xl font-bold mb-6 md:mb-8">Leia Também</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <aside class="mt-8 sm:mt-12 md:mt-14 lg:mt-16 pt-8 sm:pt-12 md:pt-14 lg:pt-16 border-t border-neutral-200">
+            <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 md:mb-8">Leia Também</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
                 {{#get "posts" limit="2" filter="tags:[{{tags[*].slug}}]+id:-{{id}}" as |related|}}
                 {{#foreach related}}
                 {{> post-card}}

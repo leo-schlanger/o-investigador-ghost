@@ -1,22 +1,22 @@
-{{!< default}} <section class="py-10 md:py-16 bg-neutral-50">
-    <div class="container-custom">
+{{!< default}} <section class="py-6 sm:py-10 md:py-16 bg-neutral-50">
+    <div class="container-custom overflow-hidden">
         {{#author}}
-        <header class="mb-8 md:mb-12 flex flex-col items-center text-center">
+        <header class="mb-6 sm:mb-8 md:mb-12 flex flex-col items-center text-center">
             {{#if profile_image}}
             <img src="{{profile_image}}" alt="{{name}}"
-                class="w-24 h-24 md:w-32 md:h-32 rounded-full mb-4 object-cover border-4 border-white shadow">
+                class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full mb-3 sm:mb-4 object-cover border-4 border-white shadow">
             {{/if}}
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">{{name}}</h1>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{{name}}</h1>
             {{#if bio}}
-            <p class="text-neutral-600 text-base md:text-lg max-w-2xl mb-4">{{bio}}</p>
+            <p class="text-neutral-600 text-sm sm:text-base md:text-lg max-w-2xl mb-3 sm:mb-4">{{bio}}</p>
             {{/if}}
-            <div class="text-neutral-500 text-xs md:text-sm">
+            <div class="text-neutral-500 text-[11px] sm:text-xs md:text-sm">
                 {{plural ../pagination.total empty='Nenhum artigo' singular='% artigo' plural='% artigos'}} publicados
             </div>
         </header>
         {{/author}}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {{#foreach posts}}
             {{> post-card}}
             {{/foreach}}

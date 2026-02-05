@@ -1,28 +1,30 @@
-<div class="group cursor-pointer">
+<div class="group cursor-pointer min-w-0">
     {{#if feature_image}}
-    <a href="{{url}}" class="block mb-4 overflow-hidden rounded-lg aspect-video bg-neutral-100">
-        <img src="{{img_url feature_image size='sm'}}" alt="{{title}}"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+    <a href="{{url}}" class="block mb-3 sm:mb-4 overflow-hidden rounded-md sm:rounded-lg bg-neutral-100">
+        <div class="aspect-video relative">
+            <img src="{{img_url feature_image size='sm'}}" alt="{{title}}"
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+        </div>
     </a>
     {{/if}}
 
-    <div class="flex gap-2 mb-2">
+    <div class="flex gap-2 mb-1.5 sm:mb-2">
         {{#primary_tag}}
-        <span class="text-xs font-semibold px-2 py-1 bg-primary-50 text-brand rounded">
+        <span class="text-[11px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-50 text-brand rounded">
             {{name}}
         </span>
         {{/primary_tag}}
     </div>
 
-    <h3 class="text-lg font-bold text-neutral-900 group-hover:text-brand transition mb-2 line-clamp-2">
+    <h3 class="text-base sm:text-lg font-bold text-neutral-900 group-hover:text-brand transition mb-1.5 sm:mb-2 line-clamp-2">
         <a href="{{url}}">{{title}}</a>
     </h3>
 
-    <p class="text-sm text-neutral-600 mb-4 line-clamp-2">
+    <p class="text-xs sm:text-sm text-neutral-600 mb-3 sm:mb-4 line-clamp-2">
         {{excerpt}}
     </p>
 
-    <div class="flex items-center justify-between text-xs text-neutral-500">
+    <div class="flex items-center justify-between text-[11px] sm:text-xs text-neutral-500">
         <span>{{date published_at format="DD MMM"}}</span>
         <span>{{reading_time}} min</span>
     </div>

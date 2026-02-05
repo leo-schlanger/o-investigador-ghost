@@ -1,17 +1,17 @@
-{{!< default}} {{#post}} <article class="py-10 md:py-16 bg-white">
-    <div class="container-custom max-w-4xl">
-        <header class="mb-8 md:mb-12">
-            <h1 class="text-3xl md:text-5xl font-bold mb-4 text-neutral-900 leading-tight">{{title}}</h1>
+{{!< default}} {{#post}} <article class="py-6 sm:py-10 md:py-16 bg-white">
+    <div class="container-custom max-w-4xl overflow-hidden">
+        <header class="mb-6 sm:mb-8 md:mb-12">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-neutral-900 leading-tight">{{title}}</h1>
         </header>
 
         {{#if feature_image}}
-        <figure class="mb-8 md:mb-12 -mx-3 sm:mx-0">
+        <figure class="mb-6 sm:mb-8 md:mb-12 -mx-3 sm:mx-0">
             <img src="{{img_url feature_image size='xl'}}" alt="{{title}}"
-                class="w-full h-full object-cover rounded-none sm:rounded-lg">
+                class="w-full h-auto object-cover rounded-none sm:rounded-lg">
         </figure>
         {{/if}}
 
-        <div class="prose prose-sm sm:prose-base lg:prose-lg max-w-none">
+        <div class="prose prose-sm sm:prose-base lg:prose-lg max-w-none prose-img:max-w-full prose-img:h-auto">
             {{content}}
         </div>
     </div>
