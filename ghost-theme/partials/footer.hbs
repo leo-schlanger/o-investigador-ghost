@@ -1,31 +1,52 @@
-<footer class="bg-gray-900 text-white py-10 md:py-12">
-    <div class="container-custom">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
-            <div class="text-center md:text-left">
-                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">{{@site.title}}</h3>
-                <p class="text-gray-400 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">{{@site.description}}</p>
+<footer class="bg-brand-dark text-white">
+
+    {{!-- Main Footer Content --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
+
+            {{!-- Brand Column --}}
+            <div class="md:col-span-5">
+                <a href="{{@site.url}}" class="inline-flex flex-col leading-none mb-4">
+                    <span class="font-display font-extrabold text-white text-2xl md:text-3xl tracking-tight">
+                        investigador
+                    </span>
+                    <span class="font-display text-primary-300 text-[9px] md:text-[11px] font-normal tracking-[0.25em] self-end -mt-0.5">
+                        jornal online
+                    </span>
+                </a>
+                <p class="text-primary-200 text-sm leading-relaxed max-w-sm mt-3">
+                    {{@site.description}}
+                </p>
             </div>
-            <div class="text-center md:text-left">
-                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">Links</h3>
-                <ul class="space-y-3 text-sm text-gray-400">
+
+            {{!-- Links Column --}}
+            <div class="md:col-span-3">
+                <h3 class="text-sm font-bold mb-4 uppercase tracking-widest text-primary-300">Links</h3>
+                <ul class="space-y-3 text-sm text-white/80">
                     {{navigation type="secondary"}}
                 </ul>
             </div>
-            <div class="text-center md:text-left">
-                <h3 class="text-lg font-bold mb-4 uppercase tracking-tight">Social</h3>
-                <div class="flex justify-center md:justify-start gap-6">
+
+            {{!-- Social Column --}}
+            <div class="md:col-span-4">
+                <h3 class="text-sm font-bold mb-4 uppercase tracking-widest text-primary-300">Social</h3>
+                <div class="flex gap-4">
                     {{#if @site.facebook}}
                     <a href="{{facebook_url @site.facebook}}" target="_blank" rel="noopener"
-                        class="hover:text-brand-accent transition text-sm">Facebook</a>
+                        class="text-white/80 hover:text-white transition text-sm font-medium">Facebook</a>
                     {{/if}}
                     {{#if @site.twitter}}
                     <a href="{{twitter_url @site.twitter}}" target="_blank" rel="noopener"
-                        class="hover:text-brand-accent transition text-sm">Twitter</a>
+                        class="text-white/80 hover:text-white transition text-sm font-medium">Twitter</a>
                     {{/if}}
                 </div>
             </div>
         </div>
-        <div class="mt-10 md:mt-12 pt-8 border-t border-gray-800 text-center text-xs md:text-sm text-gray-500">
+    </div>
+
+    {{!-- Bottom Bar --}}
+    <div class="border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 text-center text-xs md:text-sm text-primary-300">
             &copy; {{date format="YYYY"}} {{@site.title}}. Todos os direitos reservados.
         </div>
     </div>

@@ -27,7 +27,7 @@ const ArticlesList = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Articles</h1>
-                <Link to="/articles/new" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <Link to="/articles/new" className="bg-brand text-white px-4 py-2 rounded hover:bg-brand-light">
                     New Article
                 </Link>
             </div>
@@ -63,7 +63,7 @@ const ArticlesList = () => {
                                         {new Date(article.updatedAt || Date.now()).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <Link to={`/articles/${article.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</Link>
+                                        <Link to={`/articles/${article.id}`} className="text-primary-500 hover:text-brand mr-4">Edit</Link>
                                     </td>
                                 </tr>
                             ))

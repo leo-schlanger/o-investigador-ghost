@@ -1,36 +1,33 @@
-<header class="sticky top-0 z-50 bg-white border-b-2 border-brand shadow-md">
-    <nav class="max-w-7xl mx-auto px-3 sm:px-4 h-14 md:h-16 flex items-center justify-between">
+<header class="sticky top-0 z-50 bg-brand">
 
-        {{!-- Left: Branding - Smaller on mobile --}}
-        <div class="flex items-center gap-3 md:gap-6">
-            <a href="{{@site.url}}" class="flex items-center gap-2 md:gap-3 group">
-                {{#if @site.logo}}
-                <img src="{{@site.logo}}" alt="{{@site.title}}"
-                    class="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover ring-2 ring-transparent group-hover:ring-brand-accent transition">
-                {{else}}
-                <img src="{{asset 'images/logo.jpg'}}" alt="{{@site.title}}"
-                    class="h-8 w-8 md:h-10 md:w-10 rounded-full object-cover">
-                {{/if}}
-                <div class="flex flex-col">
-                    <span
-                        class="font-display font-bold text-sm md:text-xl text-brand leading-none uppercase tracking-tight">O
-                        Investigador</span>
-                    <span
-                        class="text-[8px] md:text-[10px] text-gray-500 font-medium tracking-widest uppercase hidden sm:block">Jornalismo
-                        Independente</span>
-                </div>
+    {{!-- Main Nav --}}
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16 md:h-20">
+
+        {{!-- Left: Logo as text (replicates the wordmark from logo.jpg) --}}
+        <div class="flex items-center gap-4 lg:gap-8">
+            <a href="{{@site.url}}" class="flex flex-col leading-none group">
+                <span
+                    class="font-display font-extrabold text-white text-2xl md:text-3xl lg:text-[2.2rem] tracking-tight">
+                    investigador
+                </span>
+                <span
+                    class="font-display text-primary-200 text-[9px] md:text-[11px] font-normal tracking-[0.25em] self-end mt-0.5">
+                    jornal online
+                </span>
             </a>
 
-            {{!-- Desktop Menu - Hidden on mobile --}}
-            <div class="hidden lg:flex items-center gap-6 pl-6 border-l border-gray-200 h-8">
+            {{!-- Desktop Nav Links --}}
+            <div class="hidden lg:flex items-center gap-5 pl-8 border-l border-white/25">
                 {{navigation}}
             </div>
         </div>
 
         {{!-- Right: Actions --}}
-        <div class="flex items-center gap-2 md:gap-4">
+        <div class="flex items-center gap-3 md:gap-4">
+
+            {{!-- Search --}}
             <button
-                class="p-2 text-gray-500 hover:text-brand transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                class="p-2 text-white hover:text-primary-200 transition min-h-[44px] min-w-[44px] flex items-center justify-center"
                 data-ghost-search title="Pesquisar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -38,15 +35,19 @@
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
             </button>
+
+            {{!-- Login --}}
             <a href="#/portal/signin"
-                class="text-xs md:text-sm font-semibold text-gray-600 hover:text-brand hidden md:block">Entrar</a>
-            <a href="#/portal/signup" class="btn-primary text-xs px-3 md:px-4 py-2">
+                class="text-sm font-semibold text-white hover:text-primary-200 hidden md:block transition">Entrar</a>
+
+            {{!-- Subscribe CTA --}}
+            <a href="#/portal/signup" class="btn-primary text-xs px-4 py-2">
                 Assinar
             </a>
 
-            {{!-- Mobile Menu Button - Only on mobile/tablet --}}
+            {{!-- Mobile Menu Button --}}
             <button
-                class="lg:hidden p-2 text-gray-600 hover:text-brand transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                class="lg:hidden p-2 text-white hover:text-primary-200 transition min-h-[44px] min-w-[44px] flex items-center justify-center"
                 id="mobile-menu-btn" aria-label="Menu">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -57,51 +58,61 @@
             </button>
         </div>
     </nav>
+
+    {{!-- Category Sub-bar --}}
+    <div
+        class="bg-brand-dark text-white/90 text-xs md:text-sm py-2.5 overflow-x-auto hidden md:block border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-5 md:gap-8 justify-center font-medium tracking-wide">
+            <a href="/tag/politica" class="hover:text-white transition whitespace-nowrap">Política</a>
+            <a href="/tag/economia" class="hover:text-white transition whitespace-nowrap">Economia</a>
+            <a href="/tag/justica" class="hover:text-white transition whitespace-nowrap">Justiça</a>
+            <a href="/tag/internacional" class="hover:text-white transition whitespace-nowrap">Internacional</a>
+            <a href="/tag/tecnologia" class="hover:text-white transition whitespace-nowrap">Tecnologia</a>
+            <a href="/tag/cultura" class="hover:text-white transition whitespace-nowrap">Cultura</a>
+        </div>
+    </div>
 </header>
 
-{{!-- Desktop Category Sub-bar (Categories) - Hidden on mobile --}}
-<div class="bg-brand text-white text-xs md:text-sm py-2 overflow-x-auto hidden md:block">
-    <div class="container-custom flex gap-4 md:gap-6 justify-center font-medium">
-        <a href="/tag/politica" class="hover:text-brand-accent transition whitespace-nowrap">Política</a>
-        <a href="/tag/economia" class="hover:text-brand-accent transition whitespace-nowrap">Economia</a>
-        <a href="/tag/justica" class="hover:text-brand-accent transition whitespace-nowrap">Justiça</a>
-        <a href="/tag/internacional" class="hover:text-brand-accent transition whitespace-nowrap">Internacional</a>
-        <a href="/tag/tecnologia" class="hover:text-brand-accent transition whitespace-nowrap">Tecnologia</a>
-        <a href="/tag/cultura" class="hover:text-brand-accent transition whitespace-nowrap">Cultura</a>
-    </div>
-</div>
-
-{{!-- Mobile Menu Overlay - Only visible when opened --}}
+{{!-- Mobile Menu Overlay --}}
 <div id="mobile-menu" class="hidden fixed inset-0 z-40 lg:hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-50" id="mobile-menu-overlay"></div>
-    <div class="fixed right-0 top-0 bottom-0 w-64 bg-white shadow-xl p-6 overflow-y-auto">
-        <button class="absolute top-4 right-4 p-2 text-gray-600 hover:text-brand" id="mobile-menu-close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        </button>
+    <div class="fixed inset-0 bg-black/50" id="mobile-menu-overlay"></div>
+    <div class="fixed right-0 top-0 bottom-0 w-72 bg-white shadow-2xl p-6 overflow-y-auto">
+        <div class="flex items-center justify-between mb-8">
+            <span class="font-display font-extrabold text-brand text-xl tracking-tight">investigador</span>
+            <button class="p-2 text-neutral-500 hover:text-brand transition" id="mobile-menu-close">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
 
-        <nav class="mt-8 flex flex-col gap-4">
+        <nav class="flex flex-col gap-1">
             <a href="/tag/politica"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Política</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Política</a>
             <a href="/tag/economia"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Economia</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Economia</a>
             <a href="/tag/justica"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Justiça</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Justiça</a>
             <a href="/tag/internacional"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Internacional</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Internacional</a>
             <a href="/tag/tecnologia"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Tecnologia</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Tecnologia</a>
             <a href="/tag/cultura"
-                class="text-lg font-semibold text-gray-800 hover:text-brand-accent transition py-2 border-b border-gray-100">Cultura</a>
+                class="text-base font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 transition px-3 py-3 rounded-lg">Cultura</a>
         </nav>
+
+        <div class="mt-8 pt-6 border-t border-neutral-200 space-y-3">
+            <a href="#/portal/signin"
+                class="block text-center w-full py-3 text-sm font-semibold text-brand border border-brand rounded-lg hover:bg-brand hover:text-white transition">Entrar</a>
+            <a href="#/portal/signup"
+                class="block text-center w-full py-3 text-sm font-bold text-white bg-brand-accent rounded-lg hover:bg-accent-600 transition">Assinar</a>
+        </div>
     </div>
 </div>
 
 <script>
-    // Mobile menu toggle
     const menuBtn = document.getElementById('mobile-menu-btn');
     const menuClose = document.getElementById('mobile-menu-close');
     const menuOverlay = document.getElementById('mobile-menu-overlay');

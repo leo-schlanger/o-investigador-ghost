@@ -8,7 +8,7 @@
     {{#get "posts" limit="5" filter="featured:true" include="authors,tags" as |featured|}}
     {{#if featured}}
     <section
-        class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8 mb-6 md:mb-8 lg:mb-12 border-b border-gray-200 pb-6 md:pb-8 lg:pb-12">
+        class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8 mb-6 md:mb-8 lg:mb-12 border-b border-neutral-200 pb-6 md:pb-8 lg:pb-12">
 
         {{!-- Main Headline (Big Photo) - Mobile First --}}
         {{#foreach featured to="1"}}
@@ -28,13 +28,13 @@
                 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black mb-2 md:mb-3 leading-tight group-hover:text-brand-accent transition-colors">
                 <a href="{{url}}">{{title}}</a>
             </h1>
-            <p class="text-sm md:text-base lg:text-lg text-gray-600 leading-relaxed max-w-3xl">{{excerpt}}</p>
+            <p class="text-sm md:text-base lg:text-lg text-neutral-600 leading-relaxed max-w-3xl">{{excerpt}}</p>
         </div>
         {{/foreach}}
 
         {{!-- Secondary List (Vertical) - Mobile: horizontal scroll, Desktop: vertical --}}
         <div
-            class="lg:col-span-4 flex flex-col gap-4 md:gap-6 lg:border-l border-gray-100 lg:pl-6 xl:pl-8 mt-6 lg:mt-0">
+            class="lg:col-span-4 flex flex-col gap-4 md:gap-6 lg:border-l border-neutral-100 lg:pl-6 xl:pl-8 mt-6 lg:mt-0">
             {{#foreach featured from="2"}}
             <article class="group relative">
                 <div class="mb-2">
@@ -44,12 +44,12 @@
                     class="text-base md:text-lg lg:text-xl font-bold leading-snug group-hover:text-brand-accent transition-colors">
                     <a href="{{url}}">{{title}}</a>
                 </h3>
-                <div class="text-xs text-gray-400 mt-2 flex items-center gap-2">
+                <div class="text-xs text-neutral-400 mt-2 flex items-center gap-2">
                     <time>{{date format="HH:mm"}}</time> | {{authors}}
                 </div>
             </article>
             {{#unless @last}}
-            <hr class="border-gray-100">{{/unless}}
+            <hr class="border-neutral-100">{{/unless}}
             {{/foreach}}
         </div>
 
@@ -70,7 +70,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                     {{#foreach posts limit="6"}}
                     <article class="flex gap-3 md:gap-4 group">
-                        <a href="{{url}}" class="block w-1/3 aspect-[4/3] flex-shrink-0 overflow-hidden bg-gray-100">
+                        <a href="{{url}}" class="block w-1/3 aspect-[4/3] flex-shrink-0 overflow-hidden bg-neutral-100">
                             {{#if feature_image}}
                             <img src="{{img_url feature_image size='xs'}}"
                                 class="w-full h-full object-cover transition duration-300 group-hover:scale-105"
@@ -83,7 +83,7 @@
                                 class="text-sm md:text-base lg:text-lg font-bold leading-tight mb-2 group-hover:text-brand-accent transition-colors">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <time class="text-xs text-gray-400 mt-auto">{{date format="D MMM"}}</time>
+                            <time class="text-xs text-neutral-400 mt-auto">{{date format="D MMM"}}</time>
                         </div>
                     </article>
                     {{/foreach}}
@@ -109,7 +109,7 @@
                             <h3 class="text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <p class="text-sm text-gray-500 line-clamp-2 mt-1">{{excerpt}}</p>
+                            <p class="text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
                         </article>
                         {{/foreach}}
                     </div>
@@ -129,7 +129,7 @@
                             <h3 class="text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <p class="text-sm text-gray-500 line-clamp-2 mt-1">{{excerpt}}</p>
+                            <p class="text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
                         </article>
                         {{/foreach}}
                     </div>
@@ -147,17 +147,17 @@
             {{> ad-slot type="mpu" label="Publicidade"}}
 
             {{!-- Most Read (Mock) - Mobile First --}}
-            <div class="bg-gray-50 p-4 md:p-6 border-t-4 border-brand-accent">
+            <div class="bg-neutral-50 p-4 md:p-6 border-t-4 border-brand-accent">
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 md:mb-6">Mais Lidas</h3>
                 <ol
-                    class="list-decimal list-inside space-y-3 md:space-y-4 font-bold text-sm md:text-base lg:text-lg text-gray-900">
-                    <li class="pl-2 border-b border-gray-200 pb-2 cursor-pointer hover:text-brand-accent">Obras no metro
+                    class="list-decimal list-inside space-y-3 md:space-y-4 font-bold text-sm md:text-base lg:text-lg text-neutral-900">
+                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Obras no metro
                         de Lisboa derrapam</li>
-                    <li class="pl-2 border-b border-gray-200 pb-2 cursor-pointer hover:text-brand-accent">Novo
+                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Novo
                         aeroporto: Decisão final adiada</li>
-                    <li class="pl-2 border-b border-gray-200 pb-2 cursor-pointer hover:text-brand-accent">Inflação desce
+                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Inflação desce
                         para 2.3% em Portugal</li>
-                    <li class="pl-2 border-b border-gray-200 pb-2 cursor-pointer hover:text-brand-accent">Benfica
+                    <li class="pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Benfica
                         contrata novo avançado</li>
                     <li class="pl-2 cursor-pointer hover:text-brand-accent">Rendas das casas aumentam 12%</li>
                 </ol>

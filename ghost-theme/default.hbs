@@ -6,8 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{meta_title}}</title>
 
+    {{!-- Favicon --}}
+    <link rel="icon" type="image/jpeg" href="{{asset 'images/logo.jpg'}}">
+    <link rel="apple-touch-icon" href="{{asset 'images/logo.jpg'}}">
+
     {{!-- Fonts --}}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     {{!-- Main CSS --}}
     <link rel="stylesheet" href="{{asset 'css/screen.css'}}">
@@ -15,7 +19,7 @@
     {{ghost_head}}
 </head>
 
-<body class="{{body_class}} bg-white text-gray-900">
+<body class="{{body_class}} bg-white text-neutral-900">
     {{> header}}
 
     <main id="main-content">

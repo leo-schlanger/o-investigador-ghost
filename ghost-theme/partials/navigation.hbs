@@ -1,0 +1,7 @@
+<ul class="flex items-center gap-5">
+    {{#foreach navigation}}
+        <li class="nav-{{slug}}{{#if current}} nav-current{{/if}}">
+            <a href="{{url absolute="true"}}" class="text-sm font-semibold text-white/90 hover:text-white transition tracking-wide">{{label}}</a>
+        </li>
+    {{/foreach}}
+</ul>

@@ -40,10 +40,10 @@ const MediaLibrary = () => {
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-full file:border-0
                             file:text-sm file:font-semibold
-                            file:bg-blue-50 file:text-blue-700
-                            hover:file:bg-blue-100"
+                            file:bg-primary-50 file:text-primary-700
+                            hover:file:bg-primary-100"
                     />
-                    {uploading && <span className="text-blue-600">Uploading...</span>}
+                    {uploading && <span className="text-primary-500">Uploading...</span>}
                 </div>
                 {error && <p className="text-red-600 mt-2 text-sm">{error}</p>}
 
@@ -53,7 +53,7 @@ const MediaLibrary = () => {
                         <div className="flex items-start space-x-4">
                             <img src={uploadedFile.url} alt="Uploaded" className="h-32 object-contain bg-white border" />
                             <div>
-                                <p className="text-sm"><strong>URL:</strong> <a href={uploadedFile.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">{uploadedFile.url}</a></p>
+                                <p className="text-sm"><strong>URL:</strong> <a href={uploadedFile.url} target="_blank" rel="noopener noreferrer" className="text-primary-500 underline break-all">{uploadedFile.url}</a></p>
                                 <p className="text-sm mt-1"><strong>Filename:</strong> {uploadedFile.filename}</p>
                             </div>
                         </div>

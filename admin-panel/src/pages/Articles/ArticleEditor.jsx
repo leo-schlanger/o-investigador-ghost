@@ -79,7 +79,7 @@ const ArticleEditor = () => {
                         value={formData.title}
                         onChange={handleChange}
                         required
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-primary-500 focus:border-primary-500"
                     />
                 </div>
 
@@ -90,7 +90,7 @@ const ArticleEditor = () => {
                         rows={15}
                         value={formData.content}
                         onChange={handleChange}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
                     />
                 </div>
 
@@ -101,7 +101,7 @@ const ArticleEditor = () => {
                             name="status"
                             value={formData.status}
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-primary-500 focus:border-primary-500"
                         >
                             <option value="draft">Draft</option>
                             <option value="published">Published</option>
@@ -116,7 +116,7 @@ const ArticleEditor = () => {
                             name="feature_image"
                             value={formData.feature_image}
                             onChange={handleChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:ring-primary-500 focus:border-primary-500"
                             placeholder="https://..."
                         />
                     </div>
@@ -133,7 +133,7 @@ const ArticleEditor = () => {
                     <button
                         type="submit"
                         disabled={saving}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                        className="px-4 py-2 bg-brand text-white rounded hover:bg-brand-light disabled:opacity-50"
                     >
                         {saving ? 'Saving...' : 'Save Article'}
                     </button>

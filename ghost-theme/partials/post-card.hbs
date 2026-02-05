@@ -1,6 +1,6 @@
 <div class="group cursor-pointer">
     {{#if feature_image}}
-    <a href="{{url}}" class="block mb-4 overflow-hidden rounded-lg aspect-video bg-gray-100">
+    <a href="{{url}}" class="block mb-4 overflow-hidden rounded-lg aspect-video bg-neutral-100">
         <img src="{{img_url feature_image size='sm'}}" alt="{{title}}"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
     </a>
@@ -8,21 +8,21 @@
 
     <div class="flex gap-2 mb-2">
         {{#primary_tag}}
-        <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded">
+        <span class="text-xs font-semibold px-2 py-1 bg-primary-50 text-brand rounded">
             {{name}}
         </span>
         {{/primary_tag}}
     </div>
 
-    <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition mb-2 line-clamp-2">
+    <h3 class="text-lg font-bold text-neutral-900 group-hover:text-brand transition mb-2 line-clamp-2">
         <a href="{{url}}">{{title}}</a>
     </h3>
 
-    <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+    <p class="text-sm text-neutral-600 mb-4 line-clamp-2">
         {{excerpt}}
     </p>
 
-    <div class="flex items-center justify-between text-xs text-gray-500">
+    <div class="flex items-center justify-between text-xs text-neutral-500">
         <span>{{date published_at format="DD MMM"}}</span>
         <span>{{reading_time}} min</span>
     </div>

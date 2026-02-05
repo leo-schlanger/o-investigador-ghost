@@ -52,7 +52,7 @@ const AuthorsList = () => {
                 <h1 className="text-2xl font-bold">Authors & Users</h1>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-brand text-white px-4 py-2 rounded hover:bg-brand-light"
                 >
                     Add Author
                 </button>
@@ -74,7 +74,7 @@ const AuthorsList = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary-100 text-primary-800">
                                         {user.role}
                                     </span>
                                 </td>
@@ -109,7 +109,7 @@ const AuthorsList = () => {
                             </div>
                             <div className="flex justify-end gap-2 mt-6">
                                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 border rounded">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">create</button>
+                                <button type="submit" className="px-4 py-2 bg-brand text-white rounded">create</button>
                             </div>
                         </form>
                     </div>

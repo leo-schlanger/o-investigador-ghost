@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(copy \"D:\\\\Projetos\\\\o-investigador-ghost\\\\Teste4.jpg\" \"D:\\\\Projetos\\\\o-investigador-ghost\\\\ghost-theme\\\\assets\\\\images\\\\logo.jpg\" /Y)"
+    ]
+  }
+}
