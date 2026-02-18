@@ -43,7 +43,15 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 
-# Optional: Ignore specific backups
+# Backups
+backups/
 *.sql
+*.sql.gz
 *.bak
 *.backup
+
+# SSH Keys (never commit!)
+*.pem
+*.key
+id_rsa*
+github_deploy*

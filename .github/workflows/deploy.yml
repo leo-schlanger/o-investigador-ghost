@@ -1,0 +1,81 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Permite deploy manual pelo GitHub
+
+env:
+  DEPLOY_PATH: /opt/o-investigador
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+
+            echo "========================================="
+            echo "Starting deployment at $(date)"
+            echo "========================================="
+
+            # Pull latest changes
+            echo "Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Run the deploy script
+            echo "Running deploy script..."
+            chmod +x ./infrastructure/scripts/deploy-safe.sh
+            ./infrastructure/scripts/deploy-safe.sh
+
+            echo "========================================="
+            echo "Deployment completed at $(date)"
+            echo "========================================="
+
+      - name: Health Check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "Running health checks..."
+            sleep 10
+
+            # Check if services are running
+            docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(api|admin|ghost|nginx)"
+
+            # Check API health
+            curl -sf http://localhost:3001/health && echo "API: OK" || echo "API: FAILED"
+
+            # Check Ghost health
+            curl -sf http://localhost:2368/ghost/api/admin/site/ && echo "Ghost: OK" || echo "Ghost: FAILED"
+
+      - name: Notify on failure
+        if: failure()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "Deployment failed! Checking logs..."
+            cd ${{ env.DEPLOY_PATH }}
+            docker compose -f docker-compose.prod.yml logs --tail=50 api admin ghost

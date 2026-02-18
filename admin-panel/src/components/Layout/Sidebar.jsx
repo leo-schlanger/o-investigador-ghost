@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Image, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, Image, Users, Settings, Megaphone } from 'lucide-react';
 import clsx from 'clsx';
 
 const Sidebar = () => {
@@ -9,6 +9,7 @@ const Sidebar = () => {
         { icon: FileText, label: 'Articles', path: '/articles' },
         { icon: Image, label: 'Media', path: '/media' },
         { icon: Users, label: 'Authors', path: '/authors' },
+        { icon: Megaphone, label: 'Anúncios', path: '/advertisements' },
         { icon: Settings, label: 'Settings', path: '/settings' },
     ];
 
