@@ -46,7 +46,7 @@ services:
       - ghost_content:/var/lib/ghost/content
       - ./ghost-theme:/var/lib/ghost/content/themes/o-investigador
     healthcheck:
-      test: [ "CMD-SHELL", "wget --quiet --tries=1 -O /dev/null http://localhost:2368/ || exit 1" ]
+      test: [ "CMD-SHELL", "node -e \"require('http').get('http://localhost:2368/', (r) => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))\"" ]
       interval: 10s
       timeout: 10s
       retries: 10
