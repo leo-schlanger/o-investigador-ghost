@@ -23,8 +23,8 @@ const Sidebar = () => {
     const filteredNavItems = navItems.filter(item => item.roles.includes(currentRole));
 
     return (
-        <aside className="w-64 bg-brand-dark text-white min-h-screen flex flex-col">
-            <div className="p-6 border-b border-white/10">
+        <aside className="w-64 bg-brand-dark text-white h-full flex flex-col">
+            <div className="p-6 border-b border-white/10 shrink-0">
                 <div className="flex flex-col leading-none">
                     <span className="font-extrabold text-white text-xl tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
                         investigador
@@ -35,7 +35,7 @@ const Sidebar = () => {
                 </div>
                 <span className="text-[10px] text-primary-400 mt-2 block">Admin Panel</span>
             </div>
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
                 {filteredNavItems.map((item) => (
                     <NavLink
                         key={item.path}
@@ -52,9 +52,9 @@ const Sidebar = () => {
                     </NavLink>
                 ))}
             </nav>
-            <div className="p-4 border-t border-primary-900">
+            <div className="p-4 border-t border-primary-900 shrink-0">
                 <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-10 h-10 bg-primary-700 flex items-center justify-center rounded-full text-brand font-bold text-lg">
+                    <div className="w-10 h-10 shrink-0 bg-primary-700 flex items-center justify-center rounded-full text-brand font-bold text-lg">
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div>

@@ -17,6 +17,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Serve uploaded files statically
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Main Routes
 app.use('/api', routes);
 
@@ -26,7 +30,7 @@ app.get('/health', (req, res) => {
 });
 
 // Sync Database & Start Server
-sequelize.sync({ alter: false }).then(async () => {
+sequelize.sync({ alter: true }).then(async () => {
     console.log('📦 Database synced');
 
     // Create default admin if no users exist

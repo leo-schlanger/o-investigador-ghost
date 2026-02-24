@@ -20,5 +20,6 @@ db.sequelize = sequelize;
 db.Article = require('./Article')(sequelize, Sequelize);
 db.User = require('./User')(sequelize, Sequelize);
 db.Settings = require('./Settings')(sequelize, Sequelize);
+db.Media = require('./Media')(sequelize, Sequelize);
 
 module.exports = db;
