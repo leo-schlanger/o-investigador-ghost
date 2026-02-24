@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(copy \"D:\\\\Projetos\\\\o-investigador-ghost\\\\Teste4.jpg\" \"D:\\\\Projetos\\\\o-investigador-ghost\\\\ghost-theme\\\\assets\\\\images\\\\logo.jpg\" /Y)"
+      "Bash(copy \"D:\\\\Projetos\\\\o-investigador-ghost\\\\Teste4.jpg\" \"D:\\\\Projetos\\\\o-investigador-ghost\\\\ghost-theme\\\\assets\\\\images\\\\logo.jpg\" /Y)",
+      "Bash(dir:*)",
+      "Bash(tree:*)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@185.137.92.216 \"echo ''Conexão OK'' && uname -a\")",
+      "Bash(ssh root@srv.jornalinvestigador.pt 'cd /opt/o-investigador && cat > docker-compose.override.yml << \"\"EOF\"\"\nservices:\n  nginx:\n    volumes:\n      - ./infrastructure/nginx/nginx-prod.conf:/etc/nginx/nginx.conf:ro\n      - /var/www/certbot:/var/www/certbot:ro\nEOF\ncat docker-compose.override.yml')"
     ]
   }
 }
