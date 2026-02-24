@@ -7,8 +7,13 @@ const routes = require('./src/routes');
 const app = express();
 const PORT = process.env.API_PORT || 3000;
 
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : '*';
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*'
+    origin: allowedOrigins,
+    credentials: true
 }));
 app.use(express.json());
 
