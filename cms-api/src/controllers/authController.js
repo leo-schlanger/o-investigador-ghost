@@ -116,6 +116,41 @@ exports.me = async (req, res) => {
     }
 };
 
+exports.updateMe = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        const user = await User.findByPk(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                return res.status(400).json({ error: 'Email already in use' });
+            }
+        }
+
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+        }
+
+        await user.update(updateData);
+
+        res.json({
+            id: user.id, name: user.name, email: user.email, role: user.role
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 exports.listUsers = async (req, res) => {
     try {
         const users = await User.findAll({

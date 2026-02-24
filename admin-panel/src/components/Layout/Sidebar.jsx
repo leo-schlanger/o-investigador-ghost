@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Image, Users, Settings, Megaphone } from 'lucide-react';
+import { LayoutDashboard, FileText, Image, Users, Settings, Megaphone, User } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '../../context/AuthContext';
 
@@ -12,6 +12,7 @@ const Sidebar = () => {
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/', roles: ['admin', 'editor', 'author'] },
+        { icon: User, label: 'Meu Perfil', path: '/profile', roles: ['admin', 'editor', 'author'] },
         { icon: FileText, label: 'Articles', path: '/articles', roles: ['admin', 'editor', 'author'] },
         { icon: Image, label: 'Media', path: '/media', roles: ['admin', 'editor', 'author'] },
         { icon: Users, label: 'Usuários', path: '/users', roles: ['admin'] },

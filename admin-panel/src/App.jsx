@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 import UsersPage from './pages/Users/Users';
+import Profile from './pages/Profile/Profile';
 
 // Pages
 import ArticlesList from './pages/Articles/ArticlesList';
@@ -34,6 +35,7 @@ function App() {
                             <Route index element={<Dashboard />} />
 
                             {/* Available to all authenticated */}
+                            <Route path="profile" element={<Profile />} />
                             <Route path="articles" element={<ArticlesList />} />
                             <Route path="articles/new" element={<ArticleEditor />} />
                             <Route path="articles/:id" element={<ArticleEditor />} />
