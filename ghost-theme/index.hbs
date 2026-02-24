@@ -2,7 +2,7 @@
     class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
     {{!-- TOP AD: Leaderboard --}}
-    {{> ad-slot type="leaderboard" label="Publicidade"}}
+    {{> ad-slot type="leaderboard" label="Publicidade" slotId="header_leaderboard"}}
 
     {{!-- HERO SECTION: JN Style (Main Left + Vertical List Right) - Mobile First --}}
     {{#get "posts" limit="5" filter="featured:true" include="authors,tags" as |featured|}}
@@ -70,7 +70,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     {{#foreach posts limit="6"}}
                     <article class="flex gap-3 md:gap-4 group min-w-0">
-                        <a href="{{url}}" class="block w-24 sm:w-28 md:w-1/3 flex-shrink-0 overflow-hidden bg-neutral-100 rounded-sm">
+                        <a href="{{url}}"
+                            class="block w-24 sm:w-28 md:w-1/3 flex-shrink-0 overflow-hidden bg-neutral-100 rounded-sm">
                             <div class="aspect-[4/3] relative">
                                 {{#if feature_image}}
                                 <img src="{{img_url feature_image size='xs'}}"
@@ -93,7 +94,7 @@
             </section>
 
             {{!-- ADS --}}
-            {{> ad-slot type="leaderboard" label="Publicidade"}}
+            {{> ad-slot type="leaderboard" label="Publicidade" slotId="middle_leaderboard"}}
 
             {{!-- SECTIONS (Economy, Politics) - Mobile First --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-10 lg:mt-12">
@@ -102,13 +103,15 @@
                 <div class="border-t-4 border-black pt-3 md:pt-4 min-w-0">
                     <h2
                         class="text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mb-3 sm:mb-4 md:mb-6 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span> Economia
+                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span>
+                        Economia
                     </h2>
                     {{#get "posts" limit="3" filter="tag:economia"}}
                     <div class="flex flex-col gap-3 sm:gap-4 md:gap-6">
                         {{#foreach posts}}
                         <article class="group min-w-0">
-                            <h3 class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
+                            <h3
+                                class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
                             <p class="text-xs sm:text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
@@ -122,13 +125,15 @@
                 <div class="border-t-4 border-black pt-3 md:pt-4 min-w-0">
                     <h2
                         class="text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase mb-3 sm:mb-4 md:mb-6 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span> Política
+                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-brand-accent inline-block flex-shrink-0"></span>
+                        Política
                     </h2>
                     {{#get "posts" limit="3" filter="tag:politica"}}
                     <div class="flex flex-col gap-3 sm:gap-4 md:gap-6">
                         {{#foreach posts}}
                         <article class="group min-w-0">
-                            <h3 class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
+                            <h3
+                                class="text-sm sm:text-base md:text-lg font-bold leading-snug group-hover:text-brand-accent line-clamp-3">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
                             <p class="text-xs sm:text-sm text-neutral-500 line-clamp-2 mt-1">{{excerpt}}</p>
@@ -146,27 +151,31 @@
         <aside class="lg:col-span-4 space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-12 mt-6 sm:mt-8 lg:mt-0 min-w-0">
 
             {{!-- MPU Ad --}}
-            {{> ad-slot type="mpu" label="Publicidade"}}
+            {{> ad-slot type="mpu" label="Publicidade" slotId="sidebar_mpu_1"}}
 
             {{!-- Most Read (Mock) - Mobile First --}}
             <div class="bg-neutral-50 p-3 sm:p-4 md:p-6 border-t-4 border-brand-accent">
                 <h3 class="text-base sm:text-lg md:text-xl font-black uppercase mb-3 sm:mb-4 md:mb-6">Mais Lidas</h3>
                 <ol
                     class="list-decimal list-inside space-y-2.5 sm:space-y-3 md:space-y-4 font-bold text-xs sm:text-sm md:text-base lg:text-lg text-neutral-900">
-                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Obras no metro
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">
+                        Obras no metro
                         de Lisboa derrapam</li>
-                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Novo
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">
+                        Novo
                         aeroporto: Decisão final adiada</li>
-                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Inflação desce
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">
+                        Inflação desce
                         para 2.3% em Portugal</li>
-                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">Benfica
+                    <li class="pl-1.5 sm:pl-2 border-b border-neutral-200 pb-2 cursor-pointer hover:text-brand-accent">
+                        Benfica
                         contrata novo avançado</li>
                     <li class="pl-1.5 sm:pl-2 cursor-pointer hover:text-brand-accent">Rendas das casas aumentam 12%</li>
                 </ol>
             </div>
 
             {{!-- MPU Ad 2 --}}
-            {{> ad-slot type="mpu" label="Publicidade"}}
+            {{> ad-slot type="mpu" label="Publicidade" slotId="sidebar_mpu_2"}}
 
         </aside>
 

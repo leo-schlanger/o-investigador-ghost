@@ -44,6 +44,33 @@ exports.register = async (req, res) => {
     }
 };
 
+exports.createUser = async (req, res) => {
+    try {
+        const { name, email, password, role } = req.body;
+
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already registered' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: role || 'author'
+        });
+
+        res.status(201).json({
+            id: user.id, name: user.name, email: user.email, role: user.role
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -97,6 +124,44 @@ exports.listUsers = async (req, res) => {
         });
 
         res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, role, email, password } = req.body;
+
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Check if another user already has this email
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ where: { email } });
+            if (existingUser) {
+                return res.status(400).json({ error: 'Email already in use' });
+            }
+        }
+
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (role) updateData.role = role;
+
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+        }
+
+        await user.update(updateData);
+
+        res.json({
+            id: user.id, name: user.name, email: user.email, role: user.role
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

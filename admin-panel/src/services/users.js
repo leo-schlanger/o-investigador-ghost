@@ -10,6 +10,12 @@ export const deleteUser = async (id) => {
     return response.data;
 };
 
-// Register is already in auth.js, can reuse or re-export
-import { register } from './auth';
-export { register as createUser };
+export const createUser = async (userData) => {
+    const response = await api.post('/auth/users', userData);
+    return response.data;
+};
+
+export const updateUser = async (id, userData) => {
+    const response = await api.put(`/auth/users/${id}`, userData);
+    return response.data;
+};
