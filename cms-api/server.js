@@ -30,7 +30,9 @@ app.get('/health', (req, res) => {
 });
 
 // Sync Database & Start Server
-sequelize.sync({ alter: true }).then(async () => {
+// alter: true creates/updates tables on startup. Set to true only when adding new models or changing schemas.
+// After running once with alter:true, revert to alter:false for performance and safety.
+sequelize.sync({ alter: false }).then(async () => {
     console.log('📦 Database synced');
 
     // Create default admin if no users exist

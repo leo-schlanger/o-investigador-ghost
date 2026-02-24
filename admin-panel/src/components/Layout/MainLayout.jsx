@@ -8,7 +8,7 @@ const MainLayout = () => {
             <div className="sticky top-0 h-screen shrink-0">
                 <Sidebar />
             </div>
-            <main className="flex-1 overflow-auto min-h-screen">
+            <main className="flex-1 overflow-auto min-h-screen scrollbar-thin">
                 <div className="p-8">
                     <Outlet />
                 </div>

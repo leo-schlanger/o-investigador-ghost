@@ -35,7 +35,7 @@ const Sidebar = () => {
                 </div>
                 <span className="text-[10px] text-primary-400 mt-2 block">Admin Panel</span>
             </div>
-            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
                 {filteredNavItems.map((item) => (
                     <NavLink
                         key={item.path}
