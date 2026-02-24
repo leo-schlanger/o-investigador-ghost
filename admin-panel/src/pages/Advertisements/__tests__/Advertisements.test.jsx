@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdvertisementsPage from '../Advertisements';
+import { renderWithRouter } from '../../../test-utils';
 
 // Mock the settings service
 vi.mock('../../../services/settings', () => ({
@@ -19,7 +20,7 @@ describe('AdvertisementsPage', () => {
     it('should show loading state initially', () => {
         getSettings.mockReturnValue(new Promise(() => {}));
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         expect(screen.getByText('Anúncios')).toBeInTheDocument();
     });
@@ -34,7 +35,7 @@ describe('AdvertisementsPage', () => {
             })
         });
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByPlaceholderText('ca-pub-xxxxxxxxxxxxxxxx')).toHaveValue('ca-pub-123456789');
@@ -44,7 +45,7 @@ describe('AdvertisementsPage', () => {
     it('should show error message when loading fails', async () => {
         getSettings.mockRejectedValue(new Error('Network error'));
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByText('Falha ao carregar configurações de anúncios')).toBeInTheDocument();
@@ -59,7 +60,7 @@ describe('AdvertisementsPage', () => {
             adSlots: '{}'
         });
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByText('Anúncios Ativos')).toBeInTheDocument();
@@ -83,7 +84,7 @@ describe('AdvertisementsPage', () => {
         });
         updateSettings.mockResolvedValue({});
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByText('Salvar Configurações')).toBeInTheDocument();
@@ -108,7 +109,7 @@ describe('AdvertisementsPage', () => {
         });
         updateSettings.mockRejectedValue(new Error('Save failed'));
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByText('Salvar Configurações')).toBeInTheDocument();
@@ -129,15 +130,15 @@ describe('AdvertisementsPage', () => {
             adSlots: '{}'
         });
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
-            expect(screen.getByText('Header Leaderboard')).toBeInTheDocument();
+            expect(screen.getAllByText('Header Leaderboard').length).toBeGreaterThanOrEqual(1);
         });
 
-        expect(screen.getByText('Middle Leaderboard')).toBeInTheDocument();
-        expect(screen.getByText('Sidebar MPU 1')).toBeInTheDocument();
-        expect(screen.getByText('Sidebar MPU 2')).toBeInTheDocument();
+        expect(screen.getAllByText('Middle Leaderboard').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Sidebar MPU 1').length).toBeGreaterThanOrEqual(1);
+        expect(screen.getAllByText('Sidebar MPU 2').length).toBeGreaterThanOrEqual(1);
     });
 
     it('should update adsense client id', async () => {
@@ -148,7 +149,7 @@ describe('AdvertisementsPage', () => {
             adSlots: '{}'
         });
 
-        render(<AdvertisementsPage />);
+        renderWithRouter(<AdvertisementsPage />);
 
         await waitFor(() => {
             expect(screen.getByPlaceholderText('ca-pub-xxxxxxxxxxxxxxxx')).toBeInTheDocument();

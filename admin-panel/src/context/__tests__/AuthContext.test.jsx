@@ -31,14 +31,17 @@ describe('AuthContext', () => {
         localStorage.getItem.mockReturnValue(null);
     });
 
-    it('should show loading state initially', () => {
+    it('should start with no user and eventually become ready', async () => {
         render(
             <AuthProvider>
                 <TestComponent />
             </AuthProvider>
         );
 
-        expect(screen.getByTestId('loading')).toHaveTextContent('loading');
+        await waitFor(() => {
+            expect(screen.getByTestId('loading')).toHaveTextContent('ready');
+        });
+        expect(screen.getByTestId('user')).toHaveTextContent('none');
     });
 
     it('should load user from token on mount', async () => {

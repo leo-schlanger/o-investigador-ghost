@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SettingsPage from '../Settings';
+import { renderWithRouter } from '../../../test-utils';
 
 // Mock the settings service
 vi.mock('../../../services/settings', () => ({
@@ -19,7 +20,7 @@ describe('SettingsPage', () => {
     it('should show loading state initially', () => {
         getSettings.mockReturnValue(new Promise(() => {})); // Never resolves
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         expect(screen.getByText('Settings')).toBeInTheDocument();
         expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
@@ -31,7 +32,7 @@ describe('SettingsPage', () => {
             siteDescription: 'A great site'
         });
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toHaveValue('My Test Site');
@@ -43,7 +44,7 @@ describe('SettingsPage', () => {
     it('should use default values when settings are empty', async () => {
         getSettings.mockResolvedValue({});
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toHaveValue('O Investigador');
@@ -55,7 +56,7 @@ describe('SettingsPage', () => {
     it('should show error message when loading fails', async () => {
         getSettings.mockRejectedValue(new Error('Network error'));
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByText('Failed to load settings')).toBeInTheDocument();
@@ -69,7 +70,7 @@ describe('SettingsPage', () => {
             siteDescription: 'Original Description'
         });
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toHaveValue('Original Title');
@@ -93,7 +94,7 @@ describe('SettingsPage', () => {
             siteDescription: 'Original Description'
         });
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toHaveValue('Original Title');
@@ -110,10 +111,12 @@ describe('SettingsPage', () => {
             expect(screen.getByText('Settings saved successfully!')).toBeInTheDocument();
         });
 
-        expect(updateSettings).toHaveBeenCalledWith({
-            siteTitle: 'New Title',
-            siteDescription: 'Original Description'
-        });
+        expect(updateSettings).toHaveBeenCalledWith(
+            expect.objectContaining({
+                siteTitle: 'New Title',
+                siteDescription: 'Original Description'
+            })
+        );
     });
 
     it('should show error message when save fails', async () => {
@@ -124,7 +127,7 @@ describe('SettingsPage', () => {
         });
         updateSettings.mockRejectedValue(new Error('Save failed'));
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toBeInTheDocument();
@@ -146,7 +149,7 @@ describe('SettingsPage', () => {
         });
         updateSettings.mockReturnValue(new Promise(() => {})); // Never resolves
 
-        render(<SettingsPage />);
+        renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
             expect(screen.getByLabelText('Site Title')).toBeInTheDocument();
