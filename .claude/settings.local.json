@@ -9,7 +9,10 @@
       "Bash(ssh:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
-      "Bash(npx vitest --run)"
+      "Bash(npx vitest --run)",
+      "Bash(wc:*)",
+      "Bash(npm install:*)",
+      "Bash(if not exist \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\" mkdir \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\")"
     ]
   }
 }
