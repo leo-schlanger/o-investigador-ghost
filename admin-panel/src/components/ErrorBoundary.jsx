@@ -43,29 +43,29 @@ class ErrorBoundary extends Component {
                             </svg>
                         </div>
                         <h1 className="text-xl font-bold text-gray-900 mb-2">
-                            Something went wrong
+                            Algo deu errado
                         </h1>
                         <p className="text-gray-600 mb-6">
-                            An unexpected error occurred. Please try again or contact support if the problem persists.
+                            Ocorreu um erro inesperado. Por favor, tente novamente ou entre em contato com o suporte se o problema persistir.
                         </p>
                         <div className="space-x-4">
                             <button
                                 onClick={this.handleRetry}
                                 className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand hover:bg-brand-light focus:outline-none"
                             >
-                                Try Again
+                                Tentar Novamente
                             </button>
                             <button
                                 onClick={() => window.location.href = '/'}
                                 className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
                             >
-                                Go to Dashboard
+                                Ir para o Painel
                             </button>
                         </div>
                         {process.env.NODE_ENV === 'development' && this.state.error && (
                             <details className="mt-6 text-left">
                                 <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
-                                    Error Details
+                                    Detalhes do Erro
                                 </summary>
                                 <pre className="mt-2 p-4 bg-gray-100 rounded text-xs text-red-600 overflow-auto max-h-48">
                                     {this.state.error.toString()}

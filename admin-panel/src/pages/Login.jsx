@@ -15,14 +15,14 @@ const Login = () => {
             await login(email, password);
             navigate('/');
         } catch (err) {
-            setError('Failed to login. Please check your credentials.');
+            setError('Falha ao entrar. Verifique suas credenciais.');
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Login Administrativo</h2>
                 {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
@@ -36,7 +36,7 @@ const Login = () => {
                         />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Senha</label>
                         <input
                             type="password"
                             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary-500"
@@ -49,7 +49,7 @@ const Login = () => {
                         type="submit"
                         className="w-full bg-brand text-white py-2 px-4 rounded hover:bg-brand-light transition duration-200"
                     >
-                        Sign In
+                        Entrar
                     </button>
                 </form>
             </div>

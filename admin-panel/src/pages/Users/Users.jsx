@@ -28,7 +28,7 @@ const UsersPage = () => {
             const data = await getUsers();
             setUsers(data);
         } catch (err) {
-            setError('Failed to load users');
+            setError('Falha ao carregar usuarios');
         } finally {
             setLoading(false);
         }
@@ -63,17 +63,17 @@ const UsersPage = () => {
             handleCloseModal();
             loadUsers();
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to save user');
+            alert(err.response?.data?.error || 'Falha ao salvar usuario');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
+        if (window.confirm('Tem certeza que deseja excluir este usuario?')) {
             try {
                 await deleteUser(id);
                 loadUsers();
             } catch (err) {
-                alert(err.response?.data?.error || 'Failed to delete user');
+                alert(err.response?.data?.error || 'Falha ao excluir usuario');
             }
         }
     };
@@ -91,7 +91,7 @@ const UsersPage = () => {
         );
     };
 
-    if (loading) return <div>Loading users...</div>;
+    if (loading) return <div>Carregando usuarios...</div>;
 
     return (
         <div className="max-w-6xl mx-auto">
@@ -213,9 +213,9 @@ const UsersPage = () => {
                                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-brand focus:border-brand sm:text-sm rounded-md border"
                                 >
-                                    <option value="author">Author (Apenas artigos próprios - a implementar)</option>
+                                    <option value="author">Autor (Apenas artigos proprios)</option>
                                     <option value="editor">Editor (Todos os artigos)</option>
-                                    <option value="admin">Admin (Acesso Total)</option>
+                                    <option value="admin">Administrador (Acesso Total)</option>
                                 </select>
                             </div>
 

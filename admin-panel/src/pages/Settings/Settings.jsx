@@ -25,11 +25,11 @@ const SettingsPage = () => {
             const data = await getSettings();
             setSettings({
                 siteTitle: data.siteTitle || 'O Investigador',
-                siteDescription: data.siteDescription || 'Investigative Journalism Portal',
+                siteDescription: data.siteDescription || 'Portal de Jornalismo Investigativo',
                 adsEnabled: data.adsEnabled === 'true'
             });
         } catch (err) {
-            setError('Failed to load settings');
+            setError('Falha ao carregar configuracoes');
             console.error('Error loading settings:', err);
         } finally {
             setLoading(false);
@@ -58,7 +58,7 @@ const SettingsPage = () => {
             });
             setSuccess(true);
         } catch (err) {
-            setError('Failed to save settings');
+            setError('Falha ao salvar configuracoes');
             console.error('Error saving settings:', err);
         } finally {
             setSaving(false);
@@ -68,7 +68,7 @@ const SettingsPage = () => {
     if (loading) {
         return (
             <div className="max-w-4xl">
-                <h1 className="text-2xl font-bold mb-6">Settings</h1>
+                <h1 className="text-2xl font-bold mb-6">Configuracoes</h1>
                 <div className="bg-white shadow rounded-lg p-6">
                     <div className="animate-pulse space-y-4">
                         <div className="h-4 bg-gray-200 rounded w-1/4"></div>
@@ -83,7 +83,7 @@ const SettingsPage = () => {
 
     return (
         <div className="max-w-4xl">
-            <h1 className="text-2xl font-bold mb-6">Settings</h1>
+            <h1 className="text-2xl font-bold mb-6">Configuracoes</h1>
 
             {error && (
                 <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
@@ -93,17 +93,17 @@ const SettingsPage = () => {
 
             {success && (
                 <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md">
-                    Settings saved successfully!
+                    Configuracoes salvas com sucesso!
                 </div>
             )}
 
             <div className="bg-white shadow rounded-lg p-6 mb-6">
-                <h2 className="text-lg font-medium mb-4">General Settings</h2>
+                <h2 className="text-lg font-medium mb-4">Configuracoes Gerais</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-6">
                         <div>
                             <label htmlFor="siteTitle" className="block text-sm font-medium text-gray-700">
-                                Site Title
+                                Titulo do Site
                             </label>
                             <input
                                 type="text"
@@ -117,7 +117,7 @@ const SettingsPage = () => {
                         </div>
                         <div>
                             <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700">
-                                Site Description
+                                Descricao do Site
                             </label>
                             <textarea
                                 id="siteDescription"
@@ -136,7 +136,7 @@ const SettingsPage = () => {
                             disabled={saving}
                             className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand hover:bg-brand-light focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? 'Salvando...' : 'Salvar Alteracoes'}
                         </button>
                     </div>
                 </form>
@@ -149,21 +149,21 @@ const SettingsPage = () => {
                         <div className="p-2 bg-brand/10 text-brand rounded-lg">
                             <Megaphone size={20} />
                         </div>
-                        <h2 className="text-lg font-medium">Anúncios</h2>
+                        <h2 className="text-lg font-medium">Anuncios</h2>
                     </div>
                     <Link
                         to="/advertisements"
                         className="inline-flex items-center gap-1 text-sm text-brand hover:text-brand-light"
                     >
-                        Configurações avançadas
+                        Configuracoes avancadas
                         <ArrowRight size={16} />
                     </Link>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
-                        <h3 className="font-medium text-gray-900">Anúncios Ativos</h3>
-                        <p className="text-sm text-gray-500">Ativar ou desativar todos os anúncios do site</p>
+                        <h3 className="font-medium text-gray-900">Anuncios Ativos</h3>
+                        <p className="text-sm text-gray-500">Ativar ou desativar todos os anuncios do site</p>
                     </div>
                     <button
                         onClick={() => {
@@ -184,9 +184,9 @@ const SettingsPage = () => {
                 </div>
 
                 <p className="mt-3 text-xs text-gray-500">
-                    Para configurar posições individuais de anúncios e IDs do Google AdSense, acesse as{' '}
+                    Para configurar posicoes individuais de anuncios e IDs do Google AdSense, acesse as{' '}
                     <Link to="/advertisements" className="text-brand hover:underline">
-                        configurações avançadas de anúncios
+                        configuracoes avancadas de anuncios
                     </Link>.
                 </p>
             </div>

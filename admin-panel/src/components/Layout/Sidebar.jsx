@@ -11,13 +11,13 @@ const Sidebar = () => {
     const currentRole = user?.role || 'author';
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/', roles: ['admin', 'editor', 'author'] },
+        { icon: LayoutDashboard, label: 'Painel', path: '/', roles: ['admin', 'editor', 'author'] },
         { icon: User, label: 'Meu Perfil', path: '/profile', roles: ['admin', 'editor', 'author'] },
-        { icon: FileText, label: 'Articles', path: '/articles', roles: ['admin', 'editor', 'author'] },
-        { icon: Image, label: 'Media', path: '/media', roles: ['admin', 'editor', 'author'] },
-        { icon: Users, label: 'Usuários', path: '/users', roles: ['admin'] },
-        { icon: Megaphone, label: 'Anúncios', path: '/advertisements', roles: ['admin', 'editor'] },
-        { icon: Settings, label: 'Settings', path: '/settings', roles: ['admin'] },
+        { icon: FileText, label: 'Artigos', path: '/articles', roles: ['admin', 'editor', 'author'] },
+        { icon: Image, label: 'Midia', path: '/media', roles: ['admin', 'editor', 'author'] },
+        { icon: Users, label: 'Usuarios', path: '/users', roles: ['admin'] },
+        { icon: Megaphone, label: 'Anuncios', path: '/advertisements', roles: ['admin', 'editor'] },
+        { icon: Settings, label: 'Configuracoes', path: '/settings', roles: ['admin'] },
     ];
 
     const filteredNavItems = navItems.filter(item => item.roles.includes(currentRole));
@@ -33,7 +33,7 @@ const Sidebar = () => {
                         jornal online
                     </span>
                 </div>
-                <span className="text-[10px] text-primary-400 mt-2 block">Admin Panel</span>
+                <span className="text-[10px] text-primary-400 mt-2 block">Painel Administrativo</span>
             </div>
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
                 {filteredNavItems.map((item) => (
@@ -58,8 +58,8 @@ const Sidebar = () => {
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div>
-                        <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                        <p className="text-xs text-primary-400 capitalize">{user?.role || 'Author'}</p>
+                        <p className="text-sm font-medium">{user?.name || 'Usuario'}</p>
+                        <p className="text-xs text-primary-400 capitalize">{user?.role || 'Autor'}</p>
                     </div>
                 </div>
             </div>
