@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Image, Users, Settings, Megaphone, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Image, Users, Settings, Megaphone, User, File, Tag, Menu } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,7 +14,10 @@ const Sidebar = () => {
         { icon: LayoutDashboard, label: 'Painel', path: '/', roles: ['admin', 'editor', 'author'] },
         { icon: User, label: 'Meu Perfil', path: '/profile', roles: ['admin', 'editor', 'author'] },
         { icon: FileText, label: 'Artigos', path: '/articles', roles: ['admin', 'editor', 'author'] },
+        { icon: File, label: 'Paginas', path: '/pages', roles: ['admin', 'editor'] },
+        { icon: Tag, label: 'Tags', path: '/tags', roles: ['admin', 'editor'] },
         { icon: Image, label: 'Midia', path: '/media', roles: ['admin', 'editor', 'author'] },
+        { icon: Menu, label: 'Navegacao', path: '/navigation', roles: ['admin'] },
         { icon: Users, label: 'Usuarios', path: '/users', roles: ['admin'] },
         { icon: Megaphone, label: 'Anuncios', path: '/advertisements', roles: ['admin', 'editor'] },
         { icon: Settings, label: 'Configuracoes', path: '/settings', roles: ['admin'] },

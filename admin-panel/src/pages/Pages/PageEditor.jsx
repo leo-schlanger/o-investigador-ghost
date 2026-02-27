@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createArticle, getArticle, updateArticle, getTags } from '../../services/articles';
+import { createPage, getPage, updatePage } from '../../services/pages';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
 import MediaLibrary from '../Media/MediaLibrary';
 import {
@@ -10,13 +10,7 @@ import {
     ChevronUp,
     Save,
     Send,
-    RefreshCw,
-    Calendar,
-    Eye,
-    Users,
-    Lock,
-    Tag,
-    Plus
+    RefreshCw
 } from 'lucide-react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -29,7 +23,7 @@ import Table from '@editorjs/table';
 import Delimiter from '@editorjs/delimiter';
 import api from '../../services/api';
 
-const ArticleEditor = () => {
+const PageEditor = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const isEditing = !!id;
@@ -42,11 +36,8 @@ const ArticleEditor = () => {
         excerpt: '',
         feature_image: '',
         status: 'draft',
-        visibility: 'public',
-        published_at: '',
         meta_title: '',
-        meta_description: '',
-        tags: []
+        meta_description: ''
     });
 
     const [loading, setLoading] = useState(isEditing);
@@ -54,12 +45,8 @@ const ArticleEditor = () => {
     const [error, setError] = useState('');
     const [showMediaPicker, setShowMediaPicker] = useState(false);
     const [showSeoPanel, setShowSeoPanel] = useState(false);
-    const [availableTags, setAvailableTags] = useState([]);
-    const [tagSearch, setTagSearch] = useState('');
     const [editorData, setEditorData] = useState(null);
     const [editorReady, setEditorReady] = useState(false);
-    const [showPreview, setShowPreview] = useState(false);
-    const [previewHtml, setPreviewHtml] = useState('');
 
     // Initialize Editor.js
     useEffect(() => {
@@ -68,7 +55,7 @@ const ArticleEditor = () => {
         const initEditor = async () => {
             const editor = new EditorJS({
                 holder: editorRef.current,
-                placeholder: 'Comece a escrever seu artigo...',
+                placeholder: 'Escreva o conteudo da pagina...',
                 autofocus: false,
                 data: editorData || undefined,
                 tools: {
@@ -144,10 +131,9 @@ const ArticleEditor = () => {
         };
     }, []);
 
-    // Load article if editing
+    // Load page if editing
     useEffect(() => {
-        if (isEditing) fetchArticle();
-        fetchTags();
+        if (isEditing) fetchPage();
     }, [id]);
 
     // Load content into editor when data is ready
@@ -157,40 +143,27 @@ const ArticleEditor = () => {
         }
     }, [editorReady, editorData]);
 
-    const fetchArticle = async () => {
+    const fetchPage = async () => {
         try {
-            const data = await getArticle(id);
+            const data = await getPage(id);
             setFormData({
                 title: data.title || '',
                 slug: data.slug || '',
                 excerpt: data.excerpt || '',
                 feature_image: data.feature_image || '',
                 status: data.status || 'draft',
-                visibility: data.visibility || 'public',
-                published_at: data.published_at ? data.published_at.slice(0, 16) : '',
                 meta_title: data.meta_title || '',
-                meta_description: data.meta_description || '',
-                tags: data.tags || []
+                meta_description: data.meta_description || ''
             });
 
-            // Convert HTML to Editor.js format
             if (data.html) {
                 const blocks = htmlToEditorJs(data.html);
                 setEditorData(blocks);
             }
         } catch {
-            setError('Falha ao carregar artigo');
+            setError('Falha ao carregar pagina');
         } finally {
             setLoading(false);
-        }
-    };
-
-    const fetchTags = async () => {
-        try {
-            const tags = await getTags();
-            setAvailableTags(tags);
-        } catch (err) {
-            console.error('Failed to fetch tags:', err);
         }
     };
 
@@ -220,54 +193,11 @@ const ArticleEditor = () => {
         setShowMediaPicker(false);
     };
 
-    const addTag = (tag) => {
-        if (!formData.tags.find(t => t.id === tag.id || t.name === tag.name)) {
-            setFormData(prev => ({
-                ...prev,
-                tags: [...prev.tags, tag]
-            }));
-        }
-        setTagSearch('');
-    };
-
-    const createTag = () => {
-        if (tagSearch.trim()) {
-            addTag({ name: tagSearch.trim() });
-        }
-    };
-
-    const removeTag = (tagToRemove) => {
-        setFormData(prev => ({
-            ...prev,
-            tags: prev.tags.filter(t => t.id !== tagToRemove.id && t.name !== tagToRemove.name)
-        }));
-    };
-
-    const filteredTags = availableTags.filter(tag =>
-        tag.name.toLowerCase().includes(tagSearch.toLowerCase()) &&
-        !formData.tags.find(t => t.id === tag.id)
-    );
-
-    const handlePreview = async () => {
-        try {
-            let html = '';
-            if (editorInstanceRef.current) {
-                const outputData = await editorInstanceRef.current.save();
-                html = convertToHtml(outputData);
-            }
-            setPreviewHtml(html);
-            setShowPreview(true);
-        } catch (err) {
-            console.error('Preview error:', err);
-        }
-    };
-
     const handleSubmit = async (targetStatus) => {
         setSaving(true);
         setError('');
 
         try {
-            // Get editor content
             let html = '';
             if (editorInstanceRef.current) {
                 const outputData = await editorInstanceRef.current.save();
@@ -281,27 +211,20 @@ const ArticleEditor = () => {
                 custom_excerpt: formData.excerpt,
                 feature_image: formData.feature_image || null,
                 status: targetStatus || formData.status,
-                visibility: formData.visibility,
                 meta_title: formData.meta_title || null,
-                meta_description: formData.meta_description || null,
-                tags: formData.tags.map(t => t.name || t)
+                meta_description: formData.meta_description || null
             };
 
-            // Handle scheduled posts
-            if (payload.status === 'scheduled' && formData.published_at) {
-                payload.published_at = new Date(formData.published_at).toISOString();
-            }
-
             if (isEditing) {
-                await updateArticle(id, payload);
+                await updatePage(id, payload);
             } else {
-                await createArticle(payload);
+                await createPage(payload);
             }
 
-            navigate('/articles');
+            navigate('/pages');
         } catch (err) {
             console.error('Save error:', err);
-            setError('Falha ao salvar artigo');
+            setError('Falha ao salvar pagina');
             setSaving(false);
         }
     };
@@ -332,13 +255,13 @@ const ArticleEditor = () => {
                         name="title"
                         value={formData.title}
                         onChange={handleTitleChange}
-                        placeholder="Titulo do artigo"
+                        placeholder="Titulo da pagina"
                         className="w-full text-3xl font-bold border-0 border-b border-transparent focus:border-gray-300 focus:ring-0 px-0 py-2 placeholder-gray-400"
                     />
 
                     {/* Slug */}
                     <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-500">Slug:</span>
+                        <span className="text-gray-500">URL:</span>
                         <input
                             type="text"
                             name="slug"
@@ -394,7 +317,7 @@ const ArticleEditor = () => {
                             value={formData.excerpt}
                             onChange={handleChange}
                             rows={2}
-                            placeholder="Breve descricao do artigo (aparece nas listagens)"
+                            placeholder="Breve descricao da pagina"
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-brand focus:border-brand text-sm"
                         />
                     </div>
@@ -416,7 +339,6 @@ const ArticleEditor = () => {
                 <div className="bg-white rounded-lg shadow p-4">
                     <h3 className="font-medium text-gray-900 mb-3">Publicacao</h3>
 
-                    {/* Status */}
                     <div className="mb-4">
                         <label className="block text-sm text-gray-600 mb-1">Status</label>
                         <select
@@ -426,52 +348,12 @@ const ArticleEditor = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
                         >
                             <option value="draft">Rascunho</option>
-                            <option value="published">Publicado</option>
-                            <option value="scheduled">Agendado</option>
-                        </select>
-                    </div>
-
-                    {/* Scheduled Date */}
-                    {formData.status === 'scheduled' && (
-                        <div className="mb-4">
-                            <label className="block text-sm text-gray-600 mb-1 flex items-center gap-1">
-                                <Calendar size={14} /> Data de publicacao
-                            </label>
-                            <input
-                                type="datetime-local"
-                                name="published_at"
-                                value={formData.published_at}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
-                            />
-                        </div>
-                    )}
-
-                    {/* Visibility */}
-                    <div className="mb-4">
-                        <label className="block text-sm text-gray-600 mb-1">Visibilidade</label>
-                        <select
-                            name="visibility"
-                            value={formData.visibility}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
-                        >
-                            <option value="public">Publico</option>
-                            <option value="members">Apenas membros</option>
-                            <option value="paid">Apenas assinantes</option>
+                            <option value="published">Publicada</option>
                         </select>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 pt-2 border-t">
-                        <button
-                            type="button"
-                            onClick={handlePreview}
-                            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
-                        >
-                            <Eye size={16} />
-                            Preview
-                        </button>
                         <button
                             type="button"
                             onClick={() => handleSubmit('draft')}
@@ -483,81 +365,20 @@ const ArticleEditor = () => {
                         </button>
                         <button
                             type="button"
-                            onClick={() => handleSubmit(formData.status === 'scheduled' ? 'scheduled' : 'published')}
+                            onClick={() => handleSubmit('published')}
                             disabled={saving}
                             className="flex items-center justify-center gap-2 px-4 py-2 bg-brand text-white rounded hover:bg-brand-light disabled:opacity-50"
                         >
                             <Send size={16} />
-                            {formData.status === 'scheduled' ? 'Agendar' : 'Publicar'}
+                            Publicar
                         </button>
                         <button
                             type="button"
-                            onClick={() => navigate('/articles')}
+                            onClick={() => navigate('/pages')}
                             className="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm"
                         >
                             Cancelar
                         </button>
-                    </div>
-                </div>
-
-                {/* Tags Card */}
-                <div className="bg-white rounded-lg shadow p-4">
-                    <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                        <Tag size={16} /> Tags
-                    </h3>
-
-                    {/* Selected Tags */}
-                    <div className="flex flex-wrap gap-1 mb-3">
-                        {formData.tags.map((tag, idx) => (
-                            <span
-                                key={tag.id || idx}
-                                className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-sm"
-                            >
-                                {tag.name}
-                                <button
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    className="text-gray-400 hover:text-red-500"
-                                >
-                                    <X size={12} />
-                                </button>
-                            </span>
-                        ))}
-                    </div>
-
-                    {/* Tag Search */}
-                    <div className="relative">
-                        <input
-                            type="text"
-                            value={tagSearch}
-                            onChange={(e) => setTagSearch(e.target.value)}
-                            placeholder="Buscar ou criar tag..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
-                        />
-
-                        {tagSearch && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto">
-                                {filteredTags.map(tag => (
-                                    <button
-                                        key={tag.id}
-                                        type="button"
-                                        onClick={() => addTag(tag)}
-                                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
-                                    >
-                                        {tag.name}
-                                    </button>
-                                ))}
-                                {tagSearch && !filteredTags.find(t => t.name.toLowerCase() === tagSearch.toLowerCase()) && (
-                                    <button
-                                        type="button"
-                                        onClick={createTag}
-                                        className="w-full px-3 py-2 text-left text-sm text-brand hover:bg-gray-50 flex items-center gap-1"
-                                    >
-                                        <Plus size={14} /> Criar "{tagSearch}"
-                                    </button>
-                                )}
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -611,13 +432,13 @@ const ArticleEditor = () => {
                             {/* SEO Preview */}
                             <div className="bg-gray-50 rounded p-3">
                                 <p className="text-sm font-medium text-blue-600 truncate">
-                                    {formData.meta_title || formData.title || 'Titulo do artigo'}
+                                    {formData.meta_title || formData.title || 'Titulo da pagina'}
                                 </p>
                                 <p className="text-xs text-green-700 truncate">
-                                    seusite.com/{formData.slug || 'slug-do-artigo'}
+                                    seusite.com/{formData.slug || 'url-da-pagina'}
                                 </p>
                                 <p className="text-xs text-gray-600 line-clamp-2">
-                                    {formData.meta_description || formData.excerpt || 'Descricao do artigo aparecera aqui...'}
+                                    {formData.meta_description || formData.excerpt || 'Descricao da pagina...'}
                                 </p>
                             </div>
                         </div>
@@ -648,70 +469,8 @@ const ArticleEditor = () => {
                     </div>
                 </div>
             )}
-
-            {/* Preview Modal */}
-            {showPreview && (
-                <div
-                    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-                    onClick={() => setShowPreview(false)}
-                >
-                    <div
-                        className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex justify-between items-center p-4 border-b bg-gray-50">
-                            <div>
-                                <h2 className="text-xl font-bold">Preview do Artigo</h2>
-                                <p className="text-sm text-gray-500">Visualizacao de como o artigo aparecera no site</p>
-                            </div>
-                            <button
-                                onClick={() => setShowPreview(false)}
-                                className="text-gray-500 hover:text-gray-700"
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-8">
-                            <article className="max-w-3xl mx-auto">
-                                {formData.feature_image && (
-                                    <img
-                                        src={formData.feature_image}
-                                        alt={formData.title}
-                                        className="w-full h-64 object-cover rounded-lg mb-6"
-                                    />
-                                )}
-                                <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                                    {formData.title || 'Titulo do Artigo'}
-                                </h1>
-                                {formData.excerpt && (
-                                    <p className="text-xl text-gray-600 mb-6 italic">
-                                        {formData.excerpt}
-                                    </p>
-                                )}
-                                {formData.tags.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mb-6">
-                                        {formData.tags.map((tag, idx) => (
-                                            <span
-                                                key={tag.id || idx}
-                                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                                            >
-                                                {tag.name}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-                                <hr className="mb-6" />
-                                <div
-                                    className="prose prose-lg max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: previewHtml }}
-                                />
-                            </article>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
 
-export default ArticleEditor;
+export default PageEditor;

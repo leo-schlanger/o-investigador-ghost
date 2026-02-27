@@ -303,3 +303,317 @@ exports.transformGhostPost = (post) => {
         url: post.url
     };
 };
+
+// ============================================
+// PAGES (Static Pages)
+// ============================================
+
+/**
+ * List pages from Ghost
+ */
+exports.listPages = async (options = {}) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const queryOptions = {
+            include: 'tags,authors',
+            limit: options.limit || 'all',
+            page: options.page || 1,
+            order: 'updated_at DESC'
+        };
+
+        if (options.status && options.status !== 'all') {
+            queryOptions.filter = `status:${options.status}`;
+        }
+
+        if (options.search) {
+            const searchFilter = `title:~'${options.search}'`;
+            queryOptions.filter = queryOptions.filter
+                ? `${queryOptions.filter}+${searchFilter}`
+                : searchFilter;
+        }
+
+        const result = await ghostApi.pages.browse(queryOptions);
+        return {
+            pages: result,
+            meta: result.meta
+        };
+    } catch (err) {
+        console.error('Error listing pages from Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Get a single page by ID
+ */
+exports.getPage = async (id, options = {}) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const queryOptions = { include: 'tags,authors' };
+        let page;
+        if (options.by === 'slug') {
+            page = await ghostApi.pages.read({ slug: id, ...queryOptions });
+        } else {
+            page = await ghostApi.pages.read({ id, ...queryOptions });
+        }
+        return page;
+    } catch (err) {
+        console.error(`Error getting page ${id} from Ghost:`, err);
+        throw err;
+    }
+};
+
+/**
+ * Create a new page in Ghost
+ */
+exports.createPage = async (data) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const pagePayload = buildGhostPayload(data);
+        const page = await ghostApi.pages.add(pagePayload, { source: 'html' });
+        console.log(`Successfully created page in Ghost (ID: ${page.id})`);
+        return page;
+    } catch (err) {
+        console.error('Error creating page in Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Update an existing page in Ghost
+ */
+exports.updatePage = async (id, data) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const existingPage = await ghostApi.pages.read({ id });
+        const pagePayload = buildGhostPayload(data);
+        pagePayload.id = id;
+        pagePayload.updated_at = existingPage.updated_at;
+
+        const page = await ghostApi.pages.edit(pagePayload, { source: 'html' });
+        console.log(`Successfully updated page in Ghost (ID: ${page.id})`);
+        return page;
+    } catch (err) {
+        console.error(`Error updating page ${id} in Ghost:`, err);
+        throw err;
+    }
+};
+
+/**
+ * Delete a page from Ghost
+ */
+exports.deletePage = async (id) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        await ghostApi.pages.delete({ id });
+        console.log(`Successfully deleted page in Ghost (ID: ${id})`);
+        return true;
+    } catch (err) {
+        console.error(`Error deleting page ${id} from Ghost:`, err);
+        throw err;
+    }
+};
+
+// ============================================
+// TAGS (Full CRUD)
+// ============================================
+
+/**
+ * Get a single tag by ID or slug
+ */
+exports.getTag = async (id, options = {}) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        let tag;
+        if (options.by === 'slug') {
+            tag = await ghostApi.tags.read({ slug: id });
+        } else {
+            tag = await ghostApi.tags.read({ id });
+        }
+        return tag;
+    } catch (err) {
+        console.error(`Error getting tag ${id} from Ghost:`, err);
+        throw err;
+    }
+};
+
+/**
+ * Create a new tag in Ghost
+ */
+exports.createTag = async (data) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const tagPayload = {
+            name: data.name,
+            slug: data.slug || undefined,
+            description: data.description || null,
+            feature_image: data.feature_image || null,
+            meta_title: data.meta_title || null,
+            meta_description: data.meta_description || null
+        };
+
+        const tag = await ghostApi.tags.add(tagPayload);
+        console.log(`Successfully created tag in Ghost (ID: ${tag.id})`);
+        return tag;
+    } catch (err) {
+        console.error('Error creating tag in Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Update an existing tag in Ghost
+ */
+exports.updateTag = async (id, data) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const existingTag = await ghostApi.tags.read({ id });
+
+        const tagPayload = {
+            id,
+            updated_at: existingTag.updated_at,
+            name: data.name !== undefined ? data.name : existingTag.name,
+            slug: data.slug !== undefined ? data.slug : existingTag.slug,
+            description: data.description !== undefined ? data.description : existingTag.description,
+            feature_image: data.feature_image !== undefined ? data.feature_image : existingTag.feature_image,
+            meta_title: data.meta_title !== undefined ? data.meta_title : existingTag.meta_title,
+            meta_description: data.meta_description !== undefined ? data.meta_description : existingTag.meta_description
+        };
+
+        const tag = await ghostApi.tags.edit(tagPayload);
+        console.log(`Successfully updated tag in Ghost (ID: ${tag.id})`);
+        return tag;
+    } catch (err) {
+        console.error(`Error updating tag ${id} in Ghost:`, err);
+        throw err;
+    }
+};
+
+/**
+ * Delete a tag from Ghost
+ */
+exports.deleteTag = async (id) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        await ghostApi.tags.delete({ id });
+        console.log(`Successfully deleted tag in Ghost (ID: ${id})`);
+        return true;
+    } catch (err) {
+        console.error(`Error deleting tag ${id} from Ghost:`, err);
+        throw err;
+    }
+};
+
+// ============================================
+// SETTINGS (Navigation, Site settings)
+// ============================================
+
+/**
+ * Get site settings from Ghost (includes navigation)
+ */
+exports.getSettings = async () => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const settings = await ghostApi.settings.browse();
+        return settings;
+    } catch (err) {
+        console.error('Error getting settings from Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Update site settings in Ghost
+ */
+exports.updateSettings = async (data) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const settings = await ghostApi.settings.edit(data);
+        console.log('Successfully updated settings in Ghost');
+        return settings;
+    } catch (err) {
+        console.error('Error updating settings in Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Get navigation settings
+ */
+exports.getNavigation = async () => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const settings = await ghostApi.settings.browse();
+        return {
+            navigation: settings.navigation || [],
+            secondary_navigation: settings.secondary_navigation || []
+        };
+    } catch (err) {
+        console.error('Error getting navigation from Ghost:', err);
+        throw err;
+    }
+};
+
+/**
+ * Update navigation settings
+ */
+exports.updateNavigation = async (navigation, secondaryNavigation) => {
+    if (!ghostApi) {
+        throw new Error('Ghost API is not configured');
+    }
+
+    try {
+        const updateData = [];
+
+        if (navigation !== undefined) {
+            updateData.push({ key: 'navigation', value: JSON.stringify(navigation) });
+        }
+
+        if (secondaryNavigation !== undefined) {
+            updateData.push({ key: 'secondary_navigation', value: JSON.stringify(secondaryNavigation) });
+        }
+
+        const settings = await ghostApi.settings.edit(updateData);
+        console.log('Successfully updated navigation in Ghost');
+        return settings;
+    } catch (err) {
+        console.error('Error updating navigation in Ghost:', err);
+        throw err;
+    }
+};

@@ -16,6 +16,10 @@ import ArticleEditor from './pages/Articles/ArticleEditor';
 import MediaLibrary from './pages/Media/MediaLibrary';
 import SettingsPage from './pages/Settings/Settings';
 import AdvertisementsPage from './pages/Advertisements/Advertisements';
+import PagesList from './pages/Pages/PagesList';
+import PageEditor from './pages/Pages/PageEditor';
+import TagsList from './pages/Tags/TagsList';
+import Navigation from './pages/Navigation/Navigation';
 
 const ProtectedRoute = () => {
     const { user, loading } = useAuth();
@@ -43,11 +47,16 @@ function App() {
 
                             {/* Admins and Editors */}
                             <Route element={<RoleProtectedRoute allowedRoles={['admin', 'editor']} />}>
+                                <Route path="pages" element={<PagesList />} />
+                                <Route path="pages/new" element={<PageEditor />} />
+                                <Route path="pages/:id" element={<PageEditor />} />
+                                <Route path="tags" element={<TagsList />} />
                                 <Route path="advertisements" element={<AdvertisementsPage />} />
                             </Route>
 
                             {/* Admins Only */}
                             <Route element={<RoleProtectedRoute allowedRoles={['admin']} />}>
+                                <Route path="navigation" element={<Navigation />} />
                                 <Route path="users" element={<UsersPage />} />
                                 <Route path="settings" element={<SettingsPage />} />
                             </Route>
