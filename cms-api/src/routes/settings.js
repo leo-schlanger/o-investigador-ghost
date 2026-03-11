@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const settingsController = require('../controllers/settingsController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
+// Anyone authenticated can read settings
 router.get('/', protect, settingsController.getSettings);
-router.put('/', protect, settingsController.updateSettings);
+
+// Only admins can update settings
+router.put('/', protect, authorize('admin'), settingsController.updateSettings);
 
 module.exports = router;

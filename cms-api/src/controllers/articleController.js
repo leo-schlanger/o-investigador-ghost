@@ -42,11 +42,23 @@ exports.list = async (req, res) => {
     try {
         const { status, search, page, limit, type } = req.query;
 
+        // Validate and sanitize inputs
+        const validStatuses = ['all', 'draft', 'published', 'scheduled'];
+        const sanitizedStatus = validStatuses.includes(status) ? status : 'all';
+
+        const sanitizedPage = Math.max(1, parseInt(page) || 1);
+        const sanitizedLimit = Math.min(100, Math.max(1, parseInt(limit) || 15));
+
+        // Sanitize search (remove dangerous characters, limit length)
+        const sanitizedSearch = (search || '')
+            .slice(0, 100)
+            .replace(/[<>'"]/g, '');
+
         const options = {
-            status: status || 'all',
-            search: search || '',
-            page: parseInt(page) || 1,
-            limit: parseInt(limit) || 15
+            status: sanitizedStatus,
+            search: sanitizedSearch,
+            page: sanitizedPage,
+            limit: sanitizedLimit
         };
 
         // Add filter by article type (via tag)

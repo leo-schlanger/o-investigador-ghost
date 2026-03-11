@@ -10,7 +10,7 @@ try {
             key: process.env.GHOST_API_KEY,
             version: 'v5.0'
         });
-        console.log('Ghost Admin API initialized successfully');
+        // Ghost Admin API initialized
     } else {
         console.warn('GHOST_API_URL or GHOST_API_KEY not provided. Ghost API is disabled.');
     }
@@ -121,8 +121,7 @@ exports.createPost = async (data) => {
     try {
         const postPayload = buildGhostPayload(data);
         const post = await ghostApi.posts.add(postPayload, { source: 'html' });
-        console.log(`Successfully created post in Ghost (ID: ${post.id})`);
-        return post;
+                return post;
     } catch (err) {
         console.error('Error creating post in Ghost:', err);
         throw err;
@@ -149,8 +148,7 @@ exports.updatePost = async (id, data) => {
         postPayload.updated_at = existingPost.updated_at;
 
         const post = await ghostApi.posts.edit(postPayload, { source: 'html' });
-        console.log(`Successfully updated post in Ghost (ID: ${post.id})`);
-        return post;
+                return post;
     } catch (err) {
         console.error(`Error updating post ${id} in Ghost:`, err);
         throw err;
@@ -169,8 +167,7 @@ exports.deletePost = async (id) => {
 
     try {
         await ghostApi.posts.delete({ id });
-        console.log(`Successfully deleted post in Ghost (ID: ${id})`);
-        return true;
+                return true;
     } catch (err) {
         console.error(`Error deleting post ${id} from Ghost:`, err);
         throw err;
@@ -452,8 +449,7 @@ exports.createPage = async (data) => {
     try {
         const pagePayload = buildGhostPayload(data);
         const page = await ghostApi.pages.add(pagePayload, { source: 'html' });
-        console.log(`Successfully created page in Ghost (ID: ${page.id})`);
-        return page;
+                return page;
     } catch (err) {
         console.error('Error creating page in Ghost:', err);
         throw err;
@@ -475,8 +471,7 @@ exports.updatePage = async (id, data) => {
         pagePayload.updated_at = existingPage.updated_at;
 
         const page = await ghostApi.pages.edit(pagePayload, { source: 'html' });
-        console.log(`Successfully updated page in Ghost (ID: ${page.id})`);
-        return page;
+                return page;
     } catch (err) {
         console.error(`Error updating page ${id} in Ghost:`, err);
         throw err;
@@ -493,8 +488,7 @@ exports.deletePage = async (id) => {
 
     try {
         await ghostApi.pages.delete({ id });
-        console.log(`Successfully deleted page in Ghost (ID: ${id})`);
-        return true;
+                return true;
     } catch (err) {
         console.error(`Error deleting page ${id} from Ghost:`, err);
         throw err;
@@ -546,8 +540,7 @@ exports.createTag = async (data) => {
         };
 
         const tag = await ghostApi.tags.add(tagPayload);
-        console.log(`Successfully created tag in Ghost (ID: ${tag.id})`);
-        return tag;
+                return tag;
     } catch (err) {
         console.error('Error creating tag in Ghost:', err);
         throw err;
@@ -577,8 +570,7 @@ exports.updateTag = async (id, data) => {
         };
 
         const tag = await ghostApi.tags.edit(tagPayload);
-        console.log(`Successfully updated tag in Ghost (ID: ${tag.id})`);
-        return tag;
+                return tag;
     } catch (err) {
         console.error(`Error updating tag ${id} in Ghost:`, err);
         throw err;
@@ -595,8 +587,7 @@ exports.deleteTag = async (id) => {
 
     try {
         await ghostApi.tags.delete({ id });
-        console.log(`Successfully deleted tag in Ghost (ID: ${id})`);
-        return true;
+                return true;
     } catch (err) {
         console.error(`Error deleting tag ${id} from Ghost:`, err);
         throw err;
@@ -634,8 +625,7 @@ exports.updateSettings = async (data) => {
 
     try {
         const settings = await ghostApi.settings.edit(data);
-        console.log('Successfully updated settings in Ghost');
-        return settings;
+                return settings;
     } catch (err) {
         console.error('Error updating settings in Ghost:', err);
         throw err;
@@ -682,8 +672,7 @@ exports.updateNavigation = async (navigation, secondaryNavigation) => {
         }
 
         const settings = await ghostApi.settings.edit(updateData);
-        console.log('Successfully updated navigation in Ghost');
-        return settings;
+                return settings;
     } catch (err) {
         console.error('Error updating navigation in Ghost:', err);
         throw err;

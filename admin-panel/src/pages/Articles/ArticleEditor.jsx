@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { createArticle, getArticle, updateArticle, getTags, ARTICLE_TYPES } from '../../services/articles';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
 import MediaLibrary from '../Media/MediaLibrary';
@@ -986,7 +987,7 @@ const ArticleEditor = () => {
                                 <hr className="mb-6" />
                                 <div
                                     className="prose prose-lg max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: previewHtml }}
+                                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewHtml) }}
                                 />
                             </article>
                         </div>

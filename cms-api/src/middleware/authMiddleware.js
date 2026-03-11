@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../config/env');
 
 exports.protect = async (req, res, next) => {
     let token;
@@ -10,13 +11,15 @@ exports.protect = async (req, res, next) => {
         try {
             token = req.headers.authorization.split(' ')[1];
 
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
+            const decoded = jwt.verify(token, getJwtSecret());
             req.user = decoded;
 
             return next();
         } catch (error) {
-            console.error('Auth error:', error.message);
-            return res.status(401).json({ error: 'Sessao expirada ou token invalido. Faca login novamente.' });
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ error: 'Sessao expirada. Faca login novamente.' });
+            }
+            return res.status(401).json({ error: 'Token invalido. Faca login novamente.' });
         }
     }
 
