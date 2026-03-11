@@ -1,18 +1,20 @@
 import api from './api';
 
 export const getStats = async () => {
-    // In a real app, we'd have a /stats endpoint
-    // Here we'll fetch lists and count them
     try {
         const [articlesRes, usersRes] = await Promise.all([
-            api.get('/articles'),
-            api.get('/auth/users')
+            api.get('/api/articles'),
+            api.get('/api/auth/users')
         ]);
 
+        // articlesRes.data returns { articles: [], meta: {} }
+        const articlesCount = articlesRes.data.articles?.length || articlesRes.data.meta?.pagination?.total || 0;
+        const usersCount = Array.isArray(usersRes.data) ? usersRes.data.length : 0;
+
         return {
-            articlesCount: articlesRes.data.length,
-            usersCount: usersRes.data.length,
-            viewsCount: 12345, // Mock
+            articlesCount,
+            usersCount,
+            viewsCount: 12345, // Mock - seria integrado com analytics
             storageUsage: '1.2 GB' // Mock
         };
     } catch (error) {

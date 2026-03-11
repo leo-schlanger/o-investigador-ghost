@@ -6,6 +6,7 @@ import { Search, Trash2, Edit, Plus, FileText } from 'lucide-react';
 const PagesList = () => {
     const [pages, setPages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -13,6 +14,7 @@ const PagesList = () => {
 
     const fetchPages = useCallback(async () => {
         setLoading(true);
+        setError('');
         try {
             const params = {
                 status: statusFilter !== 'all' ? statusFilter : undefined,
@@ -21,8 +23,16 @@ const PagesList = () => {
 
             const response = await getPages(params);
             setPages(response.pages || response || []);
-        } catch (error) {
-            console.error('Failed to fetch pages', error);
+        } catch (err) {
+            console.error('Failed to fetch pages', err);
+            const errorMessage = err.response?.data?.error || err.message || 'Erro desconhecido';
+            if (errorMessage.includes('Ghost API is not configured')) {
+                setError('API do Ghost nao esta configurada. Verifique as variaveis de ambiente.');
+            } else if (errorMessage.includes('Network Error')) {
+                setError('Erro de conexao. Verifique se o servidor esta rodando.');
+            } else {
+                setError(`Falha ao carregar paginas: ${errorMessage}`);
+            }
         } finally {
             setLoading(false);
         }
@@ -110,6 +120,19 @@ const PagesList = () => {
                     <option value="published">Publicadas</option>
                 </select>
             </div>
+
+            {/* Error Message */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <p className="text-red-700 text-sm">{error}</p>
+                    <button
+                        onClick={fetchPages}
+                        className="mt-2 text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        Tentar novamente
+                    </button>
+                </div>
+            )}
 
             {/* Table */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
