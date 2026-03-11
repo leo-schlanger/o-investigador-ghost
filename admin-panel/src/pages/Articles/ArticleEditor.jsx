@@ -146,11 +146,29 @@ const ArticleEditor = () => {
         }
     };
 
-    // Initialize Editor.js
+    // Initialize Editor.js - reinitialize when editorData changes for editing
     useEffect(() => {
-        if (!editorRef.current || editorInstanceRef.current) return;
+        // Skip if no ref
+        if (!editorRef.current) return;
+
+        // For editing: wait for editorData before initializing
+        // For new articles: initialize immediately
+        if (isEditing && !editorData) {
+            console.log('Editing mode: waiting for article data...');
+            return;
+        }
+
+        // Destroy existing editor if any
+        if (editorInstanceRef.current) {
+            console.log('Destroying existing editor instance');
+            editorInstanceRef.current.destroy();
+            editorInstanceRef.current = null;
+            setEditorReady(false);
+        }
 
         const initEditor = async () => {
+            console.log('Creating new Editor.js instance with data:', editorData ? `${editorData.blocks?.length} blocks` : 'empty');
+
             const editor = new EditorJS({
                 holder: editorRef.current,
                 placeholder: 'Comece a escrever seu artigo...',
@@ -250,63 +268,18 @@ const ArticleEditor = () => {
 
         return () => {
             if (editorInstanceRef.current && editorInstanceRef.current.destroy) {
+                console.log('Cleanup: destroying editor instance');
                 editorInstanceRef.current.destroy();
                 editorInstanceRef.current = null;
             }
         };
-    }, []);
+    }, [editorData, isEditing]); // Re-initialize when editorData changes
 
     // Load article if editing
     useEffect(() => {
         if (isEditing) fetchArticle();
         fetchTags();
     }, [id]);
-
-    // Load content into editor when data is ready
-    useEffect(() => {
-        console.log('Editor load effect triggered:', { editorReady, hasEditorData: !!editorData, hasEditorRef: !!editorInstanceRef.current });
-
-        const loadContent = async () => {
-            if (!editorReady) {
-                console.log('Editor not ready yet, waiting...');
-                return;
-            }
-            if (!editorData) {
-                console.log('No editor data yet, waiting...');
-                return;
-            }
-            if (!editorInstanceRef.current) {
-                console.log('No editor instance ref, waiting...');
-                return;
-            }
-
-            console.log('All conditions met, attempting to render content...');
-            console.log('Editor data to render:', JSON.stringify(editorData, null, 2));
-
-            try {
-                // Wait for editor to be fully ready
-                await editorInstanceRef.current.isReady;
-                console.log('Editor isReady promise resolved');
-
-                // Clear existing blocks and render new content
-                await editorInstanceRef.current.render(editorData);
-                console.log('Editor content loaded successfully!');
-            } catch (err) {
-                console.error('Failed to render editor content:', err);
-                // Try alternative approach: clear and re-render
-                try {
-                    console.log('Attempting clear + re-render...');
-                    await editorInstanceRef.current.clear();
-                    await editorInstanceRef.current.render(editorData);
-                    console.log('Clear + re-render succeeded!');
-                } catch (retryErr) {
-                    console.error('Retry also failed:', retryErr);
-                }
-            }
-        };
-
-        loadContent();
-    }, [editorReady, editorData]);
 
     // Traduzir erros comuns do Ghost CMS para português
     const translateGhostError = (error) => {
