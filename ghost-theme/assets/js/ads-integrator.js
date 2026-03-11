@@ -36,9 +36,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         adElements.forEach((el) => {
             const slotId = el.getAttribute('data-slot-id');
             const slotConfig = adSlots[slotId];
+            const container = el.closest('.ad-slot-container') || el;
 
             // Only inject the ad if the specific slot is enabled and has a valid slot ID
             if (slotConfig && slotConfig.enabled && slotConfig.slotId) {
+                // Show the container (it's hidden by default in the template)
+                container.style.display = 'flex';
+
                 // Remove the mock pattern and texts
                 el.innerHTML = '';
 
@@ -49,7 +53,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const ins = document.createElement('ins');
                 ins.className = 'adsbygoogle';
                 ins.style.display = 'block';
-                // Depending on type, you might want to adjust styles, but the wrapper handles dimensions usually
 
                 ins.setAttribute('data-ad-client', clientId);
                 ins.setAttribute('data-ad-slot', slotConfig.slotId);
@@ -66,11 +69,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 scriptsAdded = true;
-            } else {
-                // If the slot is disabled via config, we hide it completely to avoid empty spaces
-                const container = el.closest('.ad-slot-container') || el;
-                container.style.display = 'none';
             }
+            // If slot is disabled, container stays hidden (default state)
         });
 
         // If at least one ad was injected, load the AdSense external script
