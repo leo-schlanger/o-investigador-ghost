@@ -154,21 +154,17 @@ const ArticleEditor = () => {
         // For editing: wait for editorData before initializing
         // For new articles: initialize immediately
         if (isEditing && !editorData) {
-            console.log('Editing mode: waiting for article data...');
             return;
         }
 
         // Destroy existing editor if any
         if (editorInstanceRef.current) {
-            console.log('Destroying existing editor instance');
             editorInstanceRef.current.destroy();
             editorInstanceRef.current = null;
             setEditorReady(false);
         }
 
         const initEditor = async () => {
-            console.log('Creating new Editor.js instance with data:', editorData ? `${editorData.blocks?.length} blocks` : 'empty');
-
             const editor = new EditorJS({
                 holder: editorRef.current,
                 placeholder: 'Comece a escrever seu artigo...',
@@ -254,21 +250,17 @@ const ArticleEditor = () => {
                     delimiter: Delimiter,
                 },
                 onReady: () => {
-                    console.log('Editor.js onReady callback fired');
                     setEditorReady(true);
                 },
             });
 
             editorInstanceRef.current = editor;
-            console.log('Editor instance created and stored');
         };
 
-        console.log('Initializing Editor.js...');
         initEditor();
 
         return () => {
             if (editorInstanceRef.current && editorInstanceRef.current.destroy) {
-                console.log('Cleanup: destroying editor instance');
                 editorInstanceRef.current.destroy();
                 editorInstanceRef.current = null;
             }
@@ -331,15 +323,11 @@ const ArticleEditor = () => {
             if (data.html) {
                 // Fix mixed content: convert http:// URLs to https://
                 const fixedHtml = data.html.replace(/http:\/\/api\.jornalinvestigador\.pt/g, 'https://api.jornalinvestigador.pt');
-
-                console.log('Article HTML received:', fixedHtml.substring(0, 500));
                 const blocks = htmlToEditorJs(fixedHtml);
-                console.log('Converted to Editor.js blocks:', JSON.stringify(blocks, null, 2));
 
                 if (blocks && blocks.blocks && blocks.blocks.length > 0) {
                     setEditorData(blocks);
                 } else {
-                    console.warn('No blocks parsed from HTML, creating fallback');
                     // Fallback: create a simple paragraph block with the HTML content
                     const textContent = fixedHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                     setEditorData({
@@ -351,8 +339,6 @@ const ArticleEditor = () => {
                         version: '2.28.0'
                     });
                 }
-            } else {
-                console.log('No HTML content in article');
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error

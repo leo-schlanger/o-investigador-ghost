@@ -91,7 +91,8 @@ exports.getPost = async (id, options = {}) => {
 
     try {
         const queryOptions = {
-            include: 'tags,authors'
+            include: 'tags,authors',
+            formats: 'html'  // Required to get HTML content
         };
 
         let post;
@@ -424,7 +425,10 @@ exports.getPage = async (id, options = {}) => {
     }
 
     try {
-        const queryOptions = { include: 'tags,authors' };
+        const queryOptions = {
+            include: 'tags,authors',
+            formats: 'html'  // Required to get HTML content
+        };
         let page;
         if (options.by === 'slug') {
             page = await ghostApi.pages.read({ slug: id, ...queryOptions });

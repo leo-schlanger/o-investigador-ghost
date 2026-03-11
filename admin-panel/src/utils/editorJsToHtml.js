@@ -104,7 +104,6 @@ function collectBlocks(node, blocks) {
     if (node.nodeType === Node.TEXT_NODE) {
         const text = node.textContent.trim();
         if (text) {
-            console.log('collectBlocks: Adding text node as paragraph:', text.substring(0, 50));
             blocks.push({
                 type: 'paragraph',
                 data: { text }
@@ -119,11 +118,9 @@ function collectBlocks(node, blocks) {
     }
 
     const tagName = node.tagName.toLowerCase();
-    console.log('collectBlocks: Processing element:', tagName);
 
     // For container elements, recursively process children
     if (CONTAINER_TAGS.includes(tagName)) {
-        console.log('collectBlocks: Container element, processing children...');
         for (const child of node.childNodes) {
             collectBlocks(child, blocks);
         }
@@ -133,10 +130,7 @@ function collectBlocks(node, blocks) {
     // For regular elements, try to parse as a block
     const block = parseElement(node);
     if (block) {
-        console.log('collectBlocks: Parsed block:', block.type);
         blocks.push(block);
-    } else {
-        console.log('collectBlocks: parseElement returned null for:', tagName);
     }
 }
 
@@ -147,10 +141,7 @@ function collectBlocks(node, blocks) {
  * @returns {Object} - Editor.js data format
  */
 export const htmlToEditorJs = (html) => {
-    console.log('htmlToEditorJs called with:', html ? html.substring(0, 100) + '...' : 'null/empty');
-
     if (!html || typeof html !== 'string') {
-        console.log('htmlToEditorJs: No valid HTML input');
         return { time: Date.now(), blocks: [], version: '2.28.0' };
     }
 
@@ -160,19 +151,13 @@ export const htmlToEditorJs = (html) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        console.log('htmlToEditorJs: Parsed DOM, body children count:', doc.body.childNodes.length);
-
         // Process all child nodes recursively
         for (const node of doc.body.childNodes) {
-            console.log('htmlToEditorJs: Processing node:', node.nodeName, node.nodeType);
             collectBlocks(node, blocks);
         }
 
-        console.log('htmlToEditorJs: Collected blocks count:', blocks.length);
-
         // If no blocks were parsed but HTML exists, create a fallback paragraph
         if (blocks.length === 0 && html.trim()) {
-            console.log('htmlToEditorJs: No blocks found, creating fallback');
             const textContent = doc.body.textContent.trim();
             if (textContent) {
                 blocks.push({
@@ -182,7 +167,7 @@ export const htmlToEditorJs = (html) => {
             }
         }
     } catch (err) {
-        console.error('htmlToEditorJs: Error parsing HTML:', err);
+        console.error('Error parsing HTML to Editor.js:', err);
         // Fallback: create simple paragraph with stripped text
         const textContent = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
         if (textContent) {
@@ -193,7 +178,6 @@ export const htmlToEditorJs = (html) => {
         }
     }
 
-    console.log('htmlToEditorJs: Final result:', blocks.length, 'blocks');
     return {
         time: Date.now(),
         blocks,
