@@ -1,6 +1,16 @@
 {{!< default}} {{!-- JN Layout: Boxy, Grid-based, Information Dense - Mobile First --}} <div
     class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
+    {{!-- Last Update Timestamp --}}
+    <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-400 mb-2 sm:mb-3">
+        <span class="inline-flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Atualizado: {{date format="D MMM YYYY, HH:mm"}}
+        </span>
+    </div>
+
     {{!-- TOP AD: Leaderboard --}}
     {{> ad-slot type="leaderboard" label="Publicidade" slotId="header_leaderboard"}}
 
@@ -17,7 +27,7 @@
                 {{#if feature_image}}
                 <img src="{{img_url feature_image size='xl'}}"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    alt="{{title}}">
+                    alt="{{title}}" loading="eager">
                 {{/if}}
                 <div
                     class="absolute bottom-0 left-0 bg-brand-accent text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 uppercase tracking-widest">
@@ -76,7 +86,7 @@
                                 {{#if feature_image}}
                                 <img src="{{img_url feature_image size='xs'}}"
                                     class="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:scale-105"
-                                    alt="{{title}}">
+                                    alt="{{title}}" loading="lazy">
                                 {{/if}}
                             </div>
                         </a>
@@ -156,8 +166,9 @@
             {{!-- Most Read - Fetches most recent posts as proxy for popularity --}}
             <div class="bg-neutral-50 p-3 sm:p-4 md:p-6 border-t-4 border-brand-accent">
                 <h3 class="text-base sm:text-lg md:text-xl font-black uppercase mb-3 sm:mb-4 md:mb-6">Mais Lidas</h3>
-                {{#get "posts" limit="5" order="published_at desc" include="authors"}}
-                <ol class="space-y-2.5 sm:space-y-3 md:space-y-4 text-neutral-900">
+                {{!-- Dynamic most viewed list - populated by view-tracker.js, fallback to recent posts --}}
+                <ol id="most-viewed-list" class="space-y-2.5 sm:space-y-3 md:space-y-4 text-neutral-900">
+                    {{#get "posts" limit="5" order="published_at desc" include="authors"}}
                     {{#foreach posts}}
                     <li class="flex gap-2 border-b border-neutral-200 pb-2 last:border-0 group">
                         <span class="text-brand-accent font-black text-sm sm:text-base md:text-lg">{{@number}}.</span>
@@ -166,10 +177,27 @@
                         </a>
                     </li>
                     {{/foreach}}
+                    {{else}}
+                    <li class="text-sm text-neutral-500">Nenhum artigo disponível.</li>
+                    {{/get}}
                 </ol>
-                {{else}}
-                <p class="text-sm text-neutral-500">Nenhum artigo disponível.</p>
-                {{/get}}
+            </div>
+
+            {{!-- Newsletter Signup --}}
+            <div class="bg-brand-dark text-white p-4 sm:p-5 md:p-6 rounded-sm">
+                <h3 class="text-base sm:text-lg md:text-xl font-black uppercase mb-2 sm:mb-3">Newsletter</h3>
+                <p class="text-xs sm:text-sm text-white/80 mb-3 sm:mb-4">Receba as principais notícias diretamente no seu email.</p>
+                <form data-members-form="subscribe" class="flex flex-col gap-2 sm:gap-3">
+                    <input type="email" name="email" required
+                        class="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 rounded-sm text-white placeholder-white/50 focus:outline-none focus:border-brand-accent"
+                        placeholder="Seu email">
+                    <button type="submit"
+                        class="w-full px-4 py-2 text-xs sm:text-sm font-bold uppercase tracking-wide bg-brand-accent hover:bg-brand-accent/90 transition-colors rounded-sm">
+                        Subscrever
+                    </button>
+                    <p class="text-[10px] sm:text-xs text-white/50 hidden" data-members-error></p>
+                    <p class="text-[10px] sm:text-xs text-green-400 hidden" data-members-success>Obrigado por subscrever!</p>
+                </form>
             </div>
 
             {{!-- MPU Ad 2 --}}

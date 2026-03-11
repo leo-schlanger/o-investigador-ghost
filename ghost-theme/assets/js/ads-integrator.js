@@ -22,11 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const clientId = adConfig.adsenseClientId;
-        if (!clientId) {
-            console.warn('AdSense Client ID is missing. Cannot render ads.');
-            return;
-        }
-
         const adSlots = adConfig.adSlots || {};
         let scriptsAdded = false;
 
@@ -38,43 +33,47 @@ document.addEventListener("DOMContentLoaded", async () => {
             const slotConfig = adSlots[slotId];
             const container = el.closest('.ad-slot-container') || el;
 
-            // Only inject the ad if the specific slot is enabled and has a valid slot ID
-            if (slotConfig && slotConfig.enabled && slotConfig.slotId) {
+            // Check if slot is enabled (even if AdSense IDs aren't configured yet)
+            if (slotConfig && slotConfig.enabled) {
                 // Show the container (it's hidden by default in the template)
                 container.style.display = 'flex';
 
-                // Remove the mock pattern and texts
-                el.innerHTML = '';
+                // If we have both client ID and slot ID, inject real ad
+                if (clientId && slotConfig.slotId) {
+                    // Remove the mock pattern and texts
+                    el.innerHTML = '';
 
-                // Keep the structural classes but remove the static styling if needed
-                el.classList.remove('bg-neutral-100', 'border', 'border-neutral-200');
+                    // Keep the structural classes but remove the static styling if needed
+                    el.classList.remove('bg-neutral-100', 'border', 'border-neutral-200');
 
-                // Create the AdSense ins tag
-                const ins = document.createElement('ins');
-                ins.className = 'adsbygoogle';
-                ins.style.display = 'block';
+                    // Create the AdSense ins tag
+                    const ins = document.createElement('ins');
+                    ins.className = 'adsbygoogle';
+                    ins.style.display = 'block';
 
-                ins.setAttribute('data-ad-client', clientId);
-                ins.setAttribute('data-ad-slot', slotConfig.slotId);
-                ins.setAttribute('data-ad-format', 'auto');
-                ins.setAttribute('data-full-width-responsive', 'true');
+                    ins.setAttribute('data-ad-client', clientId);
+                    ins.setAttribute('data-ad-slot', slotConfig.slotId);
+                    ins.setAttribute('data-ad-format', 'auto');
+                    ins.setAttribute('data-full-width-responsive', 'true');
 
-                el.appendChild(ins);
+                    el.appendChild(ins);
 
-                // Initialize this specific ad
-                try {
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                } catch (e) {
-                    console.error('Error initializing AdSense slot', e);
+                    // Initialize this specific ad
+                    try {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    } catch (e) {
+                        console.error('Error initializing AdSense slot', e);
+                    }
+
+                    scriptsAdded = true;
                 }
-
-                scriptsAdded = true;
+                // If slot is enabled but missing AdSense IDs, show placeholder (default template content)
             }
             // If slot is disabled, container stays hidden (default state)
         });
 
         // If at least one ad was injected, load the AdSense external script
-        if (scriptsAdded) {
+        if (scriptsAdded && clientId) {
             const script = document.createElement('script');
             script.async = true;
             script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
