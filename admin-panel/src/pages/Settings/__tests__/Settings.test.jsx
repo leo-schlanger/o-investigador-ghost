@@ -17,13 +17,13 @@ describe('SettingsPage', () => {
         vi.clearAllMocks();
     });
 
-    it('should show loading state initially', () => {
+    it('should show loading state initially', async () => {
         getSettings.mockReturnValue(new Promise(() => {})); // Never resolves
 
         renderWithRouter(<SettingsPage />);
 
-        expect(screen.getByText('Settings')).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+        expect(screen.getByText('Configuracoes')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'Configuracoes' })).toBeInTheDocument();
     });
 
     it('should load and display settings', async () => {
@@ -35,10 +35,10 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toHaveValue('My Test Site');
+            expect(screen.getByLabelText('Titulo do Site')).toHaveValue('My Test Site');
         });
 
-        expect(screen.getByLabelText('Site Description')).toHaveValue('A great site');
+        expect(screen.getByLabelText('Descricao do Site')).toHaveValue('A great site');
     });
 
     it('should use default values when settings are empty', async () => {
@@ -47,10 +47,10 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toHaveValue('O Investigador');
+            expect(screen.getByLabelText('Titulo do Site')).toHaveValue('O Investigador');
         });
 
-        expect(screen.getByLabelText('Site Description')).toHaveValue('Investigative Journalism Portal');
+        expect(screen.getByLabelText('Descricao do Site')).toHaveValue('Portal de Jornalismo Investigativo');
     });
 
     it('should show error message when loading fails', async () => {
@@ -59,7 +59,7 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByText('Failed to load settings')).toBeInTheDocument();
+            expect(screen.getByText('Falha ao carregar configuracoes')).toBeInTheDocument();
         });
     });
 
@@ -73,10 +73,10 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toHaveValue('Original Title');
+            expect(screen.getByLabelText('Titulo do Site')).toHaveValue('Original Title');
         });
 
-        const titleInput = screen.getByLabelText('Site Title');
+        const titleInput = screen.getByLabelText('Titulo do Site');
         await user.clear(titleInput);
         await user.type(titleInput, 'New Title');
 
@@ -97,18 +97,18 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toHaveValue('Original Title');
+            expect(screen.getByLabelText('Titulo do Site')).toHaveValue('Original Title');
         });
 
-        const titleInput = screen.getByLabelText('Site Title');
+        const titleInput = screen.getByLabelText('Titulo do Site');
         await user.clear(titleInput);
         await user.type(titleInput, 'New Title');
 
-        const saveButton = screen.getByRole('button', { name: 'Save Changes' });
+        const saveButton = screen.getByRole('button', { name: 'Salvar Alteracoes' });
         await user.click(saveButton);
 
         await waitFor(() => {
-            expect(screen.getByText('Settings saved successfully!')).toBeInTheDocument();
+            expect(screen.getByText('Configuracoes salvas com sucesso!')).toBeInTheDocument();
         });
 
         expect(updateSettings).toHaveBeenCalledWith(
@@ -130,14 +130,14 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toBeInTheDocument();
+            expect(screen.getByLabelText('Titulo do Site')).toBeInTheDocument();
         });
 
-        const saveButton = screen.getByRole('button', { name: 'Save Changes' });
+        const saveButton = screen.getByRole('button', { name: 'Salvar Alteracoes' });
         await user.click(saveButton);
 
         await waitFor(() => {
-            expect(screen.getByText('Failed to save settings')).toBeInTheDocument();
+            expect(screen.getByText('Falha ao salvar configuracoes')).toBeInTheDocument();
         });
     });
 
@@ -152,12 +152,12 @@ describe('SettingsPage', () => {
         renderWithRouter(<SettingsPage />);
 
         await waitFor(() => {
-            expect(screen.getByLabelText('Site Title')).toBeInTheDocument();
+            expect(screen.getByLabelText('Titulo do Site')).toBeInTheDocument();
         });
 
-        const saveButton = screen.getByRole('button', { name: 'Save Changes' });
+        const saveButton = screen.getByRole('button', { name: 'Salvar Alteracoes' });
         await user.click(saveButton);
 
-        expect(screen.getByRole('button', { name: 'Saving...' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Salvando...' })).toBeInTheDocument();
     });
 });
