@@ -8,7 +8,9 @@ RUN npm install
 
 COPY . .
 
-RUN chown -R node:node /app
+# Create uploads directory with proper permissions
+RUN mkdir -p /app/uploads && chown -R node:node /app
+
 USER node
 
 EXPOSE 3000

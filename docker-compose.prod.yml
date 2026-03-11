@@ -82,8 +82,11 @@ services:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CORS_ORIGIN: https://jornalinvestigador.pt,https://admin.jornalinvestigador.pt
+      PUBLIC_API_URL: https://api.jornalinvestigador.pt
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
+    volumes:
+      - api_uploads:/app/uploads
     healthcheck:
       test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health" ]
       interval: 10s
@@ -128,6 +131,7 @@ services:
 volumes:
   mysql_data:
   ghost_content:
+  api_uploads:
 
 networks:
   o-investigador-network:

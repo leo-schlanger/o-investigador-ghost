@@ -36,9 +36,19 @@ exports.uploadMedia = (req, res) => {
         if (err) return res.status(400).json({ error: err.message });
         if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
-        const protocol = req.protocol;
-        const host = req.get('host');
-        const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        // Use PUBLIC_API_URL env var in production, fallback to request host
+        const publicApiUrl = process.env.PUBLIC_API_URL;
+        let fileUrl;
+
+        if (publicApiUrl) {
+            // Production: use configured public URL
+            fileUrl = `${publicApiUrl}/uploads/${req.file.filename}`;
+        } else {
+            // Development: use request host
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+            const host = req.get('host');
+            fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        }
 
         try {
             const media = await Media.create({

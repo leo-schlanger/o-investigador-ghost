@@ -72,6 +72,79 @@ const ArticleEditor = () => {
     const [showPreview, setShowPreview] = useState(false);
     const [previewHtml, setPreviewHtml] = useState('');
     const [showEditorHelp, setShowEditorHelp] = useState(false);
+    const [showInlineImagePicker, setShowInlineImagePicker] = useState(false);
+    const [autoSlug, setAutoSlug] = useState(!isEditing); // Auto-slug enabled by default for new articles
+
+    // Insert block into Editor.js
+    const insertBlock = async (type, data = {}) => {
+        if (!editorInstanceRef.current || !editorReady) {
+            setError('Editor ainda carregando. Aguarde um momento.');
+            return;
+        }
+
+        try {
+            const editor = editorInstanceRef.current;
+
+            switch (type) {
+                case 'header':
+                    await editor.blocks.insert('header', { text: '', level: 2 });
+                    break;
+                case 'list':
+                    await editor.blocks.insert('list', { style: 'unordered', items: [''] });
+                    break;
+                case 'orderedList':
+                    await editor.blocks.insert('list', { style: 'ordered', items: [''] });
+                    break;
+                case 'quote':
+                    await editor.blocks.insert('quote', { text: '', caption: '' });
+                    break;
+                case 'code':
+                    await editor.blocks.insert('code', { code: '' });
+                    break;
+                case 'table':
+                    await editor.blocks.insert('table', {
+                        withHeadings: true,
+                        content: [['', ''], ['', '']]
+                    });
+                    break;
+                case 'delimiter':
+                    await editor.blocks.insert('delimiter', {});
+                    break;
+                case 'image':
+                    // Open inline image picker
+                    setShowInlineImagePicker(true);
+                    break;
+                default:
+                    break;
+            }
+
+            // Focus the editor after insertion
+            if (type !== 'image') {
+                const lastBlockIndex = (await editor.save()).blocks.length - 1;
+                editor.caret.setToBlock(lastBlockIndex, 'end');
+            }
+        } catch (err) {
+            console.error('Failed to insert block:', err);
+        }
+    };
+
+    // Handle inline image selection from media library
+    const handleInlineImageSelect = async (item) => {
+        setShowInlineImagePicker(false);
+        if (editorInstanceRef.current && editorReady) {
+            try {
+                await editorInstanceRef.current.blocks.insert('image', {
+                    file: { url: item.url },
+                    caption: item.alt || '',
+                    withBorder: false,
+                    withBackground: false,
+                    stretched: false
+                });
+            } catch (err) {
+                console.error('Failed to insert image:', err);
+            }
+        }
+    };
 
     // Initialize Editor.js
     useEffect(() => {
@@ -118,7 +191,7 @@ const ArticleEditor = () => {
 
                                         const uploadData = new FormData();
                                         uploadData.append('file', file);
-                                        const response = await api.post('/api/media', uploadData, {
+                                        const response = await api.post('/api/media/upload', uploadData, {
                                             headers: { 'Content-Type': 'multipart/form-data' },
                                         });
                                         return { success: 1, file: { url: response.data.url } };
@@ -188,9 +261,29 @@ const ArticleEditor = () => {
 
     // Load content into editor when data is ready
     useEffect(() => {
-        if (editorReady && editorData && editorInstanceRef.current) {
-            editorInstanceRef.current.render(editorData);
-        }
+        const loadContent = async () => {
+            if (editorReady && editorData && editorInstanceRef.current) {
+                try {
+                    // Wait for editor to be fully ready
+                    await editorInstanceRef.current.isReady;
+
+                    // Clear existing blocks and render new content
+                    await editorInstanceRef.current.render(editorData);
+                    console.log('Editor content loaded successfully');
+                } catch (err) {
+                    console.error('Failed to render editor content:', err);
+                    // Try alternative approach: clear and re-render
+                    try {
+                        await editorInstanceRef.current.clear();
+                        await editorInstanceRef.current.render(editorData);
+                    } catch (retryErr) {
+                        console.error('Retry also failed:', retryErr);
+                    }
+                }
+            }
+        };
+
+        loadContent();
     }, [editorReady, editorData]);
 
     // Traduzir erros comuns do Ghost CMS para português
@@ -241,8 +334,23 @@ const ArticleEditor = () => {
 
             // Convert HTML to Editor.js format
             if (data.html) {
+                console.log('Article HTML received:', data.html.substring(0, 200) + '...');
                 const blocks = htmlToEditorJs(data.html);
-                setEditorData(blocks);
+                console.log('Converted to Editor.js blocks:', blocks);
+                if (blocks && blocks.blocks && blocks.blocks.length > 0) {
+                    setEditorData(blocks);
+                } else {
+                    console.warn('No blocks parsed from HTML, trying fallback');
+                    // Fallback: create a simple paragraph block with the HTML content
+                    setEditorData({
+                        time: Date.now(),
+                        blocks: [{
+                            type: 'paragraph',
+                            data: { text: data.html.replace(/<[^>]*>/g, ' ').trim() || 'Conteudo vazio' }
+                        }],
+                        version: '2.28.0'
+                    });
+                }
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error
@@ -274,8 +382,24 @@ const ArticleEditor = () => {
         setFormData(prev => ({
             ...prev,
             title,
-            slug: prev.slug || generateSlug(title)
+            // Auto-update slug if autoSlug is enabled OR if slug is empty
+            slug: autoSlug ? generateSlug(title) : (prev.slug || generateSlug(title))
         }));
+    };
+
+    const handleSlugChange = (e) => {
+        const value = e.target.value;
+        // When user manually edits slug, disable auto-slug
+        setAutoSlug(false);
+        // Apply slug formatting in real-time
+        const formattedSlug = value
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove accents
+            .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+            .replace(/\s+/g, '-') // Spaces to hyphens
+            .replace(/-+/g, '-'); // Multiple hyphens to single
+        setFormData(prev => ({ ...prev, slug: formattedSlug }));
     };
 
     const generateNewSlug = () => {
@@ -283,6 +407,18 @@ const ArticleEditor = () => {
             ...prev,
             slug: generateSlug(prev.title)
         }));
+    };
+
+    const toggleAutoSlug = () => {
+        const newAutoSlug = !autoSlug;
+        setAutoSlug(newAutoSlug);
+        // If enabling auto-slug, immediately update slug from title
+        if (newAutoSlug && formData.title) {
+            setFormData(prev => ({
+                ...prev,
+                slug: generateSlug(prev.title)
+            }));
+        }
     };
 
     const handleMediaSelect = (item) => {
@@ -468,23 +604,45 @@ const ArticleEditor = () => {
                     />
 
                     {/* Slug */}
-                    <div className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-500">Slug:</span>
-                        <input
-                            type="text"
-                            name="slug"
-                            value={formData.slug}
-                            onChange={handleChange}
-                            className="flex-1 border-0 border-b border-gray-200 focus:border-brand focus:ring-0 px-0 py-1 text-gray-700"
-                        />
-                        <button
-                            type="button"
-                            onClick={generateNewSlug}
-                            className="p-1 text-gray-500 hover:text-brand"
-                            title="Regenerar slug"
-                        >
-                            <RefreshCw size={14} />
-                        </button>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm">
+                            <span className="text-gray-500">Slug:</span>
+                            <input
+                                type="text"
+                                name="slug"
+                                value={formData.slug}
+                                onChange={handleSlugChange}
+                                disabled={autoSlug}
+                                className={`flex-1 border-0 border-b focus:ring-0 px-0 py-1 ${
+                                    autoSlug
+                                        ? 'border-gray-100 text-gray-400 bg-gray-50 cursor-not-allowed'
+                                        : 'border-gray-200 focus:border-brand text-gray-700'
+                                }`}
+                                placeholder="url-do-artigo"
+                            />
+                            <button
+                                type="button"
+                                onClick={generateNewSlug}
+                                className={`p-1 transition-colors ${
+                                    autoSlug
+                                        ? 'text-gray-300 cursor-not-allowed'
+                                        : 'text-gray-500 hover:text-brand'
+                                }`}
+                                title="Regenerar slug do titulo"
+                                disabled={autoSlug}
+                            >
+                                <RefreshCw size={14} />
+                            </button>
+                        </div>
+                        <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={autoSlug}
+                                onChange={toggleAutoSlug}
+                                className="rounded border-gray-300 text-brand focus:ring-brand h-3.5 w-3.5"
+                            />
+                            <span>Auto-preencher slug a partir do titulo</span>
+                        </label>
                     </div>
 
                     {/* Featured Image */}
@@ -544,63 +702,71 @@ const ArticleEditor = () => {
                             </button>
                         </div>
 
-                        {/* Toolbar de Ajuda - Estilo WordPress */}
+                        {/* Toolbar Funcional - Estilo WordPress */}
                         <div className="bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex items-center gap-1 flex-wrap">
                             <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
                                 <span className="text-xs text-gray-500 mr-1">Blocos:</span>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('header')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Titulo (H2, H3, H4) - Clique no + e selecione Heading"
+                                    title="Inserir Titulo (H2)"
                                 >
                                     <Type size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('list')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Lista - Clique no + e selecione List"
+                                    title="Inserir Lista"
                                 >
                                     <ListIcon size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('orderedList')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Lista Numerada - Clique no + e selecione Numbered List"
+                                    title="Inserir Lista Numerada"
                                 >
                                     <ListOrdered size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('quote')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Citacao - Clique no + e selecione Quote"
+                                    title="Inserir Citacao"
                                 >
                                     <QuoteIcon size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('code')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Codigo - Clique no + e selecione Code"
+                                    title="Inserir Bloco de Codigo"
                                 >
                                     <CodeIcon size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('table')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Tabela - Clique no + e selecione Table"
+                                    title="Inserir Tabela"
                                 >
                                     <TableIcon size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('image')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Imagem - Clique no + e selecione Image"
+                                    title="Inserir Imagem"
                                 >
                                     <ImageIcon size={16} />
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={() => insertBlock('delimiter')}
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Separador - Clique no + e selecione Delimiter"
+                                    title="Inserir Separador"
                                 >
                                     <Minus size={16} />
                                 </button>
@@ -609,15 +775,15 @@ const ArticleEditor = () => {
                                 <span className="text-xs text-gray-500 mr-1">Texto:</span>
                                 <button
                                     type="button"
-                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Negrito - Selecione o texto e use Ctrl+B"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors cursor-help"
+                                    title="Negrito: Selecione texto e pressione Ctrl+B"
                                 >
                                     <Bold size={16} />
                                 </button>
                                 <button
                                     type="button"
-                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
-                                    title="Italico - Selecione o texto e use Ctrl+I"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors cursor-help"
+                                    title="Italico: Selecione texto e pressione Ctrl+I"
                                 >
                                     <Italic size={16} />
                                 </button>
@@ -991,6 +1157,30 @@ const ArticleEditor = () => {
                                 />
                             </article>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Inline Image Picker Modal (for toolbar image button) */}
+            {showInlineImagePicker && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+                    onClick={() => setShowInlineImagePicker(false)}
+                >
+                    <div
+                        className="bg-gray-100 rounded-xl w-full max-w-5xl max-h-[85vh] overflow-y-auto p-6"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold">Inserir Imagem no Conteudo</h2>
+                            <button
+                                onClick={() => setShowInlineImagePicker(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <MediaLibrary onSelect={handleInlineImageSelect} />
                     </div>
                 </div>
             )}

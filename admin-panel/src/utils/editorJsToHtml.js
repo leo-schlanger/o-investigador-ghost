@@ -90,6 +90,51 @@ export const convertToHtml = (editorData) => {
 };
 
 /**
+ * Container element tags that should have their children parsed recursively
+ */
+const CONTAINER_TAGS = ['div', 'section', 'article', 'main', 'aside', 'header', 'footer'];
+
+/**
+ * Collect blocks from a node and its children
+ * @param {Node} node - DOM node to process
+ * @param {Array} blocks - Array to collect blocks into
+ */
+function collectBlocks(node, blocks) {
+    // Handle text nodes directly
+    if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.trim();
+        if (text) {
+            blocks.push({
+                type: 'paragraph',
+                data: { text }
+            });
+        }
+        return;
+    }
+
+    // Only process element nodes
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+        return;
+    }
+
+    const tagName = node.tagName.toLowerCase();
+
+    // For container elements, recursively process children
+    if (CONTAINER_TAGS.includes(tagName)) {
+        for (const child of node.childNodes) {
+            collectBlocks(child, blocks);
+        }
+        return;
+    }
+
+    // For regular elements, try to parse as a block
+    const block = parseElement(node);
+    if (block) {
+        blocks.push(block);
+    }
+}
+
+/**
  * Convert HTML to Editor.js blocks
  * Note: This is a basic parser for simple HTML structures
  * @param {string} html - HTML string
@@ -101,14 +146,35 @@ export const htmlToEditorJs = (html) => {
     }
 
     const blocks = [];
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const elements = doc.body.children;
 
-    for (const element of elements) {
-        const block = parseElement(element);
-        if (block) {
-            blocks.push(block);
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // Process all child nodes recursively
+        for (const node of doc.body.childNodes) {
+            collectBlocks(node, blocks);
+        }
+
+        // If no blocks were parsed but HTML exists, create a fallback paragraph
+        if (blocks.length === 0 && html.trim()) {
+            const textContent = doc.body.textContent.trim();
+            if (textContent) {
+                blocks.push({
+                    type: 'paragraph',
+                    data: { text: textContent }
+                });
+            }
+        }
+    } catch (err) {
+        console.error('Error parsing HTML to Editor.js:', err);
+        // Fallback: create simple paragraph with stripped text
+        const textContent = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (textContent) {
+            blocks.push({
+                type: 'paragraph',
+                data: { text: textContent }
+            });
         }
     }
 
@@ -257,6 +323,27 @@ function parseElement(element) {
                 type: 'delimiter',
                 data: {}
             };
+
+        case 'br':
+            // Skip line breaks at block level
+            return null;
+
+        case 'span':
+        case 'strong':
+        case 'em':
+        case 'b':
+        case 'i':
+        case 'a':
+            // Inline elements at root level - wrap in paragraph
+            if (element.textContent.trim()) {
+                return {
+                    type: 'paragraph',
+                    data: {
+                        text: element.outerHTML
+                    }
+                };
+            }
+            return null;
 
         default:
             // Try to parse as paragraph if text content exists
