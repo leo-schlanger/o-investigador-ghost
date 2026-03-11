@@ -236,13 +236,16 @@ const ArticleEditor = () => {
                     delimiter: Delimiter,
                 },
                 onReady: () => {
+                    console.log('Editor.js onReady callback fired');
                     setEditorReady(true);
                 },
             });
 
             editorInstanceRef.current = editor;
+            console.log('Editor instance created and stored');
         };
 
+        console.log('Initializing Editor.js...');
         initEditor();
 
         return () => {
@@ -261,24 +264,43 @@ const ArticleEditor = () => {
 
     // Load content into editor when data is ready
     useEffect(() => {
-        const loadContent = async () => {
-            if (editorReady && editorData && editorInstanceRef.current) {
-                try {
-                    // Wait for editor to be fully ready
-                    await editorInstanceRef.current.isReady;
+        console.log('Editor load effect triggered:', { editorReady, hasEditorData: !!editorData, hasEditorRef: !!editorInstanceRef.current });
 
-                    // Clear existing blocks and render new content
+        const loadContent = async () => {
+            if (!editorReady) {
+                console.log('Editor not ready yet, waiting...');
+                return;
+            }
+            if (!editorData) {
+                console.log('No editor data yet, waiting...');
+                return;
+            }
+            if (!editorInstanceRef.current) {
+                console.log('No editor instance ref, waiting...');
+                return;
+            }
+
+            console.log('All conditions met, attempting to render content...');
+            console.log('Editor data to render:', JSON.stringify(editorData, null, 2));
+
+            try {
+                // Wait for editor to be fully ready
+                await editorInstanceRef.current.isReady;
+                console.log('Editor isReady promise resolved');
+
+                // Clear existing blocks and render new content
+                await editorInstanceRef.current.render(editorData);
+                console.log('Editor content loaded successfully!');
+            } catch (err) {
+                console.error('Failed to render editor content:', err);
+                // Try alternative approach: clear and re-render
+                try {
+                    console.log('Attempting clear + re-render...');
+                    await editorInstanceRef.current.clear();
                     await editorInstanceRef.current.render(editorData);
-                    console.log('Editor content loaded successfully');
-                } catch (err) {
-                    console.error('Failed to render editor content:', err);
-                    // Try alternative approach: clear and re-render
-                    try {
-                        await editorInstanceRef.current.clear();
-                        await editorInstanceRef.current.render(editorData);
-                    } catch (retryErr) {
-                        console.error('Retry also failed:', retryErr);
-                    }
+                    console.log('Clear + re-render succeeded!');
+                } catch (retryErr) {
+                    console.error('Retry also failed:', retryErr);
                 }
             }
         };
@@ -334,23 +356,30 @@ const ArticleEditor = () => {
 
             // Convert HTML to Editor.js format
             if (data.html) {
-                console.log('Article HTML received:', data.html.substring(0, 200) + '...');
-                const blocks = htmlToEditorJs(data.html);
-                console.log('Converted to Editor.js blocks:', blocks);
+                // Fix mixed content: convert http:// URLs to https://
+                const fixedHtml = data.html.replace(/http:\/\/api\.jornalinvestigador\.pt/g, 'https://api.jornalinvestigador.pt');
+
+                console.log('Article HTML received:', fixedHtml.substring(0, 500));
+                const blocks = htmlToEditorJs(fixedHtml);
+                console.log('Converted to Editor.js blocks:', JSON.stringify(blocks, null, 2));
+
                 if (blocks && blocks.blocks && blocks.blocks.length > 0) {
                     setEditorData(blocks);
                 } else {
-                    console.warn('No blocks parsed from HTML, trying fallback');
+                    console.warn('No blocks parsed from HTML, creating fallback');
                     // Fallback: create a simple paragraph block with the HTML content
+                    const textContent = fixedHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                     setEditorData({
                         time: Date.now(),
                         blocks: [{
                             type: 'paragraph',
-                            data: { text: data.html.replace(/<[^>]*>/g, ' ').trim() || 'Conteudo vazio' }
+                            data: { text: textContent || 'Conteudo vazio' }
                         }],
                         version: '2.28.0'
                     });
                 }
+            } else {
+                console.log('No HTML content in article');
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error
