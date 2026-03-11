@@ -35,6 +35,9 @@ app.use(cors({
     credentials: true
 }));
 
+// Trust proxy (nginx) - required for rate limiting behind reverse proxy
+app.set('trust proxy', 1);
+
 // Rate limiting
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
