@@ -1,10 +1,15 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
+        // Determine API URL based on environment
+        const isProduction = window.location.hostname !== 'localhost';
+        const apiBaseUrl = isProduction
+            ? 'https://api.jornalinvestigador.pt'
+            : 'http://localhost:3001';
+
         // Fetch ad configuration from the CMS API
-        // Adjust the URL if the cms-api runs on a different host in production
-        const response = await fetch('http://localhost:5000/api/public/ads-config');
+        const response = await fetch(`${apiBaseUrl}/api/public/ads-config`);
         if (!response.ok) {
-            console.error('Failed to fetch ad configuration');
+            console.error('Failed to fetch ad configuration:', response.status);
             return;
         }
 
