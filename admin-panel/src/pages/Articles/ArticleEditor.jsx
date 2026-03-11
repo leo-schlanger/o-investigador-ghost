@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createArticle, getArticle, updateArticle, getTags } from '../../services/articles';
+import { createArticle, getArticle, updateArticle, getTags, ARTICLE_TYPES } from '../../services/articles';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
 import MediaLibrary from '../Media/MediaLibrary';
 import {
@@ -13,10 +13,19 @@ import {
     RefreshCw,
     Calendar,
     Eye,
-    Users,
-    Lock,
     Tag,
-    Plus
+    Plus,
+    Type,
+    Bold,
+    Italic,
+    List as ListIcon,
+    ListOrdered,
+    Quote as QuoteIcon,
+    Code as CodeIcon,
+    Table as TableIcon,
+    Minus,
+    HelpCircle,
+    FileText
 } from 'lucide-react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -46,7 +55,8 @@ const ArticleEditor = () => {
         published_at: '',
         meta_title: '',
         meta_description: '',
-        tags: []
+        tags: [],
+        article_type: ''
     });
 
     const [loading, setLoading] = useState(isEditing);
@@ -60,6 +70,7 @@ const ArticleEditor = () => {
     const [editorReady, setEditorReady] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [previewHtml, setPreviewHtml] = useState('');
+    const [showEditorHelp, setShowEditorHelp] = useState(false);
 
     // Initialize Editor.js
     useEffect(() => {
@@ -90,17 +101,41 @@ const ArticleEditor = () => {
                             uploader: {
                                 uploadByFile: async (file) => {
                                     try {
-                                        const formData = new FormData();
-                                        formData.append('file', file);
-                                        const response = await api.post('/api/media', formData, {
+                                        // Validar tamanho do arquivo (max 10MB)
+                                        const maxSize = 10 * 1024 * 1024;
+                                        if (file.size > maxSize) {
+                                            setError('Imagem muito grande. Maximo permitido: 10MB');
+                                            return { success: 0 };
+                                        }
+
+                                        // Validar tipo do arquivo
+                                        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                                        if (!allowedTypes.includes(file.type)) {
+                                            setError('Tipo de arquivo nao permitido. Use: JPG, PNG, GIF ou WebP');
+                                            return { success: 0 };
+                                        }
+
+                                        const uploadData = new FormData();
+                                        uploadData.append('file', file);
+                                        const response = await api.post('/api/media', uploadData, {
                                             headers: { 'Content-Type': 'multipart/form-data' },
                                         });
                                         return { success: 1, file: { url: response.data.url } };
-                                    } catch {
+                                    } catch (err) {
+                                        console.error('Image upload failed:', err);
+                                        const errorMsg = err.response?.data?.error || 'Falha ao enviar imagem';
+                                        setError(`Erro no upload: ${errorMsg}`);
                                         return { success: 0 };
                                     }
                                 },
-                                uploadByUrl: async (url) => ({ success: 1, file: { url } }),
+                                uploadByUrl: async (url) => {
+                                    // Validar URL basica
+                                    if (!url || !url.startsWith('http')) {
+                                        setError('URL de imagem invalida');
+                                        return { success: 0 };
+                                    }
+                                    return { success: 1, file: { url } };
+                                },
                             },
                         },
                     },
@@ -157,6 +192,35 @@ const ArticleEditor = () => {
         }
     }, [editorReady, editorData]);
 
+    // Traduzir erros comuns do Ghost CMS para português
+    const translateGhostError = (error) => {
+        const errorMap = {
+            'Ghost API is not configured': 'API do Ghost nao esta configurada. Verifique as variaveis de ambiente.',
+            'Title is required': 'O titulo e obrigatorio.',
+            'not found': 'Artigo nao encontrado. Pode ter sido deletado.',
+            'Validation failed': 'Validacao falhou. Verifique os campos preenchidos.',
+            'Unauthorized': 'Sessao expirada. Faca login novamente.',
+            'Network Error': 'Erro de conexao. Verifique sua internet.',
+            'ECONNREFUSED': 'Servidor indisponivel. Tente novamente mais tarde.',
+            'slug': 'O slug ja esta em uso por outro artigo.',
+            'UpdateCollisionError': 'Conflito de atualizacao. O artigo foi modificado por outro usuario.',
+            'Request failed': 'Falha na requisicao. Verifique os dados e tente novamente.',
+            'timeout': 'Tempo limite excedido. Tente novamente.',
+            'html': 'Conteudo HTML invalido.',
+            'feature_image': 'URL da imagem destacada invalida.',
+            'published_at': 'Data de publicacao invalida.',
+            'visibility': 'Configuracao de visibilidade invalida.',
+        };
+
+        for (const [key, translation] of Object.entries(errorMap)) {
+            if (error.toLowerCase().includes(key.toLowerCase())) {
+                return translation;
+            }
+        }
+
+        return `Erro ao salvar: ${error}`;
+    };
+
     const fetchArticle = async () => {
         try {
             const data = await getArticle(id);
@@ -170,7 +234,8 @@ const ArticleEditor = () => {
                 published_at: data.published_at ? data.published_at.slice(0, 16) : '',
                 meta_title: data.meta_title || '',
                 meta_description: data.meta_description || '',
-                tags: data.tags || []
+                tags: data.tags || [],
+                article_type: data.article_type || ''
             });
 
             // Convert HTML to Editor.js format
@@ -178,8 +243,12 @@ const ArticleEditor = () => {
                 const blocks = htmlToEditorJs(data.html);
                 setEditorData(blocks);
             }
-        } catch {
-            setError('Falha ao carregar artigo');
+        } catch (err) {
+            const errorMessage = err.response?.data?.error
+                || err.response?.data?.message
+                || err.message
+                || 'Erro desconhecido';
+            setError(translateGhostError(errorMessage));
         } finally {
             setLoading(false);
         }
@@ -263,8 +332,25 @@ const ArticleEditor = () => {
     };
 
     const handleSubmit = async (targetStatus) => {
-        setSaving(true);
         setError('');
+
+        // Validacoes no frontend antes de enviar
+        if (!formData.title || formData.title.trim() === '') {
+            setError('O titulo e obrigatorio.');
+            return;
+        }
+
+        if (formData.title.length > 255) {
+            setError('O titulo deve ter no maximo 255 caracteres.');
+            return;
+        }
+
+        if (targetStatus === 'scheduled' && !formData.published_at) {
+            setError('Posts agendados precisam de uma data de publicacao.');
+            return;
+        }
+
+        setSaving(true);
 
         try {
             // Get editor content
@@ -274,9 +360,17 @@ const ArticleEditor = () => {
                 html = convertToHtml(outputData);
             }
 
+            // Validar se tem conteudo
+            const textContent = html.replace(/<[^>]*>/g, '').trim();
+            if (!textContent && !formData.feature_image) {
+                setError('Adicione algum conteudo ao artigo antes de salvar.');
+                setSaving(false);
+                return;
+            }
+
             const payload = {
-                title: formData.title,
-                slug: formData.slug,
+                title: formData.title.trim(),
+                slug: formData.slug || undefined,
                 html,
                 custom_excerpt: formData.excerpt,
                 feature_image: formData.feature_image || null,
@@ -284,7 +378,8 @@ const ArticleEditor = () => {
                 visibility: formData.visibility,
                 meta_title: formData.meta_title || null,
                 meta_description: formData.meta_description || null,
-                tags: formData.tags.map(t => t.name || t)
+                tags: formData.tags.map(t => t.name || t),
+                article_type: formData.article_type || undefined
             };
 
             // Handle scheduled posts
@@ -298,10 +393,19 @@ const ArticleEditor = () => {
                 await createArticle(payload);
             }
 
+            setSaving(false);
             navigate('/articles');
         } catch (err) {
             console.error('Save error:', err);
-            setError('Falha ao salvar artigo');
+            // Extrair mensagem de erro detalhada do backend
+            const errorMessage = err.response?.data?.error
+                || err.response?.data?.message
+                || err.message
+                || 'Erro desconhecido ao salvar artigo';
+
+            // Traduzir erros comuns do Ghost para português
+            const translatedError = translateGhostError(errorMessage);
+            setError(translatedError);
             setSaving(false);
         }
     };
@@ -319,9 +423,35 @@ const ArticleEditor = () => {
             {/* Main Content Area */}
             <div className="flex-1 min-w-0">
                 {error && (
-                    <div className="bg-red-100 text-red-700 p-3 rounded mb-4 flex justify-between items-center">
-                        <span>{error}</span>
-                        <button onClick={() => setError('')}><X size={16} /></button>
+                    <div className="bg-red-50 border border-red-200 rounded-lg mb-4 overflow-hidden">
+                        <div className="bg-red-100 px-4 py-2 flex items-center justify-between">
+                            <span className="font-medium text-red-800">Erro ao salvar artigo</span>
+                            <button
+                                onClick={() => setError('')}
+                                className="text-red-600 hover:text-red-800"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div className="px-4 py-3">
+                            <p className="text-red-700 text-sm">{error}</p>
+                            <div className="mt-2 flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSubmit(formData.status)}
+                                    className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                                >
+                                    Tentar novamente
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setError('')}
+                                    className="text-xs px-3 py-1 border border-red-300 text-red-700 rounded hover:bg-red-50"
+                                >
+                                    Ignorar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -401,10 +531,133 @@ const ArticleEditor = () => {
 
                     {/* Editor.js Container */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Conteudo</label>
+                        <div className="flex items-center justify-between mb-2">
+                            <label className="block text-sm font-medium text-gray-700">Conteudo</label>
+                            <button
+                                type="button"
+                                onClick={() => setShowEditorHelp(!showEditorHelp)}
+                                className="flex items-center gap-1 text-xs text-gray-500 hover:text-brand"
+                            >
+                                <HelpCircle size={14} />
+                                Como usar o editor
+                            </button>
+                        </div>
+
+                        {/* Toolbar de Ajuda - Estilo WordPress */}
+                        <div className="bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex items-center gap-1 flex-wrap">
+                            <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
+                                <span className="text-xs text-gray-500 mr-1">Blocos:</span>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Titulo (H2, H3, H4) - Clique no + e selecione Heading"
+                                >
+                                    <Type size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Lista - Clique no + e selecione List"
+                                >
+                                    <ListIcon size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Lista Numerada - Clique no + e selecione Numbered List"
+                                >
+                                    <ListOrdered size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Citacao - Clique no + e selecione Quote"
+                                >
+                                    <QuoteIcon size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Codigo - Clique no + e selecione Code"
+                                >
+                                    <CodeIcon size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Tabela - Clique no + e selecione Table"
+                                >
+                                    <TableIcon size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Imagem - Clique no + e selecione Image"
+                                >
+                                    <ImageIcon size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Separador - Clique no + e selecione Delimiter"
+                                >
+                                    <Minus size={16} />
+                                </button>
+                            </div>
+                            <div className="flex items-center gap-1 pl-2">
+                                <span className="text-xs text-gray-500 mr-1">Texto:</span>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Negrito - Selecione o texto e use Ctrl+B"
+                                >
+                                    <Bold size={16} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors"
+                                    title="Italico - Selecione o texto e use Ctrl+I"
+                                >
+                                    <Italic size={16} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Dicas do Editor */}
+                        {showEditorHelp && (
+                            <div className="bg-blue-50 border-x border-gray-200 p-3 text-sm text-gray-700">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-medium text-gray-900">Guia Rapido - Editor de Blocos</h4>
+                                    <button onClick={() => setShowEditorHelp(false)} className="text-gray-400 hover:text-gray-600">
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="font-medium text-gray-800 mb-1">Adicionar Blocos:</p>
+                                        <ul className="text-xs space-y-1 text-gray-600">
+                                            <li>• Clique em qualquer linha vazia</li>
+                                            <li>• Aparecera um <strong>+</strong> no lado esquerdo</li>
+                                            <li>• Clique no <strong>+</strong> para ver os tipos de bloco</li>
+                                            <li>• Ou digite <strong>/</strong> para buscar blocos</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-800 mb-1">Formatar Texto:</p>
+                                        <ul className="text-xs space-y-1 text-gray-600">
+                                            <li>• <strong>Selecione o texto</strong> para ver opcoes</li>
+                                            <li>• <kbd className="px-1 bg-gray-200 rounded">Ctrl+B</kbd> = Negrito</li>
+                                            <li>• <kbd className="px-1 bg-gray-200 rounded">Ctrl+I</kbd> = Italico</li>
+                                            <li>• <kbd className="px-1 bg-gray-200 rounded">Ctrl+K</kbd> = Link</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div
                             ref={editorRef}
-                            className="prose max-w-none border border-gray-200 rounded-lg p-4 min-h-[400px] focus-within:border-brand"
+                            className="prose max-w-none border border-gray-200 border-t-0 rounded-b-lg p-4 min-h-[400px] focus-within:border-brand bg-white"
                         />
                     </div>
                 </div>
@@ -460,6 +713,36 @@ const ArticleEditor = () => {
                             <option value="members">Apenas membros</option>
                             <option value="paid">Apenas assinantes</option>
                         </select>
+                    </div>
+
+                    {/* Article Type */}
+                    <div className="mb-4">
+                        <label className="block text-sm text-gray-600 mb-1 flex items-center gap-1">
+                            <FileText size={14} /> Tipo de Artigo
+                        </label>
+                        <select
+                            name="article_type"
+                            value={formData.article_type}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
+                        >
+                            <option value="">Selecionar tipo...</option>
+                            <option value="cronica">Cronica</option>
+                            <option value="reportagem">Reportagem</option>
+                            <option value="opiniao">Opiniao</option>
+                        </select>
+                        {formData.article_type && (
+                            <div className="mt-2">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                    formData.article_type === 'cronica' ? 'bg-purple-100 text-purple-800' :
+                                    formData.article_type === 'reportagem' ? 'bg-blue-100 text-blue-800' :
+                                    formData.article_type === 'opiniao' ? 'bg-orange-100 text-orange-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }`}>
+                                    {ARTICLE_TYPES[formData.article_type]?.label || formData.article_type}
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Action Buttons */}

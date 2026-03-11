@@ -29,3 +29,15 @@ export const getTags = async () => {
     const response = await api.get('/api/articles/tags');
     return response.data;
 };
+
+export const getArticleTypes = async () => {
+    const response = await api.get('/api/articles/types');
+    return response.data;
+};
+
+// Article type constants for frontend use
+export const ARTICLE_TYPES = {
+    cronica: { value: 'cronica', label: 'Cronica', color: 'purple' },
+    reportagem: { value: 'reportagem', label: 'Reportagem', color: 'blue' },
+    opiniao: { value: 'opiniao', label: 'Opiniao', color: 'orange' }
+};

@@ -276,12 +276,81 @@ function buildGhostPayload(data) {
     return payload;
 }
 
+// ============================================
+// ARTICLE TYPES (Cronica, Reportagem, Opiniao)
+// ============================================
+
+/**
+ * Article type definitions
+ * Maps internal type keys to Ghost tag names
+ */
+const ARTICLE_TYPES = {
+    cronica: { name: 'Tipo: Cronica', slug: 'tipo-cronica', label: 'Cronica' },
+    reportagem: { name: 'Tipo: Reportagem', slug: 'tipo-reportagem', label: 'Reportagem' },
+    opiniao: { name: 'Tipo: Opiniao', slug: 'tipo-opiniao', label: 'Opiniao' }
+};
+
+exports.ARTICLE_TYPES = ARTICLE_TYPES;
+
+/**
+ * Extract article type from tags array
+ * @param {Array} tags - Array of tag objects
+ * @returns {string|null} - Article type key (cronica, reportagem, opiniao) or null
+ */
+exports.extractArticleType = (tags) => {
+    if (!tags || !Array.isArray(tags)) return null;
+
+    for (const [typeKey, typeData] of Object.entries(ARTICLE_TYPES)) {
+        const hasType = tags.some(tag =>
+            tag.name === typeData.name ||
+            tag.slug === typeData.slug
+        );
+        if (hasType) return typeKey;
+    }
+
+    return null;
+};
+
+/**
+ * Get article type tag object for Ghost API
+ * @param {string} typeKey - Article type key (cronica, reportagem, opiniao)
+ * @returns {Object|null} - Tag object for Ghost API or null
+ */
+exports.getArticleTypeTag = (typeKey) => {
+    const typeData = ARTICLE_TYPES[typeKey];
+    if (!typeData) return null;
+
+    return { name: typeData.name, slug: typeData.slug };
+};
+
+/**
+ * Remove type tags from tags array
+ * @param {Array} tags - Array of tag objects or strings
+ * @returns {Array} - Tags without type tags
+ */
+exports.removeTypeTags = (tags) => {
+    if (!tags || !Array.isArray(tags)) return [];
+
+    const typeNames = Object.values(ARTICLE_TYPES).map(t => t.name);
+    const typeSlugs = Object.values(ARTICLE_TYPES).map(t => t.slug);
+
+    return tags.filter(tag => {
+        const tagName = typeof tag === 'string' ? tag : tag.name;
+        const tagSlug = typeof tag === 'string' ? tag : tag.slug;
+
+        return !typeNames.includes(tagName) && !typeSlugs.includes(tagSlug);
+    });
+};
+
 /**
  * Transform Ghost post to frontend format
  * @param {Object} post - Ghost post object
  * @returns {Object} - Frontend-friendly post object
  */
 exports.transformGhostPost = (post) => {
+    const tags = post.tags || [];
+    const articleType = exports.extractArticleType(tags);
+
     return {
         id: post.id,
         title: post.title,
@@ -296,11 +365,14 @@ exports.transformGhostPost = (post) => {
         published_at: post.published_at,
         created_at: post.created_at,
         updated_at: post.updated_at,
-        tags: post.tags || [],
+        tags: tags,
         authors: post.authors || [],
         // Computed fields
         reading_time: post.reading_time,
-        url: post.url
+        url: post.url,
+        // Article type (cronica, reportagem, opiniao)
+        article_type: articleType,
+        article_type_label: articleType ? ARTICLE_TYPES[articleType].label : null
     };
 };
 

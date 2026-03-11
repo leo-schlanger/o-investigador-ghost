@@ -13,15 +13,15 @@ exports.protect = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
             req.user = decoded;
 
-            next();
+            return next();
         } catch (error) {
-            console.error(error);
-            res.status(401).json({ error: 'Not authorized, token failed' });
+            console.error('Auth error:', error.message);
+            return res.status(401).json({ error: 'Sessao expirada ou token invalido. Faca login novamente.' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ error: 'Not authorized, no token' });
+        return res.status(401).json({ error: 'Acesso nao autorizado. Faca login para continuar.' });
     }
 };
 
