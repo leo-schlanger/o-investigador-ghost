@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="{{asset 'css/screen.css'}}">
 
     {{ghost_head}}
+
+    {{!-- Schema.org Structured Data --}}
+    {{> schema}}
 </head>
 
 <body class="{{body_class}} bg-white text-neutral-900">
@@ -30,8 +33,12 @@
 
     {{> footer}}
 
+    {{!-- Search Modal --}}
+    {{> search-modal}}
+
     <script src="{{asset 'js/ads-integrator.js'}}"></script>
     <script src="{{asset 'js/view-tracker.js'}}"></script>
+    <script src="{{asset 'js/search.js'}}"></script>
     {{ghost_foot}}
 </body>
 

@@ -1,6 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { Settings, PostView } = require('../models');
+const contactController = require('../controllers/contactController');
+
+// Rate limiter for contact form (3 requests per hour per IP)
+const contactLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 3,
+    message: {
+        success: false,
+        error: 'Muitas mensagens enviadas. Tente novamente em 1 hora.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // Public endpoint for ad settings (no auth required)
 router.get('/ads-config', async (req, res) => {
@@ -119,5 +133,11 @@ router.get('/most-viewed', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+// Contact form submission
+router.post('/contact', contactLimiter, contactController.submitContact);
+
+// Contact service status (for debugging)
+router.get('/contact/status', contactController.getStatus);
 
 module.exports = router;

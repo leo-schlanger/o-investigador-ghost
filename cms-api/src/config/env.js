@@ -19,7 +19,11 @@ const optionalEnvVars = [
     'ADMIN_PASSWORD',
     'CORS_ORIGIN',
     'API_PORT',
-    'NODE_ENV'
+    'NODE_ENV',
+    // SendGrid / Email configuration
+    'SENDGRID_API_KEY',
+    'SENDGRID_FROM_EMAIL',
+    'CONTACT_EMAIL'
 ];
 
 /**

@@ -1,0 +1,15 @@
+# =============================================================================
+# O Investigador - Automated Backup Cron Job
+# =============================================================================
+# This file should be installed in /etc/cron.d/o-investigador-backup
+# It runs the database backup script daily at 3:00 AM
+# =============================================================================
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Backup database daily at 3:00 AM
+0 3 * * * root /opt/o-investigador/infrastructure/scripts/backup.sh >> /var/log/o-investigador-backup.log 2>&1
+
+# Optional: Weekly full system backup on Sundays at 4:00 AM
+# 0 4 * * 0 root /opt/o-investigador/infrastructure/scripts/backup.sh --full >> /var/log/o-investigador-backup.log 2>&1

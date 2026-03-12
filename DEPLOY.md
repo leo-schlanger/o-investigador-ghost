@@ -215,7 +215,9 @@ infrastructure/
 
 ## Backup
 
-O banco de dados é preservado entre deploys, mas faça backups regulares:
+O banco de dados é preservado entre deploys, mas faça backups regulares.
+
+### Backup Manual
 
 ```bash
 # Backup manual
@@ -224,12 +226,42 @@ O banco de dados é preservado entre deploys, mas faça backups regulares:
 # Backups são salvos em /opt/o-investigador/backups/
 ```
 
-Considere configurar um cron job para backups automáticos:
+### Backup Automático (Recomendado)
+
+Configure backups automáticos diários usando o script de setup:
 
 ```bash
-# Editar crontab
-crontab -e
+# Instalar cron job para backup automático
+sudo ./infrastructure/scripts/setup-cron.sh
+```
 
-# Adicionar backup diário às 3:00 AM
-0 3 * * * /opt/o-investigador/infrastructure/scripts/backup.sh
+Isso irá:
+- Instalar cron job em `/etc/cron.d/o-investigador-backup`
+- Executar backup diariamente às 3:00 AM
+- Salvar logs em `/var/log/o-investigador-backup.log`
+
+### Verificar Backup Automático
+
+```bash
+# Ver status do cron
+systemctl status cron
+
+# Ver cron jobs instalados
+cat /etc/cron.d/o-investigador-backup
+
+# Ver logs de backup
+tail -f /var/log/o-investigador-backup.log
+
+# Listar backups existentes
+ls -lh /opt/o-investigador/backups/
+```
+
+### Configuração de Upload S3 (Opcional)
+
+Para enviar backups para AWS S3, configure no `.env`:
+
+```bash
+AWS_BUCKET=seu-bucket-de-backup
+AWS_ACCESS_KEY_ID=sua-access-key
+AWS_SECRET_ACCESS_KEY=sua-secret-key
 ```

@@ -68,8 +68,8 @@ const SettingsPage = () => {
     if (loading) {
         return (
             <div className="max-w-4xl">
-                <h1 className="text-2xl font-bold mb-6">Configuracoes</h1>
-                <div className="bg-white shadow rounded-lg p-6">
+                <h1 className="text-xl sm:text-2xl font-bold mb-6">Configuracoes</h1>
+                <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                     <div className="animate-pulse space-y-4">
                         <div className="h-4 bg-gray-200 rounded w-1/4"></div>
                         <div className="h-10 bg-gray-200 rounded"></div>
@@ -83,26 +83,26 @@ const SettingsPage = () => {
 
     return (
         <div className="max-w-4xl">
-            <h1 className="text-2xl font-bold mb-6">Configuracoes</h1>
+            <h1 className="text-xl sm:text-2xl font-bold mb-6">Configuracoes</h1>
 
             {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded-md">
+                <div className="mb-4 p-3 sm:p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
                     {error}
                 </div>
             )}
 
             {success && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-md">
+                <div className="mb-4 p-3 sm:p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
                     Configuracoes salvas com sucesso!
                 </div>
             )}
 
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-                <h2 className="text-lg font-medium mb-4">Configuracoes Gerais</h2>
+            <div className="bg-white shadow rounded-lg p-4 sm:p-6 mb-6">
+                <h2 className="text-base sm:text-lg font-medium mb-4">Configuracoes Gerais</h2>
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-4 sm:gap-6">
                         <div>
-                            <label htmlFor="siteTitle" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="siteTitle" className="block text-sm font-medium text-gray-700 mb-1">
                                 Titulo do Site
                             </label>
                             <input
@@ -112,11 +112,11 @@ const SettingsPage = () => {
                                 value={settings.siteTitle}
                                 onChange={handleChange}
                                 disabled={saving}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:bg-gray-100"
+                                className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm disabled:bg-gray-100"
                             />
                         </div>
                         <div>
-                            <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="siteDescription" className="block text-sm font-medium text-gray-700 mb-1">
                                 Descricao do Site
                             </label>
                             <textarea
@@ -126,7 +126,7 @@ const SettingsPage = () => {
                                 value={settings.siteDescription}
                                 onChange={handleChange}
                                 disabled={saving}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:bg-gray-100"
+                                className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm disabled:bg-gray-100"
                             />
                         </div>
                     </div>
@@ -134,7 +134,7 @@ const SettingsPage = () => {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand hover:bg-brand-light focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full sm:w-auto inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-brand hover:bg-brand-light focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {saving ? 'Salvando...' : 'Salvar Alteracoes'}
                         </button>
@@ -143,13 +143,13 @@ const SettingsPage = () => {
             </div>
 
             {/* Advertisements Section */}
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
+            <div className="bg-white shadow rounded-lg p-4 sm:p-6 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-brand/10 text-brand rounded-lg">
+                        <div className="p-2 bg-brand/10 text-brand rounded-lg shrink-0">
                             <Megaphone size={20} />
                         </div>
-                        <h2 className="text-lg font-medium">Anuncios</h2>
+                        <h2 className="text-base sm:text-lg font-medium">Anuncios</h2>
                     </div>
                     <Link
                         to="/advertisements"
@@ -160,10 +160,10 @@ const SettingsPage = () => {
                     </Link>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
                     <div>
-                        <h3 className="font-medium text-gray-900">Anuncios Ativos</h3>
-                        <p className="text-sm text-gray-500">Ativar ou desativar todos os anuncios do site</p>
+                        <h3 className="font-medium text-gray-900 text-sm sm:text-base">Anuncios Ativos</h3>
+                        <p className="text-xs sm:text-sm text-gray-500">Ativar ou desativar todos os anuncios do site</p>
                     </div>
                     <button
                         onClick={() => {
@@ -171,7 +171,7 @@ const SettingsPage = () => {
                             setSuccess(false);
                         }}
                         disabled={saving}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${
                             settings.adsEnabled ? 'bg-green-500' : 'bg-gray-300'
                         } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >

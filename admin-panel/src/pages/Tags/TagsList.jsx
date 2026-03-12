@@ -113,18 +113,19 @@ const TagsList = () => {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Tags</h1>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 className="text-xl sm:text-2xl font-bold">Tags</h1>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-brand text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-brand-light"
+                    className="w-full sm:w-auto bg-brand text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-light text-sm sm:text-base"
                 >
                     <Plus size={20} />
                     Nova Tag
                 </button>
             </div>
 
-            {error && <div className="text-red-500 mb-4">{error}</div>}
+            {error && <div className="text-red-500 mb-4 text-sm">{error}</div>}
 
             <div className="bg-white shadow rounded-lg overflow-hidden">
                 {tags.length === 0 ? (
@@ -133,112 +134,166 @@ const TagsList = () => {
                         <p>Nenhuma tag encontrada. Crie a primeira!</p>
                     </div>
                 ) : (
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artigos</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acoes</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                    <>
+                        {/* Desktop Table */}
+                        <div className="hidden md:block">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Artigos</th>
+                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acoes</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {tags.map((tag) => (
+                                        <tr key={tag.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    {tag.feature_image ? (
+                                                        <img
+                                                            src={tag.feature_image}
+                                                            alt={tag.name}
+                                                            className="w-10 h-10 rounded object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                                                            <Tag size={16} className="text-gray-400" />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <div className="text-sm font-medium text-gray-900">{tag.name}</div>
+                                                        {tag.description && (
+                                                            <div className="text-xs text-gray-500 truncate max-w-xs">{tag.description}</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                /{tag.slug}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 py-1 text-xs bg-gray-100 rounded-full">
+                                                    {tag.count || 0} artigos
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() => handleOpenModal(tag)}
+                                                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                                                >
+                                                    <Edit2 size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteConfirm(tag)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="md:hidden divide-y divide-gray-200">
                             {tags.map((tag) => (
-                                <tr key={tag.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-3">
+                                <div key={tag.id} className="p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-3 min-w-0">
                                             {tag.feature_image ? (
                                                 <img
                                                     src={tag.feature_image}
                                                     alt={tag.name}
-                                                    className="w-10 h-10 rounded object-cover"
+                                                    className="w-12 h-12 rounded object-cover shrink-0"
                                                 />
                                             ) : (
-                                                <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-                                                    <Tag size={16} className="text-gray-400" />
+                                                <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center shrink-0">
+                                                    <Tag size={20} className="text-gray-400" />
                                                 </div>
                                             )}
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">{tag.name}</div>
-                                                {tag.description && (
-                                                    <div className="text-xs text-gray-500 truncate max-w-xs">{tag.description}</div>
-                                                )}
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium text-gray-900">{tag.name}</p>
+                                                <p className="text-xs text-gray-500 truncate">/{tag.slug}</p>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        /{tag.slug}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <button
+                                                onClick={() => handleOpenModal(tag)}
+                                                className="p-2 text-gray-500 hover:text-indigo-600 rounded"
+                                            >
+                                                <Edit2 size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteConfirm(tag)}
+                                                className="p-2 text-gray-500 hover:text-red-600 rounded"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-2">
                                         <span className="px-2 py-1 text-xs bg-gray-100 rounded-full">
                                             {tag.count || 0} artigos
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button
-                                            onClick={() => handleOpenModal(tag)}
-                                            className="text-indigo-600 hover:text-indigo-900 mr-4"
-                                        >
-                                            <Edit2 size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => setDeleteConfirm(tag)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </td>
-                                </tr>
+                                        {tag.description && (
+                                            <span className="text-xs text-gray-400 truncate">{tag.description}</span>
+                                        )}
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </>
                 )}
             </div>
 
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold">{editingTag ? 'Editar Tag' : 'Nova Tag'}</h2>
-                            <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700">
+                            <h2 className="text-lg sm:text-xl font-bold">{editingTag ? 'Editar Tag' : 'Nova Tag'}</h2>
+                            <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-700 p-1">
                                 <X size={24} />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Nome *</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
                                 <input
                                     type="text"
                                     name="name"
                                     required
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-brand focus:border-brand sm:text-sm"
+                                    className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-brand focus:border-brand text-sm"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Slug</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
                                 <input
                                     type="text"
                                     name="slug"
                                     value={formData.slug}
                                     onChange={handleChange}
                                     placeholder="Gerado automaticamente se vazio"
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-brand focus:border-brand sm:text-sm"
+                                    className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-brand focus:border-brand text-sm"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Descricao</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Descricao</label>
                                 <textarea
                                     name="description"
                                     rows={3}
                                     value={formData.description}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-brand focus:border-brand sm:text-sm"
+                                    className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-brand focus:border-brand text-sm"
                                 />
                             </div>
 
@@ -249,7 +304,7 @@ const TagsList = () => {
                                         <img
                                             src={formData.feature_image}
                                             alt="Tag"
-                                            className="h-24 rounded border object-cover"
+                                            className="h-20 sm:h-24 rounded border object-cover"
                                         />
                                         <button
                                             type="button"
@@ -263,7 +318,7 @@ const TagsList = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowMediaPicker(true)}
-                                        className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded text-gray-500 hover:border-brand hover:text-brand text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-brand hover:text-brand text-sm"
                                     >
                                         <ImageIcon size={16} />
                                         Adicionar imagem
@@ -274,38 +329,38 @@ const TagsList = () => {
                             <hr className="my-4" />
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Meta Titulo (SEO)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Titulo (SEO)</label>
                                 <input
                                     type="text"
                                     name="meta_title"
                                     value={formData.meta_title}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-brand focus:border-brand sm:text-sm"
+                                    className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-brand focus:border-brand text-sm"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Meta Descricao (SEO)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Meta Descricao (SEO)</label>
                                 <textarea
                                     name="meta_description"
                                     rows={2}
                                     value={formData.meta_description}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-brand focus:border-brand sm:text-sm"
+                                    className="block w-full border border-gray-300 rounded-lg py-2.5 px-3 focus:ring-brand focus:border-brand text-sm"
                                 />
                             </div>
 
-                            <div className="pt-4 flex justify-end gap-3">
+                            <div className="pt-4 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                    className="w-full sm:w-auto px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand hover:bg-brand-light"
+                                    className="w-full sm:w-auto px-4 py-2.5 border border-transparent rounded-lg text-sm font-medium text-white bg-brand hover:bg-brand-light"
                                 >
                                     Salvar
                                 </button>
@@ -318,10 +373,10 @@ const TagsList = () => {
             {/* Media Picker Modal */}
             {showMediaPicker && (
                 <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4" onClick={() => setShowMediaPicker(false)}>
-                    <div className="bg-gray-100 rounded-xl w-full max-w-5xl max-h-[85vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+                    <div className="bg-gray-100 rounded-xl w-full max-w-5xl max-h-[85vh] overflow-y-auto p-4 sm:p-6" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold">Selecionar Imagem</h2>
-                            <button onClick={() => setShowMediaPicker(false)} className="text-gray-500 hover:text-gray-700">
+                            <h2 className="text-lg sm:text-xl font-bold">Selecionar Imagem</h2>
+                            <button onClick={() => setShowMediaPicker(false)} className="text-gray-500 hover:text-gray-700 p-1">
                                 <X size={24} />
                             </button>
                         </div>
@@ -333,22 +388,22 @@ const TagsList = () => {
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 sm:p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-2">Confirmar exclusao</h3>
-                        <p className="text-gray-600 mb-6">
+                        <p className="text-gray-600 text-sm sm:text-base mb-6">
                             Tem certeza que deseja excluir a tag <strong>"{deleteConfirm.name}"</strong>?
                             Os artigos associados nao serao excluidos.
                         </p>
-                        <div className="flex justify-end gap-3">
+                        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
-                                className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleDelete}
-                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
                             >
                                 Excluir
                             </button>
