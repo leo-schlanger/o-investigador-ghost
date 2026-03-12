@@ -7,10 +7,28 @@ const api = axios.create({
     },
 });
 
+// Safe localStorage wrapper for mobile browsers (especially private/incognito mode)
+const safeGetToken = () => {
+    try {
+        return localStorage.getItem('token');
+    } catch (e) {
+        console.warn('localStorage not available:', e);
+        return null;
+    }
+};
+
+const safeRemoveToken = () => {
+    try {
+        localStorage.removeItem('token');
+    } catch (e) {
+        console.warn('localStorage not available:', e);
+    }
+};
+
 // Add a request interceptor to inject the token
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = safeGetToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -24,7 +42,7 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('token');
+            safeRemoveToken();
             window.location.href = '/login';
         }
         return Promise.reject(error);

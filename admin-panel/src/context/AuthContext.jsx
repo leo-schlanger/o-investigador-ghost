@@ -3,20 +3,48 @@ import { login as loginApi, getMe } from '../services/auth';
 
 const AuthContext = createContext();
 
+// Safe localStorage wrapper for mobile browsers (especially private/incognito mode)
+const safeStorage = {
+    getItem: (key) => {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            console.warn('localStorage not available:', e);
+            return null;
+        }
+    },
+    setItem: (key, value) => {
+        try {
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e) {
+            console.warn('localStorage not available:', e);
+            return false;
+        }
+    },
+    removeItem: (key) => {
+        try {
+            localStorage.removeItem(key);
+        } catch (e) {
+            console.warn('localStorage not available:', e);
+        }
+    }
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadUser = async () => {
-            const token = localStorage.getItem('token');
+            const token = safeStorage.getItem('token');
             if (token) {
                 try {
                     const userData = await getMe();
                     setUser(userData);
                 } catch (error) {
                     console.error('Failed to load user', error);
-                    localStorage.removeItem('token');
+                    safeStorage.removeItem('token');
                 }
             }
             setLoading(false);
@@ -26,13 +54,13 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         const data = await loginApi(email, password);
-        localStorage.setItem('token', data.token);
+        safeStorage.setItem('token', data.token);
         setUser(data.user);
         return data;
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        safeStorage.removeItem('token');
         setUser(null);
     };
 
