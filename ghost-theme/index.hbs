@@ -2,11 +2,9 @@
     class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
     {{!-- Last Update Timestamp --}}
-    <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-400 mb-2 sm:mb-3">
-        <span class="inline-flex items-center gap-1">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+    <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-500 mb-2 sm:mb-3">
+        <span class="inline-flex items-center gap-1.5 bg-neutral-100 px-2 py-0.5 rounded">
+            <span class="text-neutral-400">|</span>
             Atualizado: {{date format="D MMM YYYY, HH:mm"}}
         </span>
     </div>
