@@ -23,7 +23,9 @@
             <div class="md:col-span-3">
                 <h3 class="text-sm font-bold mb-4 uppercase tracking-widest text-primary-300">Links</h3>
                 <ul class="space-y-3 text-sm text-white/80">
-                    {{navigation type="secondary"}}
+                    {{#foreach navigation}}
+                    <li><a href="{{url}}" class="hover:text-white transition">{{label}}</a></li>
+                    {{/foreach}}
                 </ul>
             </div>
 
