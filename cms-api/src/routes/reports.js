@@ -1,11 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
-const PDFDocument = require('pdfkit');
-const ExcelJS = require('exceljs');
 const { PostView, ViewLog, User, Article } = require('../models');
 const { protect } = require('../middleware/authMiddleware');
 const ghostApi = require('../services/ghostApi');
+
+// Optional dependencies for exports
+let PDFDocument = null;
+let ExcelJS = null;
+try {
+    PDFDocument = require('pdfkit');
+} catch (err) {
+    console.warn('pdfkit not available, PDF export disabled');
+}
+try {
+    ExcelJS = require('exceljs');
+} catch (err) {
+    console.warn('exceljs not available, Excel export disabled');
+}
 
 // Helper: Get date range
 const getDateRange = (period) => {
@@ -121,6 +133,10 @@ router.get('/preview/:type', protect, async (req, res) => {
 // Export report as Excel
 router.get('/export/excel/:type', protect, async (req, res) => {
     try {
+        if (!ExcelJS) {
+            return res.status(503).json({ error: 'Excel export not available' });
+        }
+
         const { type } = req.params;
         const { period = 'month' } = req.query;
         const startDate = getDateRange(period);
@@ -234,6 +250,10 @@ router.get('/export/excel/:type', protect, async (req, res) => {
 // Export report as PDF
 router.get('/export/pdf/:type', protect, async (req, res) => {
     try {
+        if (!PDFDocument) {
+            return res.status(503).json({ error: 'PDF export not available' });
+        }
+
         const { type } = req.params;
         const { period = 'month' } = req.query;
         const startDate = getDateRange(period);

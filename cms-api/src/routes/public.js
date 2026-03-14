@@ -1,9 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
-const geoip = require('geoip-lite');
 const { Settings, PostView, ViewLog } = require('../models');
 const contactController = require('../controllers/contactController');
+
+// Optional geoip - may fail on some systems
+let geoip = null;
+try {
+    geoip = require('geoip-lite');
+} catch (err) {
+    console.warn('geoip-lite not available, geolocation disabled');
+}
 
 // Rate limiter for contact form (3 requests per hour per IP)
 const contactLimiter = rateLimit({
@@ -71,7 +78,7 @@ router.post('/track-view', async (req, res) => {
         let country = null;
         let city = null;
 
-        if (clientIp && clientIp !== '127.0.0.1' && !clientIp.startsWith('192.168.')) {
+        if (geoip && clientIp && clientIp !== '127.0.0.1' && !clientIp.startsWith('192.168.')) {
             const geo = geoip.lookup(clientIp);
             if (geo) {
                 country = geo.country || null;
