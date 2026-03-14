@@ -1,5 +1,6 @@
 const ghostApi = require('../services/ghostApi');
 const { ARTICLE_TYPES, getArticleTypeTag, removeTypeTags } = require('../services/ghostApi');
+const { ArticleRevision } = require('../models');
 
 /**
  * Extract a meaningful error message from Ghost API errors
@@ -226,6 +227,38 @@ exports.update = async (req, res) => {
             });
         }
 
+        // Save revision before updating (non-blocking)
+        try {
+            const currentPost = await ghostApi.getPost(id);
+            if (currentPost) {
+                // Get the next revision number
+                const lastRevision = await ArticleRevision.findOne({
+                    where: { articleId: id },
+                    order: [['revisionNumber', 'DESC']]
+                });
+                const revisionNumber = (lastRevision?.revisionNumber || 0) + 1;
+
+                // Save the current state as a revision
+                await ArticleRevision.create({
+                    articleId: id,
+                    userId: req.user?.id || null,
+                    userName: req.user?.name || 'Unknown',
+                    title: currentPost.title,
+                    content: currentPost.html || currentPost.mobiledoc,
+                    excerpt: currentPost.custom_excerpt || currentPost.excerpt,
+                    featureImage: currentPost.feature_image,
+                    status: currentPost.status,
+                    revisionNumber
+                });
+
+                // Clean old revisions (keep only 50)
+                await ArticleRevision.cleanOldRevisions(id, 50);
+            }
+        } catch (revErr) {
+            console.error('Error saving revision:', revErr);
+            // Continue with update even if revision save fails
+        }
+
         // Process article type (add tag)
         data = processArticleType(data);
 
@@ -381,6 +414,109 @@ exports.initTypes = async (req, res) => {
         });
     } catch (err) {
         console.error('Error initializing article types:', err);
+        res.status(500).json({ error: extractErrorMessage(err) });
+    }
+};
+
+/**
+ * Get revision history for an article
+ * GET /api/articles/:id/revisions
+ */
+exports.getRevisions = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const revisions = await ArticleRevision.findAll({
+            where: { articleId: id },
+            order: [['createdAt', 'DESC']],
+            attributes: ['id', 'revisionNumber', 'title', 'userName', 'status', 'createdAt']
+        });
+
+        res.json(revisions);
+    } catch (err) {
+        console.error('Error getting revisions:', err);
+        res.status(500).json({ error: extractErrorMessage(err) });
+    }
+};
+
+/**
+ * Get a specific revision
+ * GET /api/articles/:id/revisions/:revisionId
+ */
+exports.getRevision = async (req, res) => {
+    try {
+        const { id, revisionId } = req.params;
+
+        const revision = await ArticleRevision.findOne({
+            where: { id: revisionId, articleId: id }
+        });
+
+        if (!revision) {
+            return res.status(404).json({ error: 'Revision not found' });
+        }
+
+        res.json(revision);
+    } catch (err) {
+        console.error('Error getting revision:', err);
+        res.status(500).json({ error: extractErrorMessage(err) });
+    }
+};
+
+/**
+ * Restore an article to a previous revision
+ * POST /api/articles/:id/revisions/:revisionId/restore
+ */
+exports.restoreRevision = async (req, res) => {
+    try {
+        const { id, revisionId } = req.params;
+
+        const revision = await ArticleRevision.findOne({
+            where: { id: revisionId, articleId: id }
+        });
+
+        if (!revision) {
+            return res.status(404).json({ error: 'Revision not found' });
+        }
+
+        // Save current state before restoring
+        const currentPost = await ghostApi.getPost(id);
+        if (currentPost) {
+            const lastRevision = await ArticleRevision.findOne({
+                where: { articleId: id },
+                order: [['revisionNumber', 'DESC']]
+            });
+            const revisionNumber = (lastRevision?.revisionNumber || 0) + 1;
+
+            await ArticleRevision.create({
+                articleId: id,
+                userId: req.user?.id || null,
+                userName: req.user?.name || 'Unknown',
+                title: currentPost.title,
+                content: currentPost.html || currentPost.mobiledoc,
+                excerpt: currentPost.custom_excerpt || currentPost.excerpt,
+                featureImage: currentPost.feature_image,
+                status: currentPost.status,
+                revisionNumber
+            });
+        }
+
+        // Restore the revision
+        const updateData = {
+            title: revision.title,
+            html: revision.content,
+            custom_excerpt: revision.excerpt,
+            feature_image: revision.featureImage
+        };
+
+        const post = await ghostApi.updatePost(id, updateData);
+        const article = ghostApi.transformGhostPost(post);
+
+        res.json({
+            message: 'Article restored successfully',
+            article
+        });
+    } catch (err) {
+        console.error('Error restoring revision:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };

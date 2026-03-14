@@ -19,6 +19,7 @@ import AdvertisementsPage from './pages/Advertisements/Advertisements';
 import PagesList from './pages/Pages/PagesList';
 import PageEditor from './pages/Pages/PageEditor';
 import TagsList from './pages/Tags/TagsList';
+import Reports from './pages/Reports/Reports';
 
 const ProtectedRoute = () => {
     const { user, loading } = useAuth();
@@ -51,6 +52,7 @@ function App() {
                                 <Route path="pages/:id" element={<PageEditor />} />
                                 <Route path="tags" element={<TagsList />} />
                                 <Route path="advertisements" element={<AdvertisementsPage />} />
+                                <Route path="reports" element={<Reports />} />
                             </Route>
 
                             {/* Admins Only */}

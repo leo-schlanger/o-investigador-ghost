@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
-const { Settings, PostView } = require('../models');
+const geoip = require('geoip-lite');
+const { Settings, PostView, ViewLog } = require('../models');
 const contactController = require('../controllers/contactController');
 
 // Rate limiter for contact form (3 requests per hour per IP)
@@ -60,6 +61,24 @@ router.post('/track-view', async (req, res) => {
             return res.status(400).json({ error: 'postId is required' });
         }
 
+        // Get client IP for geolocation
+        const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+            || req.headers['x-real-ip']
+            || req.socket?.remoteAddress
+            || '';
+
+        // Get geolocation (only country/city, IP is not stored)
+        let country = null;
+        let city = null;
+
+        if (clientIp && clientIp !== '127.0.0.1' && !clientIp.startsWith('192.168.')) {
+            const geo = geoip.lookup(clientIp);
+            if (geo) {
+                country = geo.country || null;
+                city = geo.city || null;
+            }
+        }
+
         // Upsert: update if exists, create if not
         const [postView, created] = await PostView.findOrCreate({
             where: { postId },
@@ -80,6 +99,15 @@ router.post('/track-view', async (req, res) => {
                 postTitle: postTitle || postView.postTitle
             });
         }
+
+        // Store individual view log with geolocation (non-blocking)
+        ViewLog.create({
+            postId,
+            postSlug: postSlug || '',
+            country,
+            city,
+            viewedAt: new Date()
+        }).catch(err => console.error('ViewLog error:', err));
 
         res.json({ success: true, views: created ? 1 : postView.viewCount + 1 });
     } catch (err) {

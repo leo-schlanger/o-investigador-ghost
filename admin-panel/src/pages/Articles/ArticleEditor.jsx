@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify';
 import { createArticle, getArticle, updateArticle, getTags, ARTICLE_TYPES } from '../../services/articles';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
 import MediaLibrary from '../Media/MediaLibrary';
+import RevisionHistory from '../../components/RevisionHistory';
 import {
     Image as ImageIcon,
     X,
@@ -26,7 +27,8 @@ import {
     Table as TableIcon,
     Minus,
     HelpCircle,
-    FileText
+    FileText,
+    History
 } from 'lucide-react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -73,6 +75,7 @@ const ArticleEditor = () => {
     const [previewHtml, setPreviewHtml] = useState('');
     const [showEditorHelp, setShowEditorHelp] = useState(false);
     const [showInlineImagePicker, setShowInlineImagePicker] = useState(false);
+    const [showRevisionHistory, setShowRevisionHistory] = useState(false);
     const [autoSlug, setAutoSlug] = useState(!isEditing); // Auto-slug enabled by default for new articles
 
     // Insert block into Editor.js
@@ -910,6 +913,16 @@ const ArticleEditor = () => {
                             <Eye size={16} />
                             Preview
                         </button>
+                        {isEditing && (
+                            <button
+                                type="button"
+                                onClick={() => setShowRevisionHistory(true)}
+                                className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
+                            >
+                                <History size={16} />
+                                Historico
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => handleSubmit('draft')}
@@ -1171,6 +1184,18 @@ const ArticleEditor = () => {
                         <MediaLibrary onSelect={handleInlineImageSelect} />
                     </div>
                 </div>
+            )}
+
+            {/* Revision History Modal */}
+            {showRevisionHistory && isEditing && (
+                <RevisionHistory
+                    articleId={id}
+                    onRestore={() => {
+                        setShowRevisionHistory(false);
+                        fetchArticle(); // Reload article after restore
+                    }}
+                    onClose={() => setShowRevisionHistory(false)}
+                />
             )}
         </div>
     );

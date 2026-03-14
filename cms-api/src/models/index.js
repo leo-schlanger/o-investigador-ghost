@@ -22,5 +22,7 @@ db.User = require('./User')(sequelize, Sequelize);
 db.Settings = require('./Settings')(sequelize, Sequelize);
 db.Media = require('./Media')(sequelize, Sequelize);
 db.PostView = require('./PostView')(sequelize, Sequelize);
+db.ViewLog = require('./ViewLog')(sequelize, Sequelize);
+db.ArticleRevision = require('./ArticleRevision')(sequelize, Sequelize);
 
 module.exports = db;

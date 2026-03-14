@@ -16,4 +16,9 @@ router.get('/:id', protect, articleController.get);
 router.put('/:id', protect, articleController.update);
 router.delete('/:id', protect, articleController.delete);
 
+// Revision routes
+router.get('/:id/revisions', protect, articleController.getRevisions);
+router.get('/:id/revisions/:revisionId', protect, articleController.getRevision);
+router.post('/:id/revisions/:revisionId/restore', protect, articleController.restoreRevision);
+
 module.exports = router;
