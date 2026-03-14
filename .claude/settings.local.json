@@ -12,7 +12,14 @@
       "Bash(npx vitest --run)",
       "Bash(wc:*)",
       "Bash(npm install:*)",
-      "Bash(if not exist \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\" mkdir \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\")"
+      "Bash(if not exist \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\" mkdir \"D:\\\\Projetos\\\\o-investigador-ghost\\\\admin-panel\\\\src\\\\utils\")",
+      "Bash(git commit:*)",
+      "Bash(findstr:*)",
+      "Bash(npx eslint:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(grep:*)",
+      "Bash(xargs:*)"
     ]
   }
 }
