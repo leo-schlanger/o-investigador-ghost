@@ -98,28 +98,28 @@ describe('settingsController', () => {
 
         it('should create new settings if they do not exist', async () => {
             req.body = {
-                newSetting: 'value'
+                siteTitle: 'New Title'
             };
 
             const mockSetting = {
-                key: 'newSetting',
-                value: 'value',
+                key: 'siteTitle',
+                value: 'New Title',
                 save: jest.fn()
             };
 
             Settings.findOrCreate.mockResolvedValue([mockSetting, true]);
             Settings.findAll.mockResolvedValue([
-                { key: 'newSetting', value: 'value' }
+                { key: 'siteTitle', value: 'New Title' }
             ]);
 
             await settingsController.updateSettings(req, res);
 
             expect(Settings.findOrCreate).toHaveBeenCalledWith({
-                where: { key: 'newSetting' },
-                defaults: { value: 'value' }
+                where: { key: 'siteTitle' },
+                defaults: { value: 'New Title' }
             });
             expect(res.json).toHaveBeenCalledWith({
-                newSetting: 'value'
+                siteTitle: 'New Title'
             });
         });
 
@@ -130,7 +130,74 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+            expect(res.json).toHaveBeenCalledWith({ error: 'Erro ao salvar configuracoes' });
+        });
+
+        it('should reject non-whitelisted settings', async () => {
+            req.body = {
+                invalidSetting: 'value'
+            };
+
+            await settingsController.updateSettings(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "invalidSetting" is not allowed' });
+        });
+
+        it('should validate setting value types', async () => {
+            req.body = {
+                siteTitle: 12345 // Should be string
+            };
+
+            await settingsController.updateSettings(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "siteTitle" must be a string' });
+        });
+
+        it('should validate enum settings', async () => {
+            req.body = {
+                adsEnabled: 'invalid' // Should be 'true' or 'false'
+            };
+
+            await settingsController.updateSettings(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "adsEnabled" must be one of: true, false' });
+        });
+
+        it('should validate JSON settings', async () => {
+            req.body = {
+                adSlots: 'not-valid-json{'
+            };
+
+            await settingsController.updateSettings(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "adSlots" must be valid JSON' });
+        });
+
+        it('should accept valid JSON settings', async () => {
+            req.body = {
+                adSlots: '{"slot1": "123"}'
+            };
+
+            const mockSetting = {
+                key: 'adSlots',
+                value: '{"slot1": "123"}',
+                save: jest.fn()
+            };
+
+            Settings.findOrCreate.mockResolvedValue([mockSetting, true]);
+            Settings.findAll.mockResolvedValue([
+                { key: 'adSlots', value: '{"slot1": "123"}' }
+            ]);
+
+            await settingsController.updateSettings(req, res);
+
+            expect(res.json).toHaveBeenCalledWith({
+                adSlots: '{"slot1": "123"}'
+            });
         });
     });
 });
