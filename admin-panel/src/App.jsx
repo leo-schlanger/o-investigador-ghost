@@ -21,6 +21,15 @@ import PageEditor from './pages/Pages/PageEditor';
 import TagsList from './pages/Tags/TagsList';
 import Reports from './pages/Reports/Reports';
 
+// Newsletter
+import {
+    NewsletterDashboard,
+    Subscribers,
+    Campaigns,
+    CampaignEditor,
+    NewsletterSettings
+} from './pages/Newsletter';
+
 const ProtectedRoute = () => {
     const { user, loading } = useAuth();
     if (loading) return <div className="flex h-screen items-center justify-center">Carregando...</div>;
@@ -53,6 +62,14 @@ function App() {
                                 <Route path="tags" element={<TagsList />} />
                                 <Route path="advertisements" element={<AdvertisementsPage />} />
                                 <Route path="reports" element={<Reports />} />
+
+                                {/* Newsletter */}
+                                <Route path="newsletter" element={<NewsletterDashboard />} />
+                                <Route path="newsletter/subscribers" element={<Subscribers />} />
+                                <Route path="newsletter/campaigns" element={<Campaigns />} />
+                                <Route path="newsletter/campaigns/new" element={<CampaignEditor />} />
+                                <Route path="newsletter/campaigns/:id" element={<CampaignEditor />} />
+                                <Route path="newsletter/settings" element={<NewsletterSettings />} />
                             </Route>
 
                             {/* Admins Only */}

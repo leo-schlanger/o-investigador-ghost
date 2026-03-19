@@ -10,6 +10,7 @@ const pageRoutes = require('./pages');
 const tagRoutes = require('./tags');
 const analyticsRoutes = require('./analytics');
 const reportsRoutes = require('./reports');
+const newsletterRoutes = require('./newsletter');
 
 router.use('/articles', articleRoutes);
 router.use('/auth', authRoutes);
@@ -20,5 +21,6 @@ router.use('/pages', pageRoutes);
 router.use('/tags', tagRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/reports', reportsRoutes);
+router.use('/newsletter', newsletterRoutes);
 
 module.exports = router;
