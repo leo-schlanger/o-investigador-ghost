@@ -2,14 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Mail, Search, Plus, MoreVertical, Eye, MousePointer,
-    Clock, Send, ChevronLeft, ChevronRight, AlertCircle,
+    Clock, Send, ChevronRight, AlertCircle,
     Trash2, Copy, Edit2, Calendar, Users, FileText,
-    Filter, RefreshCw, BarChart2
+    RefreshCw, BarChart2
 } from 'lucide-react';
 import {
     getCampaigns, deleteCampaign, duplicateCampaign,
     CAMPAIGN_STATUS
 } from '../../services/newsletter';
+import NewsletterNav from './NewsletterNav';
 
 const Campaigns = () => {
     const navigate = useNavigate();
@@ -138,15 +139,10 @@ const Campaigns = () => {
     return (
         <div>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                    <Link to="/newsletter" className="text-gray-400 hover:text-gray-600">
-                        <ChevronLeft size={24} />
-                    </Link>
-                    <div>
-                        <h1 className="text-xl sm:text-2xl font-bold">Campanhas</h1>
-                        <p className="text-gray-500 text-sm">{total} campanhas no total</p>
-                    </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-bold">Newsletter</h1>
+                    <p className="text-gray-500 text-sm">{total} campanhas no total</p>
                 </div>
                 <Link
                     to="/newsletter/campaigns/new"
@@ -156,6 +152,9 @@ const Campaigns = () => {
                     Nova Campanha
                 </Link>
             </div>
+
+            {/* Navigation Tabs */}
+            <NewsletterNav />
 
             {/* Mock Warning */}
             {isMock && (

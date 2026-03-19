@@ -35,7 +35,7 @@ const MainLayout = () => {
     }, [sidebarOpen]);
 
     return (
-        <div className="min-h-screen bg-gray-100 lg:flex">
+        <div className="min-h-screen bg-gray-100">
             {/* Mobile Header */}
             <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-brand-dark text-white h-14 flex items-center px-4 shadow-lg">
                 <button
@@ -64,12 +64,12 @@ const MainLayout = () => {
                 />
             )}
 
-            {/* Sidebar */}
+            {/* Desktop Sidebar - Fixed */}
             <aside
                 className={`
-                    fixed top-0 left-0 z-50 h-full w-72 max-w-[85vw]
+                    fixed top-0 left-0 z-50 h-screen w-72 max-w-[85vw]
                     transform transition-transform duration-300 ease-in-out
-                    lg:translate-x-0 lg:relative lg:w-64 lg:shrink-0
+                    lg:translate-x-0 lg:w-64 lg:z-30
                     ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
             >
@@ -85,7 +85,7 @@ const MainLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 min-h-screen">
+            <main className="min-h-screen lg:ml-64">
                 {/* Spacer for mobile header */}
                 <div className="h-14 lg:hidden" />
 

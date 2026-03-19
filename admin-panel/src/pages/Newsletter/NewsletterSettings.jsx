@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
-    ChevronLeft, Save, Key, Mail, Users, Shield,
+    Save, Key, Mail, Users, Shield,
     AlertCircle, CheckCircle, Eye, EyeOff, ExternalLink,
     HelpCircle, RefreshCw, Settings
 } from 'lucide-react';
@@ -9,6 +8,7 @@ import {
     getNewsletterSettings, updateNewsletterSettings,
     testBrevoConnection, getLists, createList, deleteList
 } from '../../services/newsletter';
+import NewsletterNav from './NewsletterNav';
 
 const NewsletterSettings = () => {
     const [settings, setSettings] = useState({
@@ -148,15 +148,15 @@ const NewsletterSettings = () => {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6">
-                <Link to="/newsletter" className="text-gray-400 hover:text-gray-600">
-                    <ChevronLeft size={24} />
-                </Link>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold">Configuracoes da Newsletter</h1>
-                    <p className="text-gray-500 text-sm">Integracoes, remetente e preferencias</p>
+                    <h1 className="text-xl sm:text-2xl font-bold">Newsletter</h1>
+                    <p className="text-gray-500 text-sm">Configuracoes e integracoes</p>
                 </div>
             </div>
+
+            {/* Navigation Tabs */}
+            <NewsletterNav />
 
             {/* Messages */}
             {error && (

@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import {
     Mail, Users, Send, TrendingUp, TrendingDown,
     Eye, MousePointer, AlertCircle, Plus, Clock,
-    BarChart2, ArrowRight, Settings, FileText
+    BarChart2, ArrowRight, FileText
 } from 'lucide-react';
 import { getStats, getCampaigns, CAMPAIGN_STATUS } from '../../services/newsletter';
+import NewsletterNav from './NewsletterNav';
 
 const NewsletterDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -98,28 +99,22 @@ const NewsletterDashboard = () => {
     return (
         <div>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold">Newsletter</h1>
                     <p className="text-gray-500 text-sm mt-1">Gestao de campanhas e subscritores</p>
                 </div>
-                <div className="flex gap-2">
-                    <Link
-                        to="/newsletter/settings"
-                        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
-                    >
-                        <Settings size={18} />
-                        <span className="hidden sm:inline">Configuracoes</span>
-                    </Link>
-                    <Link
-                        to="/newsletter/campaigns/new"
-                        className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-light text-sm"
-                    >
-                        <Plus size={18} />
-                        Nova Campanha
-                    </Link>
-                </div>
+                <Link
+                    to="/newsletter/campaigns/new"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-light text-sm"
+                >
+                    <Plus size={18} />
+                    Nova Campanha
+                </Link>
             </div>
+
+            {/* Navigation Tabs */}
+            <NewsletterNav />
 
             {/* Mock Mode Warning */}
             {stats?.isMock && (

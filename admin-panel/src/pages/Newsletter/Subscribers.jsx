@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Users, Search, Filter, Download, Upload, Plus,
-    MoreVertical, Mail, Trash2, Edit2, ChevronLeft,
+    Users, Search, Download, Upload, Plus,
+    Mail, Trash2, Edit2,
     ChevronRight, AlertCircle, CheckCircle, XCircle,
-    List, RefreshCw
+    RefreshCw
 } from 'lucide-react';
 import {
     getSubscribers, getLists, deleteSubscriber,
     createSubscriber, importSubscribers, exportSubscribers,
     SUBSCRIBER_STATUS
 } from '../../services/newsletter';
+import NewsletterNav from './NewsletterNav';
 
 const Subscribers = () => {
     const [subscribers, setSubscribers] = useState([]);
@@ -199,15 +200,10 @@ const Subscribers = () => {
     return (
         <div>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                    <Link to="/newsletter" className="text-gray-400 hover:text-gray-600">
-                        <ChevronLeft size={24} />
-                    </Link>
-                    <div>
-                        <h1 className="text-xl sm:text-2xl font-bold">Subscritores</h1>
-                        <p className="text-gray-500 text-sm">{total} subscritores no total</p>
-                    </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-bold">Newsletter</h1>
+                    <p className="text-gray-500 text-sm">{total} subscritores no total</p>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -233,6 +229,9 @@ const Subscribers = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Navigation Tabs */}
+            <NewsletterNav />
 
             {/* Mock Warning */}
             {isMock && (
