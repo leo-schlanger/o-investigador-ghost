@@ -11,22 +11,22 @@ const NewsletterNav = () => {
     ];
 
     return (
-        <div className="bg-white rounded-lg shadow mb-6">
-            <nav className="flex overflow-x-auto">
+        <div className="bg-white rounded-lg shadow mb-6 -mx-4 sm:mx-0">
+            <nav className="flex overflow-x-auto scrollbar-hide">
                 {navItems.map(item => (
                     <NavLink
                         key={item.to}
                         to={item.to}
                         end={item.end}
                         className={({ isActive }) =>
-                            `flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
+                            `flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                                 isActive
                                     ? 'border-brand text-brand'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`
                         }
                     >
-                        <item.icon size={18} />
+                        <item.icon size={16} className="sm:w-[18px] sm:h-[18px]" />
                         {item.label}
                     </NavLink>
                 ))}

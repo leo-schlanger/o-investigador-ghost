@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Mail, Search, Plus, MoreVertical, Eye, MousePointer,
-    Clock, Send, ChevronRight, AlertCircle,
+    Clock, Send, ChevronLeft, ChevronRight, AlertCircle,
     Trash2, Copy, Edit2, Calendar, Users, FileText,
     RefreshCw, BarChart2
 } from 'lucide-react';

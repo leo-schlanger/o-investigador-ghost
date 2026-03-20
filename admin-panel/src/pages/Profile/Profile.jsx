@@ -70,16 +70,16 @@ const Profile = () => {
 
     return (
         <div className="max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Meu Perfil</h1>
+            <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Meu Perfil</h1>
 
             {status.message && (
-                <div className={`p-4 rounded mb-6 ${status.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                <div className={`p-3 sm:p-4 rounded mb-4 sm:mb-6 text-sm sm:text-base ${status.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                     {status.message}
                 </div>
             )}
 
-            <div className="bg-white rounded-lg shadow p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                     <div>
                         <h2 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Informações Pessoais</h2>
 
@@ -111,8 +111,8 @@ const Profile = () => {
                     </div>
 
                     <div>
-                        <h2 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4 mt-8">Alterar Senha</h2>
-                        <p className="text-sm text-gray-500 mb-4">Deixe em branco se não quiser alterar sua senha.</p>
+                        <h2 className="text-base sm:text-lg font-medium text-gray-900 border-b pb-2 mb-4 mt-6 sm:mt-8">Alterar Senha</h2>
+                        <p className="text-xs sm:text-sm text-gray-500 mb-4">Deixe em branco se não quiser alterar sua senha.</p>
 
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
@@ -143,7 +143,7 @@ const Profile = () => {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-brand text-white px-4 py-2 rounded shadow hover:bg-brand-light disabled:opacity-50"
+                            className="w-full sm:w-auto bg-brand text-white px-4 py-2.5 sm:py-2 rounded shadow hover:bg-brand-light disabled:opacity-50 text-sm sm:text-base"
                         >
                             {saving ? 'Salvando...' : 'Salvar Alterações'}
                         </button>

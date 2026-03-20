@@ -547,9 +547,9 @@ const ArticleEditor = () => {
     }
 
     return (
-        <div className="flex gap-6 max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 max-w-7xl mx-auto">
             {/* Main Content Area */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 order-2 lg:order-1">
                 {error && (
                     <div className="bg-red-50 border border-red-200 rounded-lg mb-4 overflow-hidden">
                         <div className="bg-red-100 px-4 py-2 flex items-center justify-between">
@@ -583,7 +583,7 @@ const ArticleEditor = () => {
                     </div>
                 )}
 
-                <div className="bg-white rounded-lg shadow p-6 space-y-6">
+                <div className="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4 sm:space-y-6">
                     {/* Title */}
                     <input
                         type="text"
@@ -591,7 +591,7 @@ const ArticleEditor = () => {
                         value={formData.title}
                         onChange={handleTitleChange}
                         placeholder="Titulo do artigo"
-                        className="w-full text-3xl font-bold border-0 border-b border-transparent focus:border-gray-300 focus:ring-0 px-0 py-2 placeholder-gray-400"
+                        className="w-full text-xl sm:text-2xl lg:text-3xl font-bold border-0 border-b border-transparent focus:border-gray-300 focus:ring-0 px-0 py-2 placeholder-gray-400"
                     />
 
                     {/* Slug */}
@@ -694,9 +694,9 @@ const ArticleEditor = () => {
                         </div>
 
                         {/* Toolbar Funcional - Estilo WordPress */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex items-center gap-1 flex-wrap">
-                            <div className="flex items-center gap-1 pr-2 border-r border-gray-300">
-                                <span className="text-xs text-gray-500 mr-1">Blocos:</span>
+                        <div className="bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex items-center gap-1 flex-wrap overflow-x-auto">
+                            <div className="flex items-center gap-1 pr-2 border-r border-gray-300 shrink-0">
+                                <span className="text-xs text-gray-500 mr-1 hidden sm:inline">Blocos:</span>
                                 <button
                                     type="button"
                                     onClick={() => insertBlock('header')}
@@ -762,8 +762,8 @@ const ArticleEditor = () => {
                                     <Minus size={16} />
                                 </button>
                             </div>
-                            <div className="flex items-center gap-1 pl-2">
-                                <span className="text-xs text-gray-500 mr-1">Texto:</span>
+                            <div className="flex items-center gap-1 pl-2 shrink-0">
+                                <span className="text-xs text-gray-500 mr-1 hidden sm:inline">Texto:</span>
                                 <button
                                     type="button"
                                     className="p-1.5 text-gray-600 hover:bg-white hover:text-brand rounded transition-colors cursor-help"
@@ -822,7 +822,7 @@ const ArticleEditor = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="w-80 flex-shrink-0 space-y-4">
+            <div className="w-full lg:w-80 flex-shrink-0 space-y-4 order-1 lg:order-2">
                 {/* Status Card */}
                 <div className="bg-white rounded-lg shadow p-4">
                     <h3 className="font-medium text-gray-900 mb-3">Publicacao</h3>

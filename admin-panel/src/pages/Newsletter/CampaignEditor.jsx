@@ -284,8 +284,8 @@ const CampaignEditor = () => {
                 }`}
                 onClick={() => setSelectedBlock(block.id)}
             >
-                {/* Block Controls */}
-                <div className={`absolute -left-10 top-1/2 -translate-y-1/2 flex flex-col gap-1 ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'}`}>
+                {/* Block Controls - Hidden on mobile, visible on larger screens */}
+                <div className={`hidden sm:flex absolute -left-10 top-1/2 -translate-y-1/2 flex-col gap-1 ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'}`}>
                     <button
                         onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'up'); }}
                         className="p-1 bg-white border rounded hover:bg-gray-50"
@@ -301,6 +301,26 @@ const CampaignEditor = () => {
                         <ChevronDown size={14} />
                     </button>
                 </div>
+
+                {/* Mobile Block Controls - Inside the block */}
+                {isSelected && (
+                    <div className="sm:hidden absolute top-2 left-2 flex gap-1">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'up'); }}
+                            className="p-1.5 bg-white border rounded shadow-sm hover:bg-gray-50"
+                            title="Mover para cima"
+                        >
+                            <ChevronUp size={16} />
+                        </button>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'down'); }}
+                            className="p-1.5 bg-white border rounded shadow-sm hover:bg-gray-50"
+                            title="Mover para baixo"
+                        >
+                            <ChevronDown size={16} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Block Preview */}
                 <div className="p-4">
@@ -643,21 +663,21 @@ const CampaignEditor = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 -m-4 sm:-m-6">
+        <div className="min-h-screen bg-gray-100 -m-4 sm:-m-6 lg:-m-8">
             {/* Top Bar */}
             <div className="bg-white border-b sticky top-0 z-20">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                        <Link to="/newsletter/campaigns" className="text-gray-400 hover:text-gray-600">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <Link to="/newsletter/campaigns" className="text-gray-400 hover:text-gray-600 shrink-0">
                             <ChevronLeft size={24} />
                         </Link>
-                        <div>
+                        <div className="min-w-0 flex-1">
                             <input
                                 type="text"
                                 value={campaign.name}
                                 onChange={(e) => setCampaign(c => ({ ...c, name: e.target.value }))}
                                 placeholder="Nome da campanha"
-                                className="font-semibold text-lg border-none focus:ring-0 p-0 w-64"
+                                className="font-semibold text-base sm:text-lg border-none focus:ring-0 p-0 w-full max-w-[200px] sm:max-w-xs lg:max-w-md truncate"
                             />
                         </div>
                     </div>
@@ -739,10 +759,10 @@ const CampaignEditor = () => {
 
             {/* Content Tab */}
             {activeTab === 'content' && (
-                <div className="flex flex-col lg:flex-row gap-4 p-4">
+                <div className="flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
                     {/* Editor Area */}
-                    <div className="flex-1">
-                        <div className="bg-white rounded-lg shadow p-6 max-w-2xl mx-auto">
+                    <div className="flex-1 order-2 lg:order-1">
+                        <div className="bg-white rounded-lg shadow p-4 sm:p-6 max-w-2xl mx-auto">
                             {/* Subject Line */}
                             <div className="mb-6 pb-4 border-b">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Assunto do Email</label>
@@ -779,15 +799,15 @@ const CampaignEditor = () => {
                     </div>
 
                     {/* Properties Panel */}
-                    <div className="w-full lg:w-80 shrink-0">
-                        <div className="bg-white rounded-lg shadow p-4 sticky top-36">
+                    <div className="w-full lg:w-80 shrink-0 order-1 lg:order-2">
+                        <div className="bg-white rounded-lg shadow p-4 lg:sticky lg:top-36">
                             <h3 className="font-medium mb-4 text-sm text-gray-500 uppercase tracking-wide">
                                 Propriedades
                             </h3>
                             {selectedBlock ? (
                                 renderBlockProperties()
                             ) : (
-                                <p className="text-gray-400 text-sm text-center py-8">
+                                <p className="text-gray-400 text-sm text-center py-4 lg:py-8">
                                     Selecione um bloco para editar
                                 </p>
                             )}
