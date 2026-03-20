@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
         const token = generateToken(user);
 
         res.status(201).json({
-            user: { id: user.id, name: user.name, email: user.email, role: user.role },
+            user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
             token
         });
     } catch (err) {
@@ -65,7 +65,7 @@ exports.createUser = async (req, res) => {
         });
 
         res.status(201).json({
-            id: user.id, name: user.name, email: user.email, role: user.role
+            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -92,7 +92,7 @@ exports.login = async (req, res) => {
         const token = generateToken(user);
 
         res.json({
-            user: { id: user.id, name: user.name, email: user.email, role: user.role },
+            user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
             token
         });
     } catch (err) {
@@ -119,7 +119,7 @@ exports.me = async (req, res) => {
 
 exports.updateMe = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, avatar } = req.body;
         const user = await User.findByPk(req.user.id);
 
         if (!user) {
@@ -136,6 +136,7 @@ exports.updateMe = async (req, res) => {
         const updateData = {};
         if (name) updateData.name = name;
         if (email) updateData.email = email;
+        if (avatar !== undefined) updateData.avatar = avatar;
 
         if (password) {
             const salt = await bcrypt.genSalt(10);
@@ -145,7 +146,7 @@ exports.updateMe = async (req, res) => {
         await user.update(updateData);
 
         res.json({
-            id: user.id, name: user.name, email: user.email, role: user.role
+            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -168,7 +169,7 @@ exports.listUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, role, email, password } = req.body;
+        const { name, role, email, password, avatar } = req.body;
 
         const user = await User.findByPk(id);
         if (!user) {
@@ -187,6 +188,7 @@ exports.updateUser = async (req, res) => {
         if (name) updateData.name = name;
         if (email) updateData.email = email;
         if (role) updateData.role = role;
+        if (avatar !== undefined) updateData.avatar = avatar;
 
         if (password) {
             const salt = await bcrypt.genSalt(10);
@@ -196,7 +198,7 @@ exports.updateUser = async (req, res) => {
         await user.update(updateData);
 
         res.json({
-            id: user.id, name: user.name, email: user.email, role: user.role
+            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });

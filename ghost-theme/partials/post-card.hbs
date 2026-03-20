@@ -8,12 +8,37 @@
     </a>
     {{/if}}
 
-    <div class="flex gap-2 mb-1.5 sm:mb-2">
-        {{#primary_tag}}
-        <span class="text-[11px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-50 text-brand rounded">
-            {{name}}
-        </span>
-        {{/primary_tag}}
+    <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+        {{!-- Article type badge (Cronica, Reportagem, Opiniao) --}}
+        {{#foreach tags}}
+            {{#match slug "~" "tipo-"}}
+                {{#match slug "tipo-cronica"}}
+                <span class="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-purple-100 text-purple-700 rounded">
+                    Cronica
+                </span>
+                {{/match}}
+                {{#match slug "tipo-reportagem"}}
+                <span class="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 text-blue-700 rounded">
+                    Reportagem
+                </span>
+                {{/match}}
+                {{#match slug "tipo-opiniao"}}
+                <span class="text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-700 rounded">
+                    Opiniao
+                </span>
+                {{/match}}
+            {{/match}}
+        {{/foreach}}
+        {{!-- Category badge (first non-type tag) --}}
+        {{#foreach tags}}
+            {{#unless (match slug "~" "tipo-")}}
+                {{#if @first}}
+                <a href="{{url}}" class="text-[11px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-50 text-brand rounded hover:bg-primary-100 transition">
+                    {{name}}
+                </a>
+                {{/if}}
+            {{/unless}}
+        {{/foreach}}
     </div>
 
     <h3 class="text-base sm:text-lg font-bold text-neutral-900 group-hover:text-brand transition mb-1.5 sm:mb-2 line-clamp-2">

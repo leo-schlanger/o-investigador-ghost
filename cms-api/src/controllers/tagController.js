@@ -129,3 +129,64 @@ exports.delete = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+/**
+ * Category tags required for navigation
+ */
+const CATEGORY_TAGS = [
+    { name: 'Politica', slug: 'politica', description: 'Noticias sobre politica nacional e internacional' },
+    { name: 'Economia', slug: 'economia', description: 'Noticias sobre economia e financas' },
+    { name: 'Justica', slug: 'justica', description: 'Noticias sobre justica e direito' },
+    { name: 'Internacional', slug: 'internacional', description: 'Noticias internacionais' },
+    { name: 'Tecnologia', slug: 'tecnologia', description: 'Noticias sobre tecnologia e inovacao' },
+    { name: 'Cultura', slug: 'cultura', description: 'Noticias sobre cultura e entretenimento' },
+    { name: 'Investigacoes', slug: 'investigacoes', description: 'Reportagens investigativas' }
+];
+
+/**
+ * Initialize category tags
+ * POST /api/tags/init-categories
+ * Creates all required category tags if they don't exist
+ */
+exports.initCategories = async (req, res) => {
+    try {
+        const results = {
+            created: [],
+            existing: [],
+            errors: []
+        };
+
+        // Get existing tags
+        const existingTags = await ghostApi.listTags();
+        const existingSlugs = existingTags.map(t => t.slug);
+
+        for (const category of CATEGORY_TAGS) {
+            if (existingSlugs.includes(category.slug)) {
+                results.existing.push(category.name);
+                continue;
+            }
+
+            try {
+                await ghostApi.createTag(category);
+                results.created.push(category.name);
+            } catch (err) {
+                // Tag might already exist with slightly different data
+                if (err.message && err.message.includes('already exists')) {
+                    results.existing.push(category.name);
+                } else {
+                    results.errors.push({ name: category.name, error: err.message });
+                }
+            }
+        }
+
+        res.json({
+            message: 'Category tags initialization complete',
+            created: results.created,
+            existing: results.existing,
+            errors: results.errors
+        });
+    } catch (err) {
+        console.error('Error initializing category tags:', err);
+        res.status(500).json({ error: err.message });
+    }
+};

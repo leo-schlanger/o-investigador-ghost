@@ -6,11 +6,34 @@
 
         <header class="mb-4 sm:mb-6 md:mb-8 pb-4 sm:pb-6 md:pb-8 border-b border-neutral-200">
             <div class="flex flex-wrap gap-1.5 sm:gap-2 md:gap-3 mb-2 sm:mb-3 md:mb-4 items-center">
-                {{#primary_tag}}
-                <a href="{{url}}" class="px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-50 text-brand text-[11px] sm:text-xs font-semibold rounded-full">
-                    {{name}}
-                </a>
-                {{/primary_tag}}
+                {{!-- Article type badge (Cronica, Reportagem, Opiniao) --}}
+                {{#foreach tags}}
+                    {{#match slug "tipo-cronica"}}
+                    <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-purple-100 text-purple-700 text-[11px] sm:text-xs font-semibold rounded-full">
+                        Cronica
+                    </span>
+                    {{/match}}
+                    {{#match slug "tipo-reportagem"}}
+                    <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-100 text-blue-700 text-[11px] sm:text-xs font-semibold rounded-full">
+                        Reportagem
+                    </span>
+                    {{/match}}
+                    {{#match slug "tipo-opiniao"}}
+                    <span class="px-2 sm:px-3 py-0.5 sm:py-1 bg-orange-100 text-orange-700 text-[11px] sm:text-xs font-semibold rounded-full">
+                        Opiniao
+                    </span>
+                    {{/match}}
+                {{/foreach}}
+                {{!-- Category badge (first non-type tag) --}}
+                {{#foreach tags}}
+                    {{#unless (match slug "~" "tipo-")}}
+                        {{#if @first}}
+                        <a href="{{url}}" class="px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-50 text-brand text-[11px] sm:text-xs font-semibold rounded-full hover:bg-primary-100 transition">
+                            {{name}}
+                        </a>
+                        {{/if}}
+                    {{/unless}}
+                {{/foreach}}
                 <span class="text-[11px] sm:text-xs md:text-sm text-neutral-500">{{reading_time}} min</span>
                 <span class="text-[11px] sm:text-xs md:text-sm text-neutral-500">{{date published_at format="DD MMM YYYY"}}</span>
             </div>

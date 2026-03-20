@@ -5,6 +5,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 router.get('/', protect, tagController.list);
 router.post('/', protect, tagController.create);
+router.post('/init-categories', protect, tagController.initCategories);
 router.get('/:id', protect, tagController.get);
 router.put('/:id', protect, tagController.update);
 router.delete('/:id', protect, tagController.delete);

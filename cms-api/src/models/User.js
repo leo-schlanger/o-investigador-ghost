@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
         role: {
             type: DataTypes.ENUM('admin', 'editor', 'author'),
             defaultValue: 'author'
+        },
+        avatar: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            comment: 'URL da foto de perfil do usuario'
         }
     });
 

@@ -79,6 +79,14 @@ app.get('/health', (req, res) => {
 sequelize.sync({ alter: false }).then(async () => {
     console.log('📦 Database synced');
 
+    // Run migrations
+    try {
+        const avatarMigration = require('./src/migrations/001_add_avatar_to_users');
+        await avatarMigration.up();
+    } catch (migrationError) {
+        console.error('Migration warning:', migrationError.message);
+    }
+
     // Create default admin if no users exist (only if ADMIN_EMAIL and ADMIN_PASSWORD are set)
     try {
         const { User } = require('./src/models');

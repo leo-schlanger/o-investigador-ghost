@@ -76,9 +76,17 @@ const Sidebar = ({ onNavigate }) => {
             {/* User Info & Logout */}
             <div className="p-3 sm:p-4 border-t border-primary-900 shrink-0 space-y-2">
                 <div className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 bg-primary-700 flex items-center justify-center rounded-full text-brand font-bold text-base sm:text-lg">
-                        {user?.name?.charAt(0).toUpperCase() || 'U'}
-                    </div>
+                    {user?.avatar ? (
+                        <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full object-cover border-2 border-primary-700"
+                        />
+                    ) : (
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 bg-primary-700 flex items-center justify-center rounded-full text-brand font-bold text-base sm:text-lg">
+                            {user?.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                    )}
                     <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{user?.name || 'Usuario'}</p>
                         <p className="text-xs text-primary-400 capitalize">{user?.role || 'Autor'}</p>

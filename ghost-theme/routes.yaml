@@ -24,6 +24,26 @@ collections:
     filter: tag:economia
     template: index
 
+  /justica/:
+    permalink: /justica/{slug}/
+    filter: tag:justica
+    template: index
+
+  /internacional/:
+    permalink: /internacional/{slug}/
+    filter: tag:internacional
+    template: index
+
+  /tecnologia/:
+    permalink: /tecnologia/{slug}/
+    filter: tag:tecnologia
+    template: index
+
+  /cultura/:
+    permalink: /cultura/{slug}/
+    filter: tag:cultura
+    template: index
+
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/
