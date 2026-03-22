@@ -9,20 +9,23 @@
                     {{date format="dddd, D [de] MMMM [de] YYYY"}}
                 </time>
                 <span class="text-white/40">|</span>
-                <div id="weather-widget" class="flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                    <span id="weather-temp">--</span>
-                    <span class="text-white/60">Lisboa</span>
+                <div id="weather-widget" class="flex items-center gap-3 md:gap-4">
+                    <div class="flex items-center gap-1">
+                        <span class="text-white/60">Lisboa</span>
+                        <span id="weather-lisboa" class="font-medium">--</span>
+                    </div>
+                    <div class="hidden md:flex items-center gap-1">
+                        <span class="text-white/60">Porto</span>
+                        <span id="weather-porto" class="font-medium">--</span>
+                    </div>
+                    <div class="hidden lg:flex items-center gap-1">
+                        <span class="text-white/60">Faro</span>
+                        <span id="weather-faro" class="font-medium">--</span>
+                    </div>
+                    <div class="hidden lg:flex items-center gap-1">
+                        <span class="text-white/60">Cascais</span>
+                        <span id="weather-cascais" class="font-medium">--</span>
+                    </div>
                 </div>
             </div>
             {{!-- Social Icons --}}
@@ -78,11 +81,10 @@
 
             {{!-- Search --}}
             <button
-                class="p-1.5 sm:p-2 text-white hover:text-primary-200 transition min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center"
+                class="p-2 text-white hover:text-primary-200 transition min-h-[44px] min-w-[44px] flex items-center justify-center"
                 data-ghost-search title="Pesquisar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="sm:w-5 sm:h-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
@@ -102,11 +104,10 @@
 
             {{!-- Mobile Menu Button --}}
             <button
-                class="lg:hidden p-1.5 sm:p-2 text-white hover:text-primary-200 transition min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center"
+                class="lg:hidden p-2 text-white hover:text-primary-200 transition min-h-[44px] min-w-[44px] flex items-center justify-center"
                 id="mobile-menu-btn" aria-label="Menu">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="sm:w-6 sm:h-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -116,8 +117,8 @@
     </nav>
 
     {{!-- Category Sub-bar with Dropdowns --}}
-    <div class="bg-brand-dark text-white/90 text-[11px] sm:text-xs md:text-sm py-2 sm:py-2.5 overflow-x-auto border-t border-white/10 scrollbar-hide">
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex gap-4 sm:gap-5 md:gap-8 justify-start sm:justify-center font-medium tracking-wide">
+    <div class="bg-brand-dark text-white/90 text-xs md:text-sm py-2.5 sm:py-2.5 overflow-x-auto border-t border-white/10 scrollbar-hide">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex gap-5 sm:gap-5 md:gap-8 justify-start sm:justify-center font-medium tracking-wide">
             <a href="/politica/" class="hover:text-white transition whitespace-nowrap">Politica</a>
             <a href="/economia/" class="hover:text-white transition whitespace-nowrap">Economia</a>
             <a href="/justica/" class="hover:text-white transition whitespace-nowrap">Justica</a>
@@ -212,30 +213,43 @@
 
     // Weather widget using Open-Meteo API (free, no API key needed)
     (function() {
+        const cities = [
+            { id: 'lisboa', lat: 38.7223, lon: -9.1393 },
+            { id: 'porto', lat: 41.1579, lon: -8.6291 },
+            { id: 'faro', lat: 37.0194, lon: -7.9304 },
+            { id: 'cascais', lat: 38.6979, lon: -9.4215 }
+        ];
+
         async function loadWeather() {
-            const tempEl = document.getElementById('weather-temp');
-            if (!tempEl) return;
+            const lats = cities.map(c => c.lat).join(',');
+            const lons = cities.map(c => c.lon).join(',');
 
             try {
-                // Lisboa coordinates: 38.7223, -9.1393
-                const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=38.7223&longitude=-9.1393&current_weather=true', {
-                    mode: 'cors',
-                    cache: 'no-cache'
-                });
+                const response = await fetch(
+                    'https://api.open-meteo.com/v1/forecast?latitude=' + lats + '&longitude=' + lons + '&current_weather=true',
+                    { mode: 'cors', cache: 'no-cache' }
+                );
                 if (!response.ok) throw new Error('Weather API error');
                 const data = await response.json();
-                const temp = Math.round(data.current_weather.temperature);
-                tempEl.textContent = temp + '°C';
+
+                // API returns array when multiple locations
+                const results = Array.isArray(data) ? data : [data];
+                results.forEach((result, i) => {
+                    const el = document.getElementById('weather-' + cities[i].id);
+                    if (el && result.current_weather) {
+                        el.textContent = Math.round(result.current_weather.temperature) + '°C';
+                    }
+                });
             } catch (e) {
                 console.warn('Weather load failed:', e);
-                tempEl.textContent = '--°C';
             }
         }
 
-        // Load weather immediately and retry after DOM ready
-        loadWeather();
+        // Load weather on page ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', loadWeather);
+        } else {
+            loadWeather();
         }
     })();
 </script>
