@@ -14,10 +14,11 @@
 - [x] **Botoes de Compartilhamento** - Facebook, X, WhatsApp, LinkedIn, Email, Copiar Link
 - [x] **Widget de Data** - Data atual em formato portugues no header
 
-### Melhorias P2 (Media Prioridade) - PENDENTE
-- [ ] Sistema de Pesquisa Aprimorado (AJAX preview)
-- [ ] Subcategorias e Navegacao Expandida
-- [ ] Secao Magazine / Reportagens Especiais
+### Melhorias P2 (Media Prioridade) - EM PROGRESSO
+- [x] **Sistema de Pesquisa Aprimorado** - Historico, highlight de termos, navegacao por teclado
+- [x] **Subcategorias e Navegacao Expandida** - Novas categorias (Sociedade, Ambiente, Saude, Educacao) com dropdown
+- [x] **Secao Magazine / Reportagens Especiais** - Template dedicado com layout diferenciado
+- [x] **Widget de Clima** - Temperatura de Lisboa via Open-Meteo API
 - [ ] Dark Mode
 - [ ] Sistema de Membros/Assinantes Ativo
 
@@ -99,66 +100,52 @@ Este documento apresenta uma analise comparativa entre O Investigador e portais 
 
 ---
 
-## 2. Melhorias de Media Prioridade (P2)
+## 2. Melhorias de Media Prioridade (P2) - IMPLEMENTADAS
 
 ### 2.1 Sistema de Pesquisa Aprimorado
-**Status atual:** Busca basica implementada
-**O que O Cidadao tem:** AJAX search com preview de resultados
+**Status:** IMPLEMENTADO (22 Mar 2026)
 
-**Proposta:**
-- Preview de resultados enquanto digita
-- Mostrar thumbnail, titulo e categoria
-- Destacar termos buscados
-- Sugestoes de busca populares
+**O que foi feito:**
 - Historico de buscas recentes (localStorage)
+- Highlight dos termos buscados nos resultados
+- Navegacao por teclado (setas + Enter)
+- Limpar historico
+- UX melhorada
 
-**Arquivos a modificar:**
-- `ghost-theme/partials/search-modal.hbs`
+**Arquivos modificados:**
 - `ghost-theme/assets/js/search.js`
-- `ghost-theme/assets/css/index.css`
-
-**Esforco estimado:** Medio
 
 ---
 
 ### 2.2 Subcategorias e Navegacao Expandida
-**Status atual:** 7 categorias principais
-**O que O Cidadao tem:** 18+ categorias com subcategorias extensas
+**Status:** IMPLEMENTADO (22 Mar 2026)
 
-**Proposta:**
-- Avaliar necessidade de novas categorias:
-  - Ambiente (com sub: Biodiversidade)
-  - Saude
-  - Educacao
-  - Desporto (se relevante)
-- Menu dropdown para subcategorias
-- Mega menu opcional para desktop
+**O que foi feito:**
+- Novas categorias: Sociedade, Ambiente, Saude, Educacao, Magazine
+- Dropdown para subcategorias (Sociedade > Saude, Educacao)
+- Menu mobile atualizado com todas categorias
+- Widget de clima com temperatura de Lisboa
 
-**Arquivos a modificar:**
-- `ghost-theme/routes.yaml`
-- `ghost-theme/partials/navigation.hbs`
-- `admin-panel/src/pages/Settings.jsx`
-
-**Esforco estimado:** Medio
+**Arquivos modificados:**
+- `ghost-theme/routes.yaml` (novas rotas)
+- `ghost-theme/partials/header.hbs` (dropdown + clima)
 
 ---
 
 ### 2.3 Secao "Magazine" / Reportagens Especiais
-**Status atual:** Nao implementado
-**O que O Cidadao tem:** Secao Magazine com series editoriais
+**Status:** IMPLEMENTADO (22 Mar 2026)
 
-**Proposta:**
-- Criar secao "Especiais" ou "Magazine"
-- Permitir criacao de series/colecoes de artigos
-- Visual diferenciado para reportagens longas
-- Pagina dedicada para series em andamento
+**O que foi feito:**
+- Template dedicado para reportagens especiais
+- Hero section com destaque principal
+- Grid de artigos com layout diferenciado
+- Destaque no menu de categorias
+- CTA de newsletter integrado
 
-**Arquivos a modificar:**
-- `ghost-theme/routes.yaml`
-- `ghost-theme/magazine.hbs` (novo)
-- `ghost-theme/series.hbs` (novo)
+**Arquivos criados:**
+- `ghost-theme/magazine.hbs`
 
-**Esforco estimado:** Alto
+**IMPORTANTE:** Criar tag "magazine" no Ghost para usar esta secao
 
 ---
 
@@ -266,9 +253,10 @@ Este documento apresenta uma analise comparativa entre O Investigador e portais 
 | Social icons header | **Sim** | Sim | IMPLEMENTADO |
 | Botoes compartilhamento | **Sim** | Sim | IMPLEMENTADO |
 | Data no header | **Sim** | Sim | IMPLEMENTADO |
-| AJAX search preview | Nao | Sim | P2 - Pendente |
-| Subcategorias | Nao | Extenso | P2 - Pendente |
-| Secao Magazine | Nao | Sim | P2 - Pendente |
+| AJAX search preview | **Sim** | Sim | IMPLEMENTADO |
+| Subcategorias | **Sim** | Extenso | IMPLEMENTADO |
+| Secao Magazine | **Sim** | Sim | IMPLEMENTADO |
+| Widget de Clima | **Sim** | Sim | IMPLEMENTADO |
 | Dark mode | Nao | Indicios | P2 - Pendente |
 | Sistema membros | Desativado | Ativo | P2 - Pendente |
 | Agenda/Eventos | Nao | Sim | P3 - Pendente |
@@ -313,19 +301,20 @@ Este documento apresenta uma analise comparativa entre O Investigador e portais 
 4. [x] Implementar trending carousel
 5. [x] Adicionar widget de data
 
-### Fase 2 (Proximo mes)
-6. [ ] Melhorar sistema de busca (AJAX preview)
-7. [ ] Reativar sistema de membros
-8. [ ] Implementar dark mode
+### Fase 2 (Proximo mes) - CONCLUIDA
+6. [x] Melhorar sistema de busca (AJAX preview, historico, highlight)
+7. [x] Adicionar subcategorias relevantes
+8. [x] Criar secao de especiais/magazine
+9. [x] Widget de clima
 
 ### Fase 3 (Trimestre)
-9. [ ] Criar secao de especiais/magazine
-10. [ ] Adicionar subcategorias relevantes
+10. [ ] Reativar sistema de membros
+11. [ ] Implementar dark mode
 
 ### Fase 4 (Futuro)
-11. [ ] Push notifications
-12. [ ] Integracao multimedia
-13. [ ] Sistema de eventos
+12. [ ] Push notifications
+13. [ ] Integracao multimedia
+14. [ ] Sistema de eventos
 
 ---
 

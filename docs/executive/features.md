@@ -12,18 +12,21 @@ Este documento lista todas as funcionalidades disponiveis na plataforma, organiz
 | Funcionalidade | Status | Descricao |
 |----------------|--------|-----------|
 | Homepage | Ativo | Pagina inicial com destaques e ultimas noticias |
-| Categorias | Ativo | Secoes: Politica, Economia, Justica, Internacional, etc. |
+| Categorias | Ativo | Politica, Economia, Justica, Internacional, Sociedade, Ambiente, etc. |
+| Subcategorias | Ativo | Dropdown para subcategorias (ex: Sociedade > Saude, Educacao) |
+| Pagina Magazine | Ativo | Secao dedicada para reportagens especiais |
 | Pagina de Artigo | Ativo | Exibicao completa de noticias |
 | Pagina de Autor | Ativo | Perfil e artigos de cada jornalista |
 | Pagina de Tag | Ativo | Agrupamento por tematica |
 | Menu Mobile | Ativo | Navegacao responsiva para celulares |
 | Social Icons Header | Ativo | Links para redes sociais no topo |
 | Data no Header | Ativo | Data atual em formato portugues |
+| Widget de Clima | Ativo | Temperatura de Lisboa via Open-Meteo |
 
 ### Interacao
 | Funcionalidade | Status | Descricao |
 |----------------|--------|-----------|
-| Sistema de Busca | Ativo | Pesquisa de artigos por titulo e conteudo |
+| Sistema de Busca | Ativo | AJAX preview, historico, highlight, navegacao por teclado |
 | Artigos Relacionados | Ativo | Sugestoes no final de cada artigo |
 | Compartilhamento Social | Ativo | Botoes Facebook, X, WhatsApp, LinkedIn, Email |
 | Bio do Autor | Ativo | Perfil do autor no final dos artigos |

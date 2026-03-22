@@ -44,6 +44,31 @@ collections:
     filter: tag:cultura
     template: index
 
+  /sociedade/:
+    permalink: /sociedade/{slug}/
+    filter: tag:sociedade
+    template: index
+
+  /ambiente/:
+    permalink: /ambiente/{slug}/
+    filter: tag:ambiente
+    template: index
+
+  /saude/:
+    permalink: /saude/{slug}/
+    filter: tag:saude
+    template: index
+
+  /educacao/:
+    permalink: /educacao/{slug}/
+    filter: tag:educacao
+    template: index
+
+  /magazine/:
+    permalink: /magazine/{slug}/
+    filter: tag:magazine
+    template: magazine
+
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/

@@ -311,6 +311,10 @@ Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para instrucoes.
 
 | Data | Mudanca |
 |------|---------|
+| 22 Mar 2026 | Sistema de busca aprimorado (historico, highlight, teclado) |
+| 22 Mar 2026 | Subcategorias implementadas (Sociedade, Ambiente, Saude, Educacao) |
+| 22 Mar 2026 | Secao Magazine criada com template dedicado |
+| 22 Mar 2026 | Widget de clima (Lisboa) implementado |
 | 22 Mar 2026 | Autor no final dos artigos implementado |
 | 22 Mar 2026 | Trending News carousel implementado |
 | 22 Mar 2026 | Social icons no header implementado |
