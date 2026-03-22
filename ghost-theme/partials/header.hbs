@@ -1,28 +1,33 @@
 <header class="sticky top-0 z-50 bg-brand overflow-hidden">
 
     {{!-- Top Bar: Date & Social Icons --}}
-    <div class="bg-brand-dark/50 text-white/80 text-[10px] sm:text-xs py-1.5 hidden sm:block border-b border-white/10">
+    <div class="bg-brand-dark/50 text-white/80 text-[10px] sm:text-xs py-1.5 border-b border-white/10">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 flex items-center justify-between">
             {{!-- Date & Weather --}}
-            <div class="flex items-center gap-3">
-                <time class="font-medium">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <time class="font-medium hidden sm:block">
                     {{date format="dddd, D [de] MMMM [de] YYYY"}}
                 </time>
+                <time class="font-medium sm:hidden">
+                    {{date format="D MMM YYYY"}}
+                </time>
                 <span class="text-white/40">|</span>
-                <div id="weather-widget" class="flex items-center gap-3 md:gap-4">
+                <div id="weather-widget" class="flex items-center gap-2 sm:gap-3 md:gap-4">
                     <div class="flex items-center gap-1">
-                        <span class="text-white/60">Lisboa</span>
+                        <span class="text-white/60 hidden sm:inline">Lisboa</span>
+                        <span class="text-white/60 sm:hidden">LIS</span>
                         <span id="weather-lisboa" class="font-medium">--</span>
                     </div>
-                    <div class="hidden md:flex items-center gap-1">
-                        <span class="text-white/60">Porto</span>
+                    <div class="flex items-center gap-1">
+                        <span class="text-white/60 hidden sm:inline">Porto</span>
+                        <span class="text-white/60 sm:hidden">PRT</span>
                         <span id="weather-porto" class="font-medium">--</span>
                     </div>
-                    <div class="hidden lg:flex items-center gap-1">
+                    <div class="hidden sm:flex items-center gap-1">
                         <span class="text-white/60">Faro</span>
                         <span id="weather-faro" class="font-medium">--</span>
                     </div>
-                    <div class="hidden lg:flex items-center gap-1">
+                    <div class="hidden md:flex items-center gap-1">
                         <span class="text-white/60">Cascais</span>
                         <span id="weather-cascais" class="font-medium">--</span>
                     </div>
