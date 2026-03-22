@@ -1,6 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./*.hbs", "./**/*.hbs"],
+  safelist: [
+    // Responsive display utilities using pattern
+    {
+      pattern: /^(hidden|block|inline|flex|inline-flex|inline-block)$/,
+      variants: ['sm', 'md', 'lg', 'xl']
+    },
+  ],
   theme: {
     extend: {
       colors: {
