@@ -280,22 +280,82 @@ Authorization: Bearer <token>
 Content-Type: multipart/form-data
 
 file: <binary>
+folderId: <uuid> (opcional)
 
 Response:
 {
-    "id": 1,
+    "id": "uuid",
     "filename": "abc123.jpg",
     "url": "/uploads/abc123.jpg",
-    "size": 102400
+    "size": 102400,
+    "folder": {...},
+    "tags": [...]
 }
 ```
 
-#### Listar Midias
+#### Listar Midias (com filtros)
 ```http
-GET /api/media?page=1&limit=20
+GET /api/media?folderId=<uuid>&tags=<id1,id2>&search=<termo>&page=1&limit=50
 Authorization: Bearer <token>
 
-Response: { "media": [...], "total": 50 }
+Response:
+{
+    "items": [...],
+    "total": 50,
+    "page": 1,
+    "totalPages": 1
+}
+```
+
+#### Obter Midia
+```http
+GET /api/media/:id
+Authorization: Bearer <token>
+
+Response: { "id": "...", "filename": "...", "folder": {...}, "tags": [...] }
+```
+
+#### Atualizar Midia
+```http
+PUT /api/media/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "folderId": "uuid",
+    "tagIds": ["uuid1", "uuid2"],
+    "originalName": "novo-nome.jpg"
+}
+
+Response: { "id": "...", "folder": {...}, "tags": [...] }
+```
+
+#### Mover Multiplos (Bulk Move)
+```http
+PUT /api/media/bulk-move
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "mediaIds": ["uuid1", "uuid2"],
+    "folderId": "uuid" (ou null para raiz)
+}
+
+Response: { "message": "X items movidos", "updatedCount": X }
+```
+
+#### Adicionar Tags em Lote
+```http
+PUT /api/media/bulk-add-tags
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "mediaIds": ["uuid1", "uuid2"],
+    "tagIds": ["tag-uuid1", "tag-uuid2"]
+}
+
+Response: { "message": "Tags adicionadas a X items" }
 ```
 
 #### Excluir Midia
@@ -303,7 +363,127 @@ Response: { "media": [...], "total": 50 }
 DELETE /api/media/:id
 Authorization: Bearer <token>
 
-Response: { "success": true }
+Response: { "message": "Media deleted" }
+```
+
+---
+
+### Pastas de Media
+
+#### Listar Pastas
+```http
+GET /api/media/folders?format=tree|flat
+Authorization: Bearer <token>
+
+Response (tree):
+[
+    {
+        "id": "uuid",
+        "name": "Pasta A",
+        "parentId": null,
+        "mediaCount": 5,
+        "children": [
+            { "id": "uuid2", "name": "Subpasta", ... }
+        ]
+    }
+]
+```
+
+#### Criar Pasta
+```http
+POST /api/media/folders
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Nova Pasta",
+    "parentId": "uuid" (opcional)
+}
+
+Response: { "id": "uuid", "name": "Nova Pasta", "parentId": null }
+```
+
+#### Atualizar Pasta
+```http
+PUT /api/media/folders/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Novo Nome",
+    "parentId": "uuid" (opcional - mover pasta)
+}
+
+Response: { "id": "...", "name": "Novo Nome" }
+```
+
+#### Excluir Pasta
+```http
+DELETE /api/media/folders/:id
+Authorization: Bearer <token>
+
+Response: { "message": "Pasta eliminada" }
+```
+> Nota: Ao eliminar pasta, midias e subpastas sao movidas para a pasta pai.
+
+---
+
+### Tags de Media
+
+#### Listar Tags
+```http
+GET /api/media/tags
+Authorization: Bearer <token>
+
+Response:
+[
+    { "id": "uuid", "name": "Evento", "slug": "evento", "usageCount": 10 }
+]
+```
+
+#### Sugestoes (Autocomplete)
+```http
+GET /api/media/tags/suggestions?q=<termo>
+Authorization: Bearer <token>
+
+Response:
+[
+    { "id": "uuid", "name": "Evento", "usageCount": 10 }
+]
+```
+
+#### Criar Tag
+```http
+POST /api/media/tags
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Nova Tag"
+}
+
+Response: { "id": "uuid", "name": "Nova Tag", "slug": "nova-tag" }
+```
+
+#### Obter ou Criar Tag
+```http
+POST /api/media/tags/get-or-create
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Tag Existente ou Nova"
+}
+
+Response: { "tag": {...}, "created": true|false }
+```
+
+#### Excluir Tag
+```http
+DELETE /api/media/tags/:id
+Authorization: Bearer <token>
+
+Response: { "message": "Tag eliminada" }
 ```
 
 ---

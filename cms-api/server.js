@@ -87,6 +87,13 @@ sequelize.sync({ alter: false }).then(async () => {
         console.error('Migration warning:', migrationError.message);
     }
 
+    try {
+        const mediaFoldersMigration = require('./src/migrations/002_add_media_folders_tags');
+        await mediaFoldersMigration.up();
+    } catch (migrationError) {
+        console.error('Migration warning:', migrationError.message);
+    }
+
     // Create default admin if no users exist (only if ADMIN_EMAIL and ADMIN_PASSWORD are set)
     try {
         const { User } = require('./src/models');

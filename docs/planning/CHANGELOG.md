@@ -10,6 +10,16 @@ e este projeto adere ao [Versionamento Semantico](https://semver.org/lang/pt-BR/
 ## [Unreleased]
 
 ### Adicionado
+- **Biblioteca de Midia com Pastas e Tags**
+  - Pastas hierarquicas para organizar midias
+  - Tags com autocomplete para classificacao flexivel
+  - Pesquisa por nome de ficheiro
+  - Filtros combinados (pasta + tags + pesquisa)
+  - Operacoes em lote (mover multiplos ficheiros)
+  - Painel de detalhes com edicao de tags e pasta
+  - Novos modelos: MediaFolder, MediaTag, MediaTagAssignment
+  - Novos endpoints: /api/media/folders, /api/media/tags
+  - Migracao automatica para novas tabelas
 - Sistema de busca com modal e integracao Ghost Content API
 - SEO Schema.org JSON-LD para artigos, organizacao e breadcrumbs
 - Pagina de contato com formulario funcional
@@ -18,6 +28,9 @@ e este projeto adere ao [Versionamento Semantico](https://semver.org/lang/pt-BR/
 - Documentacao completa do projeto (pasta docs/)
 
 ### Modificado
+- MediaLibrary.jsx redesenhado com layout de 3 colunas
+- Media model agora inclui folderId e associacoes
+- models/index.js com setup de associacoes
 - default.hbs inclui agora search modal e schema partial
 - public.js adiciona endpoint POST /api/public/contact
 - DEPLOY.md expandido com instrucoes de backup

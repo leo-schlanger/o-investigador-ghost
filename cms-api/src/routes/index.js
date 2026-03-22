@@ -4,6 +4,8 @@ const router = express.Router();
 const articleRoutes = require('./articles');
 const authRoutes = require('./auth');
 const mediaRoutes = require('./media');
+const mediaFolderRoutes = require('./mediaFolders');
+const mediaTagRoutes = require('./mediaTags');
 const settingsRoutes = require('./settings');
 const publicRoutes = require('./public');
 const pageRoutes = require('./pages');
@@ -14,6 +16,8 @@ const newsletterRoutes = require('./newsletter');
 
 router.use('/articles', articleRoutes);
 router.use('/auth', authRoutes);
+router.use('/media/folders', mediaFolderRoutes);
+router.use('/media/tags', mediaTagRoutes);
 router.use('/media', mediaRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/public', publicRoutes);

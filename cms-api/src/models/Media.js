@@ -24,8 +24,29 @@ module.exports = (sequelize, DataTypes) => {
         size: {
             type: DataTypes.INTEGER,
             allowNull: true
+        },
+        folderId: {
+            type: DataTypes.UUID,
+            allowNull: true,
+            references: {
+                model: 'MediaFolders',
+                key: 'id'
+            }
         }
     });
+
+    Media.associate = (models) => {
+        Media.belongsTo(models.MediaFolder, {
+            foreignKey: 'folderId',
+            as: 'folder'
+        });
+        Media.belongsToMany(models.MediaTag, {
+            through: models.MediaTagAssignment,
+            foreignKey: 'mediaId',
+            otherKey: 'tagId',
+            as: 'tags'
+        });
+    };
 
     return Media;
 };

@@ -13,17 +13,17 @@ O sistema utiliza um unico banco de dados MySQL compartilhado entre Ghost CMS e 
 |                    BANCO: o_investigador                          |
 +------------------------------------------------------------------+
 |                                                                   |
-|  +-------------------+        +-------------------+               |
-|  |   GHOST TABLES    |        |    API TABLES     |               |
-|  +-------------------+        +-------------------+               |
-|  | posts             |        | users             |               |
-|  | users (ghost)     |        | settings          |               |
-|  | tags              |        | media             |               |
-|  | posts_tags        |        | post_views        |               |
-|  | members           |        |                   |               |
-|  | newsletters       |        |                   |               |
-|  | ...               |        |                   |               |
-|  +-------------------+        +-------------------+               |
+|  +-------------------+        +------------------------+          |
+|  |   GHOST TABLES    |        |     API TABLES         |          |
+|  +-------------------+        +------------------------+          |
+|  | posts             |        | users                  |          |
+|  | users (ghost)     |        | settings               |          |
+|  | tags              |        | media                  |          |
+|  | posts_tags        |        | media_folders          |          |
+|  | members           |        | media_tags             |          |
+|  | newsletters       |        | media_tag_assignments  |          |
+|  | ...               |        | post_views             |          |
+|  +-------------------+        +------------------------+          |
 |                                                                   |
 +------------------------------------------------------------------+
 ```
@@ -123,27 +123,99 @@ Metadados de arquivos enviados via API.
 
 | Coluna | Tipo | Descricao |
 |--------|------|-----------|
-| id | INT AUTO_INCREMENT | Identificador unico |
+| id | UUID | Identificador unico |
 | filename | VARCHAR(255) | Nome do arquivo |
 | originalName | VARCHAR(255) | Nome original |
 | mimeType | VARCHAR(100) | Tipo MIME |
 | size | INT | Tamanho em bytes |
-| path | VARCHAR(500) | Caminho no servidor/S3 |
 | url | VARCHAR(500) | URL publica |
+| folderId | UUID | FK para MediaFolders (nullable) |
 | createdAt | DATETIME | Data de upload |
 | updatedAt | DATETIME | Ultima atualizacao |
 
 ```sql
 CREATE TABLE media (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id CHAR(36) PRIMARY KEY,
     filename VARCHAR(255) NOT NULL,
     originalName VARCHAR(255),
     mimeType VARCHAR(100),
     size INT,
-    path VARCHAR(500),
     url VARCHAR(500),
+    folderId CHAR(36),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (folderId) REFERENCES MediaFolders(id) ON DELETE SET NULL
+);
+```
+
+---
+
+### media_folders
+Pastas para organizar midias (hierarquicas).
+
+| Coluna | Tipo | Descricao |
+|--------|------|-----------|
+| id | UUID | Identificador unico |
+| name | VARCHAR(255) | Nome da pasta |
+| parentId | UUID | FK para pasta pai (nullable) |
+| createdAt | DATETIME | Data de criacao |
+| updatedAt | DATETIME | Ultima atualizacao |
+
+```sql
+CREATE TABLE MediaFolders (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    parentId CHAR(36),
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (parentId) REFERENCES MediaFolders(id) ON DELETE SET NULL
+);
+```
+
+---
+
+### media_tags
+Tags para classificacao de midias.
+
+| Coluna | Tipo | Descricao |
+|--------|------|-----------|
+| id | UUID | Identificador unico |
+| name | VARCHAR(255) | Nome da tag (unico) |
+| slug | VARCHAR(255) | Slug URL-friendly (unico) |
+| createdAt | DATETIME | Data de criacao |
+| updatedAt | DATETIME | Ultima atualizacao |
+
+```sql
+CREATE TABLE MediaTags (
+    id CHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    slug VARCHAR(255) NOT NULL UNIQUE,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### media_tag_assignments
+Tabela de juncao para relacao N:N entre Media e Tags.
+
+| Coluna | Tipo | Descricao |
+|--------|------|-----------|
+| mediaId | UUID | FK para Media |
+| tagId | UUID | FK para MediaTags |
+| createdAt | DATETIME | Data de criacao |
+| updatedAt | DATETIME | Ultima atualizacao |
+
+```sql
+CREATE TABLE MediaTagAssignments (
+    mediaId CHAR(36) NOT NULL,
+    tagId CHAR(36) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (mediaId, tagId),
+    FOREIGN KEY (mediaId) REFERENCES Media(id) ON DELETE CASCADE,
+    FOREIGN KEY (tagId) REFERENCES MediaTags(id) ON DELETE CASCADE
 );
 ```
 

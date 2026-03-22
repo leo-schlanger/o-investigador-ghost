@@ -74,6 +74,43 @@ Para criar as tags de categoria: `POST /api/tags/init-categories`
 - Campanhas com editor de blocos
 - Listas de subscritores
 
+### Biblioteca de Mídias (Media Library)
+Organização avançada de ficheiros com pastas e tags:
+
+**Pastas**
+- Hierárquicas (subpastas suportadas)
+- Criar, renomear, eliminar via sidebar
+- Eliminar pasta move conteúdo para pasta pai
+- Filtrar media por pasta
+
+**Tags**
+- Múltiplas tags por imagem
+- Autocomplete com sugestões
+- Criar tags inline ao adicionar
+- Filtrar media por tags (combinável)
+
+**Pesquisa**
+- Por nome de ficheiro
+- Combinável com filtros de pasta e tags
+
+**Operações em Lote**
+- Multi-seleção (Ctrl+click ou modo seleção)
+- Mover múltiplos ficheiros para pasta
+
+**API Endpoints**
+- `GET/POST /api/media/folders` - CRUD pastas
+- `GET/POST /api/media/tags` - CRUD tags
+- `GET /api/media/tags/suggestions?q=` - Autocomplete
+- `GET /api/media?folderId=&tags=&search=` - Listar com filtros
+- `PUT /api/media/:id` - Atualizar media (tags, pasta)
+- `PUT /api/media/bulk-move` - Mover múltiplos
+
+**Modelos de Dados**
+- `MediaFolder` - Pastas hierárquicas (parentId)
+- `MediaTag` - Tags com nome e slug únicos
+- `MediaTagAssignment` - Relação N:N entre Media e Tags
+- `Media` - Campo folderId adicionado
+
 ## Observações Importantes
 - Editar código LOCALMENTE, não no servidor
 - Confiar no deploy automático após push

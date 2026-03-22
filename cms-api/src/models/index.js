@@ -21,8 +21,18 @@ db.Article = require('./Article')(sequelize, Sequelize);
 db.User = require('./User')(sequelize, Sequelize);
 db.Settings = require('./Settings')(sequelize, Sequelize);
 db.Media = require('./Media')(sequelize, Sequelize);
+db.MediaFolder = require('./MediaFolder')(sequelize, Sequelize);
+db.MediaTag = require('./MediaTag')(sequelize, Sequelize);
+db.MediaTagAssignment = require('./MediaTagAssignment')(sequelize, Sequelize);
 db.PostView = require('./PostView')(sequelize, Sequelize);
 db.ViewLog = require('./ViewLog')(sequelize, Sequelize);
 db.ArticleRevision = require('./ArticleRevision')(sequelize, Sequelize);
+
+// Set up associations
+Object.keys(db).forEach(modelName => {
+    if (db[modelName].associate) {
+        db[modelName].associate(db);
+    }
+});
 
 module.exports = db;

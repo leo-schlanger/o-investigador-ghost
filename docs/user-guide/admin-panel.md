@@ -116,10 +116,78 @@ Paginas que nao sao artigos, como:
 
 ## Biblioteca de Midia
 
+### Layout da Interface
+
+A biblioteca de midia tem 3 paineis:
+
+| Painel | Funcao |
+|--------|--------|
+| Sidebar Esquerda | Arvore de pastas |
+| Area Central | Filtros + Grid de midias |
+| Sidebar Direita | Detalhes do item selecionado |
+
 ### Upload de Arquivos
 1. Clique em "Midia"
 2. Arraste arquivos ou clique em "Enviar"
 3. Formatos aceitos: JPG, PNG, GIF, WebP, PDF
+4. Arquivos sao enviados para a pasta selecionada
+
+### Pastas
+
+#### Criar Pasta
+1. No painel esquerdo, clique em "+"
+2. Digite o nome da pasta
+3. Clique em "Criar"
+
+#### Criar Subpasta
+1. Passe o mouse sobre uma pasta
+2. Clique nos 3 pontos (...)
+3. Selecione "Nova subpasta"
+
+#### Renomear/Eliminar Pasta
+1. Passe o mouse sobre a pasta
+2. Clique nos 3 pontos (...)
+3. Selecione "Renomear" ou "Eliminar"
+
+> **Nota:** Ao eliminar uma pasta, os ficheiros sao movidos para a pasta pai.
+
+### Tags
+
+#### Adicionar Tags a uma Imagem
+1. Clique na imagem para abrir detalhes
+2. No painel direito, em "Tags", comece a digitar
+3. Selecione uma tag existente ou crie nova (Enter)
+
+#### Remover Tags
+1. No painel de detalhes, clique no "X" ao lado da tag
+
+### Filtros e Pesquisa
+
+#### Pesquisar por Nome
+1. Use a barra de pesquisa no topo
+2. Digite parte do nome do ficheiro
+
+#### Filtrar por Tags
+1. Clique em "Tags" ao lado da pesquisa
+2. Marque as tags desejadas
+3. Apenas midias com TODAS as tags selecionadas serao exibidas
+
+#### Filtrar por Pasta
+1. Clique na pasta no painel esquerdo
+2. "Todas as Midias" mostra tudo
+3. "Sem pasta" mostra apenas ficheiros na raiz
+
+### Operacoes em Lote
+
+#### Selecionar Multiplos
+1. Clique em "Selecionar" no topo
+2. Clique nas imagens desejadas
+3. Ou use Ctrl+Click para selecao rapida
+
+#### Mover Multiplos
+1. Selecione varios ficheiros
+2. Clique em "Mover para..."
+3. Escolha a pasta destino
 
 ### Usar Imagem
 1. No editor, insira bloco de imagem
