@@ -140,7 +140,12 @@ const CATEGORY_TAGS = [
     { name: 'Internacional', slug: 'internacional', description: 'Noticias internacionais' },
     { name: 'Tecnologia', slug: 'tecnologia', description: 'Noticias sobre tecnologia e inovacao' },
     { name: 'Cultura', slug: 'cultura', description: 'Noticias sobre cultura e entretenimento' },
-    { name: 'Investigacoes', slug: 'investigacoes', description: 'Reportagens investigativas' }
+    { name: 'Investigacoes', slug: 'investigacoes', description: 'Reportagens investigativas' },
+    { name: 'Sociedade', slug: 'sociedade', description: 'Noticias sobre sociedade e comunidade' },
+    { name: 'Ambiente', slug: 'ambiente', description: 'Noticias sobre ambiente e sustentabilidade' },
+    { name: 'Saude', slug: 'saude', description: 'Noticias sobre saude e bem-estar' },
+    { name: 'Educacao', slug: 'educacao', description: 'Noticias sobre educacao e ensino' },
+    { name: 'Magazine', slug: 'magazine', description: 'Reportagens especiais e conteudo exclusivo' }
 ];
 
 /**
