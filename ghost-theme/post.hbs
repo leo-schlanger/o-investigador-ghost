@@ -62,6 +62,48 @@
             {{content}}
         </div>
 
+        {{!-- Share Buttons --}}
+        <div class="py-4 sm:py-6 border-t border-b border-neutral-200 mb-6 sm:mb-8">
+            {{> share-buttons}}
+        </div>
+
+        {{!-- Author Bio Section --}}
+        <section class="mt-8 sm:mt-10 md:mt-12 pt-6 sm:pt-8 md:pt-10 border-t border-neutral-200">
+            <h3 class="text-sm sm:text-base font-semibold text-neutral-500 uppercase tracking-wider mb-4 sm:mb-6">
+                {{#has author="count:>1"}}Sobre os Autores{{else}}Sobre o Autor{{/has}}
+            </h3>
+            <div class="space-y-6 sm:space-y-8">
+                {{#foreach authors}}
+                <a href="{{url}}" class="flex items-start gap-4 sm:gap-5 md:gap-6 group">
+                    {{#if profile_image}}
+                    <img src="{{profile_image}}" alt="{{name}}"
+                        class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-neutral-100 shadow-sm flex-shrink-0 group-hover:border-primary-200 transition-colors">
+                    {{else}}
+                    <img src="https://ui-avatars.com/api/?name={{encode name}}&size=96&background=e5e5e5&color=525252&font-size=0.4&bold=true" alt="{{name}}"
+                        class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full object-cover border-2 border-neutral-100 shadow-sm flex-shrink-0 group-hover:border-primary-200 transition-colors">
+                    {{/if}}
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-base sm:text-lg md:text-xl font-bold text-neutral-900 group-hover:text-primary-600 transition-colors mb-1 sm:mb-2">
+                            {{name}}
+                        </h4>
+                        {{#if bio}}
+                        <p class="text-sm sm:text-base text-neutral-600 leading-relaxed line-clamp-3">
+                            {{bio}}
+                        </p>
+                        {{else}}
+                        <p class="text-sm sm:text-base text-neutral-500 italic">
+                            Jornalista do O Investigador
+                        </p>
+                        {{/if}}
+                        <span class="inline-block mt-2 sm:mt-3 text-xs sm:text-sm text-primary-600 font-medium group-hover:underline">
+                            Ver todos os artigos →
+                        </span>
+                    </div>
+                </a>
+                {{/foreach}}
+            </div>
+        </section>
+
         {{!-- Related Posts - Mobile First --}}
         <aside class="mt-8 sm:mt-12 md:mt-14 lg:mt-16 pt-8 sm:pt-12 md:pt-14 lg:pt-16 border-t border-neutral-200">
             <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 md:mb-8">Leia Também</h3>

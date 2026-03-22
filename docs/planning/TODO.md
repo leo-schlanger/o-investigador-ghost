@@ -82,9 +82,8 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
   - Moderacao pelo admin
   - Notificacao por email
 
-- [ ] **Botoes de Compartilhamento Social**
-  - Facebook, Twitter, WhatsApp, LinkedIn
-  - Contador de compartilhamentos (opcional)
+- [x] **Botoes de Compartilhamento Social** (Implementado 22 Mar 2026)
+  - Facebook, Twitter/X, WhatsApp, LinkedIn, Email, Copiar Link
   - Arquivo: `ghost-theme/partials/share-buttons.hbs`
 
 - [ ] **Google Analytics Integration**
@@ -312,6 +311,11 @@ Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para instrucoes.
 
 | Data | Mudanca |
 |------|---------|
+| 22 Mar 2026 | Autor no final dos artigos implementado |
+| 22 Mar 2026 | Trending News carousel implementado |
+| 22 Mar 2026 | Social icons no header implementado |
+| 22 Mar 2026 | Botoes de compartilhamento implementados |
+| 22 Mar 2026 | Widget de data no header implementado |
 | Mar 2026 | Sistema de busca implementado |
 | Mar 2026 | SEO Schema.org adicionado |
 | Mar 2026 | Pagina de contato criada |

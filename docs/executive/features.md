@@ -17,13 +17,17 @@ Este documento lista todas as funcionalidades disponiveis na plataforma, organiz
 | Pagina de Autor | Ativo | Perfil e artigos de cada jornalista |
 | Pagina de Tag | Ativo | Agrupamento por tematica |
 | Menu Mobile | Ativo | Navegacao responsiva para celulares |
+| Social Icons Header | Ativo | Links para redes sociais no topo |
+| Data no Header | Ativo | Data atual em formato portugues |
 
 ### Interacao
 | Funcionalidade | Status | Descricao |
 |----------------|--------|-----------|
 | Sistema de Busca | Ativo | Pesquisa de artigos por titulo e conteudo |
 | Artigos Relacionados | Ativo | Sugestoes no final de cada artigo |
-| Compartilhamento Social | Planejado | Botoes para redes sociais |
+| Compartilhamento Social | Ativo | Botoes Facebook, X, WhatsApp, LinkedIn, Email |
+| Bio do Autor | Ativo | Perfil do autor no final dos artigos |
+| Trending News | Ativo | Carrossel de noticias em destaque |
 | Comentarios | Planejado | Sistema de comentarios moderados |
 
 ### Engajamento

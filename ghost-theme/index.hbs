@@ -1,5 +1,80 @@
-{{!< default}} {{!-- JN Layout: Boxy, Grid-based, Information Dense - Mobile First --}} <div
-    class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
+{{!< default}} {{!-- JN Layout: Boxy, Grid-based, Information Dense - Mobile First --}}
+
+{{!-- Trending News Bar --}}
+{{#get "posts" limit="6" filter="featured:true" include="tags"}}
+{{#if posts}}
+<div class="bg-brand-dark text-white py-2 sm:py-2.5 overflow-hidden">
+    <div class="container-custom">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <span class="flex-shrink-0 bg-brand-accent text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded uppercase tracking-wider animate-pulse">
+                Agora
+            </span>
+            <div class="relative flex-1 overflow-hidden min-w-0">
+                <div id="trending-carousel" class="flex transition-transform duration-500 ease-in-out">
+                    {{#foreach posts}}
+                    <a href="{{url}}" class="flex-shrink-0 w-full text-sm sm:text-base font-medium hover:text-primary-200 transition truncate">
+                        <span class="text-primary-200 mr-2">{{primary_tag.name}}:</span>
+                        {{title}}
+                    </a>
+                    {{/foreach}}
+                </div>
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-1">
+                <button id="trending-prev" class="p-1 text-white/70 hover:text-white transition" aria-label="Anterior">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button id="trending-next" class="p-1 text-white/70 hover:text-white transition" aria-label="Próximo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    const carousel = document.getElementById('trending-carousel');
+    const prevBtn = document.getElementById('trending-prev');
+    const nextBtn = document.getElementById('trending-next');
+    if (!carousel) return;
+
+    const items = carousel.children;
+    const total = items.length;
+    let current = 0;
+    let autoSlide;
+
+    function goTo(index) {
+        current = (index + total) % total;
+        carousel.style.transform = `translateX(-${current * 100}%)`;
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function startAuto() {
+        autoSlide = setInterval(next, 4000);
+    }
+
+    function stopAuto() {
+        clearInterval(autoSlide);
+    }
+
+    prevBtn?.addEventListener('click', () => { stopAuto(); prev(); startAuto(); });
+    nextBtn?.addEventListener('click', () => { stopAuto(); next(); startAuto(); });
+
+    carousel.parentElement?.addEventListener('mouseenter', stopAuto);
+    carousel.parentElement?.addEventListener('mouseleave', startAuto);
+
+    startAuto();
+})();
+</script>
+{{/if}}
+{{/get}}
+
+<div class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
     {{!-- Last Update Timestamp --}}
     <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-500 mb-2 sm:mb-3">
