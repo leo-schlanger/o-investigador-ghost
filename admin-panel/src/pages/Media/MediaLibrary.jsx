@@ -242,9 +242,9 @@ const MediaLibrary = ({ onSelect = null }) => {
 
     return (
         <div className={`flex h-full ${isPickerMode ? '' : 'min-h-[calc(100vh-64px)]'}`}>
-            {/* Folder sidebar */}
+            {/* Folder sidebar - hidden on mobile */}
             {!isPickerMode && showSidebar && (
-                <div className="w-60 flex-shrink-0 bg-gray-50 border-r overflow-hidden">
+                <div className="hidden md:block w-60 flex-shrink-0 bg-gray-50 border-r overflow-hidden">
                     <FolderTree
                         folders={folders}
                         selectedFolderId={selectedFolderId}
@@ -412,7 +412,7 @@ const MediaLibrary = ({ onSelect = null }) => {
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                                 {media.map((item) => (
                                     <div
                                         key={item.id}
@@ -540,9 +540,9 @@ const MediaLibrary = ({ onSelect = null }) => {
                 </div>
             </div>
 
-            {/* Details sidebar */}
+            {/* Details sidebar - modal on mobile, sidebar on desktop */}
             {!isPickerMode && showDetails && selectedMedia && (
-                <div className="w-72 flex-shrink-0">
+                <div className="fixed inset-0 z-50 md:relative md:inset-auto md:z-auto w-full md:w-72 flex-shrink-0 bg-white md:bg-transparent">
                     <MediaDetailsSidebar
                         media={selectedMedia}
                         onClose={() => {

@@ -48,12 +48,12 @@
 
   /* Section Headers - Brand accent bar + navy text - Mobile First */
   .section-title {
-    @apply text-lg md:text-xl lg:text-2xl font-black uppercase tracking-tight text-brand mb-4 md:mb-6 border-l-4 border-brand-accent pl-2 md:pl-3;
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl font-black uppercase tracking-tight text-brand mb-3 sm:mb-4 md:mb-6 border-l-4 border-brand-accent pl-2 sm:pl-2.5 md:pl-3;
   }
 
   /* Generic Container - Mobile First with smaller padding */
   .container-custom {
-    @apply max-w-[1280px] mx-auto px-3 sm:px-4 lg:px-6;
+    @apply max-w-[1280px] mx-auto px-2.5 sm:px-4 md:px-5 lg:px-6;
   }
 
   /* Tags */

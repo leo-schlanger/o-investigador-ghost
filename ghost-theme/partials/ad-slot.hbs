@@ -1,7 +1,7 @@
 {{!-- Ad slot container - hidden by default, shown by ads-integrator.js when enabled --}}
-<div class="ad-slot-container flex justify-center my-4 sm:my-6 md:my-8" data-ad-container="{{slotId}}" style="display: none;">
-    <div class="ad-slot bg-neutral-100 flex flex-col items-center justify-center text-neutral-400 text-[10px] sm:text-xs uppercase tracking-widest border border-neutral-200 relative overflow-hidden group w-full"
-        data-slot-id="{{slotId}}" style="{{#match type "leaderboard"}}height: 90px;{{else match type "mpu"}}max-width: 300px; height: 250px;{{else}}height: 100px;{{/match}}">
+<div class="ad-slot-container flex justify-center my-3 sm:my-4 md:my-6 lg:my-8" data-ad-container="{{slotId}}" style="display: none;">
+    <div class="ad-slot bg-neutral-100 flex flex-col items-center justify-center text-neutral-400 text-[10px] sm:text-xs uppercase tracking-widest border border-neutral-200 relative overflow-hidden group w-full max-w-full"
+        data-slot-id="{{slotId}}" style="{{#match type "leaderboard"}}height: 70px;{{else match type "mpu"}}max-width: 100%; height: 200px;{{else}}height: 80px;{{/match}}">
 
         <span class="z-10 group-hover:hidden">Publicidade</span>
         <span class="hidden group-hover:block z-10 font-bold text-neutral-500">{{label}}</span>

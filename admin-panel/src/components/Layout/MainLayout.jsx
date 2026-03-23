@@ -67,9 +67,9 @@ const MainLayout = () => {
             {/* Desktop Sidebar - Fixed */}
             <aside
                 className={`
-                    fixed top-0 left-0 z-50 h-screen w-72 max-w-[85vw]
+                    fixed top-0 left-0 z-50 h-screen w-72 max-w-[90vw] min-w-[250px]
                     transform transition-transform duration-300 ease-in-out
-                    lg:translate-x-0 lg:w-64 lg:z-30
+                    lg:translate-x-0 lg:w-64 lg:z-30 lg:min-w-0
                     ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}
             >

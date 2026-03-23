@@ -76,26 +76,26 @@ const RevisionHistory = ({ articleId, onRestore, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4">
+            <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b bg-gray-50">
+                <div className="flex justify-between items-center p-3 sm:p-4 border-b bg-gray-50">
                     <div className="flex items-center gap-2">
-                        <History size={20} className="text-brand" />
-                        <h2 className="text-lg font-bold">Historico de Edicoes</h2>
+                        <History size={18} className="text-brand sm:w-5 sm:h-5" />
+                        <h2 className="text-base sm:text-lg font-bold">Historico de Edicoes</h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700"
+                        className="text-gray-500 hover:text-gray-700 p-1"
                     >
-                        <X size={24} />
+                        <X size={22} />
                     </button>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 overflow-hidden flex">
+                {/* Content - stack on mobile, side by side on desktop */}
+                <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
                     {/* Revisions List */}
-                    <div className="w-1/3 border-r overflow-y-auto">
+                    <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r overflow-y-auto max-h-[30vh] md:max-h-none">
                         {loading ? (
                             <div className="p-4 text-center text-gray-500">
                                 Carregando...
