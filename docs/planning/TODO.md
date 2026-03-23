@@ -1,6 +1,6 @@
 # TODO - Pendencias e Tarefas
 
-> **Ultima atualizacao:** Marco 2026
+> **Ultima atualizacao:** 23 Marco 2026
 
 Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs conhecidos.
 
@@ -14,6 +14,54 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
 | P1 | Alta | Importante para proxima release |
 | P2 | Media | Desejavel, mas pode esperar |
 | P3 | Baixa | Nice to have, backlog |
+
+---
+
+## Problemas de Seguranca (Checkup 23 Mar 2026)
+
+### P0 - CRITICO (Acao Imediata)
+
+- [ ] **Axios vulneravel a DoS** (CVSS 7.5)
+  - Versao atual: 1.4.0
+  - Versao segura: 1.7.4+
+  - Vulnerabilidade: Prototype pollution via __proto__ em mergeConfig
+  - Arquivo: `cms-api/package.json`
+
+- [ ] **Flatted vulneravel a DoS e Prototype Pollution** (CVSS 7.5)
+  - Vulnerabilidade dupla: unbounded recursion + prototype pollution em parse()
+  - Versao segura: 3.4.2+
+  - Arquivo: `admin-panel/package.json` (dependencia transitiva)
+
+- [ ] **Dottie vulneravel a Prototype Pollution** (CVSS 6.3)
+  - Versao atual: 2.0.4-2.0.6
+  - Versao segura: 2.0.7+
+  - Arquivo: `cms-api/package.json` (via Sequelize)
+
+- [ ] **esbuild vulneravel** (CVSS 5.3)
+  - Permite requests nao autorizados ao dev server
+  - Versao segura: 0.24.3+
+  - Arquivo: `admin-panel/package.json` (via Vite)
+
+### P1 - ALTA PRIORIDADE
+
+- [ ] **JWT Secret fraco em desenvolvimento**
+  - Secret atual: `super_secret_jwt_key_development_only` (39 chars)
+  - Recomendado: 64+ caracteres aleatorios
+  - Arquivo: `.env`
+
+- [ ] **Sem protecao CSRF**
+  - Operacoes state-changing vulneraveis a CSRF
+  - Implementar: csrf middleware + tokens
+  - Arquivos: `cms-api/src/middleware/`
+
+- [ ] **AWS-SDK v2 deprecated**
+  - Usar AWS SDK v3 modular
+  - Arquivo: `cms-api/package.json`
+
+- [ ] **Client max body size muito alto**
+  - Atual: 100MB
+  - Recomendado: 50MB max
+  - Arquivo: `infrastructure/nginx/nginx.conf`
 
 ---
 
@@ -251,23 +299,44 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
 
 ## Debitos Tecnicos
 
+### P0 - CRITICO (Identificado Checkup 23 Mar 2026)
+
+- [ ] **Model Article deprecated ainda presente**
+  - Causa confusao para desenvolvedores
+  - Arquivo: `cms-api/src/models/Article.js`
+  - Acao: Remover ou arquivar completamente
+
 ### P1 - Alta Prioridade
 
 - [ ] **Dependencias Desatualizadas**
   - Rodar npm audit regularmente
   - Atualizar pacotes com vulnerabilidades
   - Testar apos atualizacoes
+  - **Status Checkup:** 6+ vulnerabilidades identificadas
 
 - [ ] **Codigo Duplicado**
   - Refatorar helpers repetidos
   - Criar biblioteca compartilhada
   - Admin panel + API
 
+- [ ] **Sem ESLint/Prettier configurado**
+  - Nao ha linting no projeto
+  - Adicionar eslint com config Airbnb
+  - Adicionar prettier para formatacao
+  - Configurar husky para pre-commit
+
+- [ ] **Sem documentacao Swagger/OpenAPI**
+  - API tem 13 rotas sem documentacao formal
+  - Gerar OpenAPI spec automaticamente
+  - UI interativa para testes
+
 ### P2 - Media Prioridade
 
-- [ ] **Cobertura de Testes**
-  - Backend: Atingir 70%
-  - Frontend: Atingir 60%
+- [ ] **Cobertura de Testes Baixa**
+  - Backend atual: ~30%
+  - Frontend: Nao medido
+  - Meta Backend: 70%+
+  - Meta Frontend: 60%+
   - Adicionar testes para novos features
 
 - [ ] **Error Handling Consistente**
@@ -275,12 +344,32 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
   - Mensagens amigaveis
   - Logging adequado
 
+- [ ] **Sem indexes no banco de dados**
+  - Nenhum index customizado visivel
+  - Adicionar indexes em FKs
+  - Adicionar indexes em campos frequentemente consultados
+
+- [ ] **Sem resource limits no Docker**
+  - Containers podem consumir todos os recursos
+  - Adicionar CPU/memory limits
+  - Arquivo: `docker-compose.prod.yml`
+
+- [ ] **Sem logging estruturado**
+  - Apenas console.log
+  - Implementar Winston ou Pino
+  - Adicionar correlation IDs
+
 ### P3 - Baixa Prioridade
 
 - [ ] **Code Review Automatizado**
   - Configurar ESLint no CI
   - Prettier para formatacao
   - Husky para pre-commit
+
+- [ ] **Tamanho do projeto muito grande (7.9GB)**
+  - Verificar node_modules duplicados
+  - Limpar caches e arquivos temporarios
+  - Otimizar .dockerignore
 
 ---
 
@@ -311,6 +400,10 @@ Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para instrucoes.
 
 | Data | Mudanca |
 |------|---------|
+| 23 Mar 2026 | Checkup completo do projeto realizado |
+| 23 Mar 2026 | Identificadas 6+ vulnerabilidades de seguranca em dependencias |
+| 23 Mar 2026 | Correcoes de layout mobile no theme e admin panel |
+| 23 Mar 2026 | Sistema de pastas e tags para biblioteca de midias |
 | 22 Mar 2026 | Sistema de busca aprimorado (historico, highlight, teclado) |
 | 22 Mar 2026 | Subcategorias implementadas (Sociedade, Ambiente, Saude, Educacao) |
 | 22 Mar 2026 | Secao Magazine criada com template dedicado |
