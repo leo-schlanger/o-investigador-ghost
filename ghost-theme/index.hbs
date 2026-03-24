@@ -164,36 +164,39 @@
         {{!-- LEFT COLUMN: Sections & Latest --}}
         <div class="lg:col-span-8 min-w-0">
 
-            {{!-- SECTION: Últimas (Row of Cards) - Mobile First --}}
+            {{!-- SECTION: Últimas (Cards with Image on Top) --}}
             <section class="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
                 <h2 class="section-title">Últimas</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
                     {{#foreach posts limit="6"}}
-                    <article class="flex gap-3 md:gap-4 group min-w-0">
-                        <a href="{{url}}"
-                            class="block w-28 sm:w-32 md:w-36 flex-shrink-0 overflow-hidden bg-neutral-100 rounded-sm">
-                            <div class="aspect-square relative">
-                                {{#if feature_image}}
-                                <img src="{{img_url feature_image size='s'}}"
-                                    class="absolute inset-0 w-full h-full object-cover transition duration-300 group-hover:scale-105"
-                                    alt="{{title}}" loading="lazy">
-                                {{else}}
-                                <div class="absolute inset-0 bg-neutral-200 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                {{/if}}
+                    <article class="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-neutral-100">
+                        {{!-- Image on top --}}
+                        <a href="{{url}}" class="block relative aspect-[16/10] overflow-hidden bg-neutral-100">
+                            {{#if feature_image}}
+                            <img src="{{img_url feature_image size='m'}}"
+                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                alt="{{title}}" loading="lazy">
+                            {{else}}
+                            <div class="w-full h-full bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
                             </div>
+                            {{/if}}
+                            {{!-- Category badge on image --}}
+                            {{#if primary_tag}}
+                            <span class="absolute top-3 left-3 bg-brand text-white text-[10px] sm:text-xs font-semibold px-2 py-1 rounded uppercase tracking-wide">
+                                {{primary_tag.name}}
+                            </span>
+                            {{/if}}
                         </a>
-                        <div class="flex flex-col min-w-0 flex-1">
-                            <span class="tag-label">{{primary_tag.name}}</span>
-                            <h3
-                                class="text-sm md:text-base lg:text-lg font-bold leading-tight mb-1 group-hover:text-brand-accent transition-colors line-clamp-2">
+                        {{!-- Content below --}}
+                        <div class="p-4">
+                            <h3 class="text-base sm:text-lg font-bold leading-snug mb-2 group-hover:text-brand-accent transition-colors line-clamp-2">
                                 <a href="{{url}}">{{title}}</a>
                             </h3>
-                            <p class="text-xs text-neutral-500 line-clamp-2 mb-1 hidden sm:block">{{excerpt words="15"}}</p>
-                            <time class="text-[11px] sm:text-xs text-neutral-400 mt-auto">{{date format="D MMM"}}</time>
+                            <p class="text-sm text-neutral-600 line-clamp-2 mb-3">{{excerpt words="20"}}</p>
+                            <time class="text-xs text-neutral-400">{{date format="D MMM YYYY"}}</time>
                         </div>
                     </article>
                     {{/foreach}}
