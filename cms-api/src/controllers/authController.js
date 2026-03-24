@@ -1,12 +1,37 @@
-const { User } = require('../models');
+const { User, sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../config/env');
+const { createGhostUserDirect, findAuthorByEmail } = require('../services/ghostApi');
+const logger = require('../utils/logger');
 
 const generateToken = (user) => {
     return jwt.sign({ id: user.id, email: user.email, role: user.role }, getJwtSecret(), {
         expiresIn: '24h'
     });
+};
+
+/**
+ * Create user in Ghost CMS (non-blocking)
+ * @param {Object} userData - User data with name, email, password (hashed), role
+ */
+const createUserInGhost = async (userData) => {
+    try {
+        // Check if user already exists in Ghost
+        const existingGhostUser = await findAuthorByEmail(userData.email);
+        if (existingGhostUser) {
+            logger.info('User already exists in Ghost', { email: userData.email });
+            return { exists: true, ghostUser: existingGhostUser };
+        }
+
+        // Create user in Ghost
+        const ghostUser = await createGhostUserDirect(userData, sequelize);
+        logger.info('Created user in Ghost', { email: userData.email, ghostId: ghostUser.id });
+        return { created: true, ghostUser };
+    } catch (err) {
+        logger.error('Failed to create user in Ghost', { email: userData.email, error: err.message });
+        return { error: err.message };
+    }
 };
 
 exports.register = async (req, res) => {
@@ -29,6 +54,16 @@ exports.register = async (req, res) => {
             email,
             password: hashedPassword,
             role: role || 'author'
+        });
+
+        // Create user in Ghost CMS (non-blocking)
+        createUserInGhost({
+            name,
+            email,
+            password: hashedPassword,
+            role: role || 'author'
+        }).catch((err) => {
+            logger.error('Failed to sync user to Ghost on register', { email, error: err.message });
         });
 
         // Generate token
@@ -68,12 +103,25 @@ exports.createUser = async (req, res) => {
             role: role || 'author'
         });
 
+        // Create user in Ghost CMS (non-blocking)
+        const ghostResult = await createUserInGhost({
+            name,
+            email,
+            password: hashedPassword,
+            role: role || 'author'
+        });
+
         res.status(201).json({
             id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            avatar: user.avatar
+            avatar: user.avatar,
+            ghostSync: ghostResult.created
+                ? 'created'
+                : ghostResult.exists
+                  ? 'already_exists'
+                  : 'failed'
         });
     } catch (err) {
         res.status(500).json({ error: err.message });

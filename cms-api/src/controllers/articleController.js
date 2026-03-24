@@ -3,7 +3,9 @@ const {
     ARTICLE_TYPES,
     getArticleTypeTag,
     removeTypeTags,
-    findAuthorByEmail
+    findAuthorByEmail,
+    createGhostUserDirect,
+    GHOST_ROLES
 } = require('../services/ghostApi');
 const { ArticleRevision } = require('../models');
 const logger = require('../utils/logger');
@@ -450,6 +452,92 @@ exports.getAuthorSyncStatus = async (req, res) => {
         });
     } catch (err) {
         logger.error('Error checking author sync status:', err);
+        res.status(500).json({ error: extractErrorMessage(err) });
+    }
+};
+
+/**
+ * Sync all local users to Ghost (create missing users)
+ * POST /api/articles/authors/sync
+ * Admin only - creates Ghost users for all local users that don't exist in Ghost
+ */
+exports.syncAuthorsToGhost = async (req, res) => {
+    try {
+        // Only admin can sync users
+        if (req.user?.role !== 'admin') {
+            return res.status(403).json({ error: 'Only admin can sync users to Ghost' });
+        }
+
+        const { User, sequelize } = require('../models');
+
+        // Get all local users with their password hashes
+        const localUsers = await User.findAll({
+            attributes: ['id', 'name', 'email', 'password', 'role']
+        });
+
+        // Get all Ghost authors
+        const ghostAuthors = await ghostApi.listAuthors();
+
+        const results = [];
+
+        for (const user of localUsers) {
+            const existsInGhost = ghostAuthors.some(
+                (a) => a.email?.toLowerCase() === user.email.toLowerCase()
+            );
+
+            if (existsInGhost) {
+                results.push({
+                    email: user.email,
+                    name: user.name,
+                    status: 'already_exists',
+                    message: 'User already exists in Ghost'
+                });
+                continue;
+            }
+
+            try {
+                // Create user in Ghost with same password hash
+                const ghostUser = await createGhostUserDirect(
+                    {
+                        name: user.name,
+                        email: user.email,
+                        password: user.password, // bcrypt hash is compatible
+                        role: user.role
+                    },
+                    sequelize
+                );
+
+                results.push({
+                    email: user.email,
+                    name: user.name,
+                    status: 'created',
+                    ghostId: ghostUser.id,
+                    message: 'User created successfully in Ghost'
+                });
+
+                logger.info('Created Ghost user', { email: user.email, ghostId: ghostUser.id });
+            } catch (err) {
+                results.push({
+                    email: user.email,
+                    name: user.name,
+                    status: 'error',
+                    message: err.message
+                });
+
+                logger.error('Failed to create Ghost user', { email: user.email, error: err.message });
+            }
+        }
+
+        const created = results.filter((r) => r.status === 'created').length;
+        const existing = results.filter((r) => r.status === 'already_exists').length;
+        const errors = results.filter((r) => r.status === 'error').length;
+
+        res.json({
+            message: `Sync complete: ${created} created, ${existing} already existed, ${errors} errors`,
+            results
+        });
+    } catch (err) {
+        logger.error('Error syncing authors to Ghost:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };

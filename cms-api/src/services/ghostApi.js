@@ -234,6 +234,83 @@ exports.findAuthorByEmail = async (email) => {
 };
 
 /**
+ * Get Ghost role IDs
+ */
+const GHOST_ROLES = {
+    admin: '699592f21bd63e0001490707',
+    editor: '699592f21bd63e0001490708',
+    author: '699592f21bd63e0001490709',
+    contributor: '699592f21bd63e000149070a'
+};
+
+exports.GHOST_ROLES = GHOST_ROLES;
+
+/**
+ * Generate a Ghost-compatible ID (24 character hex string)
+ */
+const generateGhostId = () => {
+    const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+    const random = Array.from({ length: 16 }, () =>
+        Math.floor(Math.random() * 16).toString(16)
+    ).join('');
+    return timestamp + random;
+};
+
+exports.generateGhostId = generateGhostId;
+
+/**
+ * Create a user directly in Ghost database
+ * @param {Object} userData - User data
+ * @param {Object} sequelize - Sequelize instance for raw queries
+ * @returns {Promise<Object>} - Created user
+ */
+exports.createGhostUserDirect = async (userData, sequelize) => {
+    const { name, email, password, role } = userData;
+
+    // Generate Ghost-compatible ID
+    const id = generateGhostId();
+    const slug = name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    // Map local role to Ghost role
+    const ghostRoleId = GHOST_ROLES[role] || GHOST_ROLES.author;
+
+    try {
+        // Insert user
+        await sequelize.query(
+            `INSERT INTO users (id, name, slug, password, email, status, visibility, created_at, created_by, updated_at, updated_by)
+             VALUES (?, ?, ?, ?, ?, 'active', 'public', ?, '1', ?, '1')`,
+            {
+                replacements: [id, name, slug, password, email, now, now]
+            }
+        );
+
+        // Insert role assignment
+        const roleAssignId = generateGhostId();
+        await sequelize.query(
+            `INSERT INTO roles_users (id, role_id, user_id) VALUES (?, ?, ?)`,
+            {
+                replacements: [roleAssignId, ghostRoleId, id]
+            }
+        );
+
+        return { id, name, email, slug, role: ghostRoleId };
+    } catch (err) {
+        // Check for duplicate
+        if (err.message && err.message.includes('Duplicate')) {
+            throw new Error(`User with email ${email} already exists in Ghost`);
+        }
+        throw err;
+    }
+};
+
+/**
  * Build Ghost API payload from frontend data
  * @param {Object} data - Frontend data
  * @returns {Object} - Ghost API payload

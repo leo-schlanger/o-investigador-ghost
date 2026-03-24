@@ -7,6 +7,7 @@ const { protect } = require('../middleware/authMiddleware');
 router.get('/tags', protect, articleController.getTags);
 router.get('/authors', protect, articleController.getAuthors);
 router.get('/authors/sync-status', protect, articleController.getAuthorSyncStatus);
+router.post('/authors/sync', protect, articleController.syncAuthorsToGhost);
 router.get('/types', protect, articleController.getTypes);
 router.post('/types/init', protect, articleController.initTypes);
 
