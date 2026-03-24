@@ -311,6 +311,119 @@ exports.createGhostUserDirect = async (userData, sequelize) => {
 };
 
 /**
+ * Update a user in Ghost database
+ * @param {string} email - Current email to find the user
+ * @param {Object} userData - Updated user data
+ * @param {Object} sequelize - Sequelize instance for raw queries
+ * @returns {Promise<Object>} - Updated user info
+ */
+exports.updateGhostUserDirect = async (email, userData, sequelize) => {
+    const { name, newEmail, password, role } = userData;
+
+    try {
+        // Find the Ghost user by email
+        const [users] = await sequelize.query(
+            `SELECT id, name, email, slug FROM users WHERE email = ?`,
+            { replacements: [email] }
+        );
+
+        if (!users || users.length === 0) {
+            return { notFound: true };
+        }
+
+        const ghostUser = users[0];
+        const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+        // Build update query dynamically
+        const updates = [];
+        const values = [];
+
+        if (name) {
+            updates.push('name = ?');
+            values.push(name);
+
+            // Update slug based on new name
+            const newSlug = name
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+            updates.push('slug = ?');
+            values.push(newSlug);
+        }
+
+        if (newEmail) {
+            updates.push('email = ?');
+            values.push(newEmail);
+        }
+
+        if (password) {
+            updates.push('password = ?');
+            values.push(password);
+        }
+
+        updates.push('updated_at = ?');
+        values.push(now);
+
+        if (updates.length > 1) {
+            values.push(ghostUser.id);
+            await sequelize.query(
+                `UPDATE users SET ${updates.join(', ')} WHERE id = ?`,
+                { replacements: values }
+            );
+        }
+
+        // Update role if changed
+        if (role) {
+            const ghostRoleId = GHOST_ROLES[role] || GHOST_ROLES.author;
+            await sequelize.query(
+                `UPDATE roles_users SET role_id = ? WHERE user_id = ?`,
+                { replacements: [ghostRoleId, ghostUser.id] }
+            );
+        }
+
+        return { updated: true, ghostId: ghostUser.id };
+    } catch (err) {
+        if (err.message && err.message.includes('Duplicate')) {
+            throw new Error(`Email ${userData.newEmail} already exists in Ghost`);
+        }
+        throw err;
+    }
+};
+
+/**
+ * Delete a user from Ghost database
+ * @param {string} email - Email of the user to delete
+ * @param {Object} sequelize - Sequelize instance for raw queries
+ * @returns {Promise<Object>} - Deletion result
+ */
+exports.deleteGhostUserDirect = async (email, sequelize) => {
+    // Find the Ghost user by email
+    const [users] = await sequelize.query(`SELECT id FROM users WHERE email = ?`, {
+        replacements: [email]
+    });
+
+    if (!users || users.length === 0) {
+        return { notFound: true };
+    }
+
+    const ghostUserId = users[0].id;
+
+    // Delete role assignments first (foreign key constraint)
+    await sequelize.query(`DELETE FROM roles_users WHERE user_id = ?`, {
+        replacements: [ghostUserId]
+    });
+
+    // Delete the user
+    await sequelize.query(`DELETE FROM users WHERE id = ?`, {
+        replacements: [ghostUserId]
+    });
+
+    return { deleted: true, ghostId: ghostUserId };
+};
+
+/**
  * Build Ghost API payload from frontend data
  * @param {Object} data - Frontend data
  * @returns {Object} - Ghost API payload

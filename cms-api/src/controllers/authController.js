@@ -2,7 +2,12 @@ const { User, sequelize } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../config/env');
-const { createGhostUserDirect, findAuthorByEmail } = require('../services/ghostApi');
+const {
+    createGhostUserDirect,
+    findAuthorByEmail,
+    updateGhostUserDirect,
+    deleteGhostUserDirect
+} = require('../services/ghostApi');
 const logger = require('../utils/logger');
 
 const generateToken = (user) => {
@@ -30,6 +35,45 @@ const createUserInGhost = async (userData) => {
         return { created: true, ghostUser };
     } catch (err) {
         logger.error('Failed to create user in Ghost', { email: userData.email, error: err.message });
+        return { error: err.message };
+    }
+};
+
+/**
+ * Update user in Ghost CMS
+ * @param {string} currentEmail - Current email to find the user
+ * @param {Object} userData - Updated data (name, newEmail, password, role)
+ */
+const updateUserInGhost = async (currentEmail, userData) => {
+    try {
+        const result = await updateGhostUserDirect(currentEmail, userData, sequelize);
+        if (result.notFound) {
+            logger.warn('User not found in Ghost for update', { email: currentEmail });
+            return { notFound: true };
+        }
+        logger.info('Updated user in Ghost', { email: currentEmail, ghostId: result.ghostId });
+        return { updated: true, ghostId: result.ghostId };
+    } catch (err) {
+        logger.error('Failed to update user in Ghost', { email: currentEmail, error: err.message });
+        return { error: err.message };
+    }
+};
+
+/**
+ * Delete user from Ghost CMS
+ * @param {string} email - Email of user to delete
+ */
+const deleteUserFromGhost = async (email) => {
+    try {
+        const result = await deleteGhostUserDirect(email, sequelize);
+        if (result.notFound) {
+            logger.warn('User not found in Ghost for deletion', { email });
+            return { notFound: true };
+        }
+        logger.info('Deleted user from Ghost', { email, ghostId: result.ghostId });
+        return { deleted: true, ghostId: result.ghostId };
+    } catch (err) {
+        logger.error('Failed to delete user from Ghost', { email, error: err.message });
         return { error: err.message };
     }
 };
@@ -188,6 +232,8 @@ exports.updateMe = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const currentEmail = user.email;
+
         if (email && email !== user.email) {
             const existingUser = await User.findOne({ where: { email } });
             if (existingUser) {
@@ -200,12 +246,26 @@ exports.updateMe = async (req, res) => {
         if (email) updateData.email = email;
         if (avatar !== undefined) updateData.avatar = avatar;
 
+        let hashedPassword = null;
         if (password) {
             const salt = await bcrypt.genSalt(10);
-            updateData.password = await bcrypt.hash(password, salt);
+            hashedPassword = await bcrypt.hash(password, salt);
+            updateData.password = hashedPassword;
         }
 
         await user.update(updateData);
+
+        // Sync changes to Ghost
+        const ghostUpdateData = {};
+        if (name) ghostUpdateData.name = name;
+        if (email && email !== currentEmail) ghostUpdateData.newEmail = email;
+        if (hashedPassword) ghostUpdateData.password = hashedPassword;
+
+        if (Object.keys(ghostUpdateData).length > 0) {
+            updateUserInGhost(currentEmail, ghostUpdateData).catch((err) => {
+                logger.error('Failed to sync profile update to Ghost', { error: err.message });
+            });
+        }
 
         res.json({
             id: user.id,
@@ -242,6 +302,8 @@ exports.updateUser = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const currentEmail = user.email;
+
         // Check if another user already has this email
         if (email && email !== user.email) {
             const existingUser = await User.findOne({ where: { email } });
@@ -256,12 +318,26 @@ exports.updateUser = async (req, res) => {
         if (role) updateData.role = role;
         if (avatar !== undefined) updateData.avatar = avatar;
 
+        let hashedPassword = null;
         if (password) {
             const salt = await bcrypt.genSalt(10);
-            updateData.password = await bcrypt.hash(password, salt);
+            hashedPassword = await bcrypt.hash(password, salt);
+            updateData.password = hashedPassword;
         }
 
         await user.update(updateData);
+
+        // Sync changes to Ghost
+        const ghostUpdateData = {};
+        if (name) ghostUpdateData.name = name;
+        if (email && email !== currentEmail) ghostUpdateData.newEmail = email;
+        if (hashedPassword) ghostUpdateData.password = hashedPassword;
+        if (role) ghostUpdateData.role = role;
+
+        if (Object.keys(ghostUpdateData).length > 0) {
+            const ghostResult = await updateUserInGhost(currentEmail, ghostUpdateData);
+            logger.info('Ghost sync result for update', { email: currentEmail, result: ghostResult });
+        }
 
         res.json({
             id: user.id,
@@ -290,9 +366,19 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const userEmail = user.email;
+
+        // Delete from local database
         await user.destroy();
 
-        res.json({ message: 'User deleted successfully' });
+        // Delete from Ghost
+        const ghostResult = await deleteUserFromGhost(userEmail);
+        logger.info('Ghost sync result for delete', { email: userEmail, result: ghostResult });
+
+        res.json({
+            message: 'User deleted successfully',
+            ghostSync: ghostResult.deleted ? 'deleted' : ghostResult.notFound ? 'not_found' : 'failed'
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
