@@ -176,6 +176,12 @@ exports.create = async (req, res) => {
             });
         }
 
+        // Only admin can set authors - remove if not admin
+        if (data.authors && req.user?.role !== 'admin') {
+            delete data.authors;
+            logger.warn('Non-admin user attempted to set authors', { userId: req.user?.id });
+        }
+
         // Process article type (add tag)
         data = processArticleType(data);
 
@@ -232,6 +238,12 @@ exports.update = async (req, res) => {
             return res.status(400).json({
                 error: 'Invalid article type. Must be: cronica, reportagem, or opiniao'
             });
+        }
+
+        // Only admin can change authors - remove if not admin
+        if (data.authors && req.user?.role !== 'admin') {
+            delete data.authors;
+            logger.warn('Non-admin user attempted to change authors', { userId: req.user?.id });
         }
 
         // Save revision before updating (non-blocking)

@@ -6,8 +6,10 @@ import {
   getArticle,
   updateArticle,
   getTags,
+  getAuthors,
   ARTICLE_TYPES
 } from '../../services/articles';
+import { useAuth } from '../../context/AuthContext';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
 import MediaLibrary from '../Media/MediaLibrary';
 import RevisionHistory from '../../components/RevisionHistory';
@@ -34,7 +36,9 @@ import {
   Minus,
   HelpCircle,
   FileText,
-  History
+  History,
+  User,
+  Users
 } from 'lucide-react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -50,7 +54,9 @@ import api from '../../services/api';
 const ArticleEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isEditing = !!id;
+  const isAdmin = user?.role === 'admin';
   const editorRef = useRef(null);
   const editorInstanceRef = useRef(null);
 
@@ -65,6 +71,7 @@ const ArticleEditor = () => {
     meta_title: '',
     meta_description: '',
     tags: [],
+    authors: [],
     article_type: ''
   });
 
@@ -75,6 +82,8 @@ const ArticleEditor = () => {
   const [showSeoPanel, setShowSeoPanel] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [tagSearch, setTagSearch] = useState('');
+  const [availableAuthors, setAvailableAuthors] = useState([]);
+  const [authorSearch, setAuthorSearch] = useState('');
   const [editorData, setEditorData] = useState(null);
   const [editorReady, setEditorReady] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -283,7 +292,8 @@ const ArticleEditor = () => {
   useEffect(() => {
     if (isEditing) fetchArticle();
     fetchTags();
-  }, [id]);
+    if (isAdmin) fetchAuthors();
+  }, [id, isAdmin]);
 
   // Traduzir erros comuns do Ghost CMS para português
   const translateGhostError = (error) => {
@@ -329,6 +339,7 @@ const ArticleEditor = () => {
         meta_title: data.meta_title || '',
         meta_description: data.meta_description || '',
         tags: data.tags || [],
+        authors: data.authors || [],
         article_type: data.article_type || ''
       });
 
@@ -379,6 +390,15 @@ const ArticleEditor = () => {
       setAvailableTags(tags);
     } catch (err) {
       console.error('Failed to fetch tags:', err);
+    }
+  };
+
+  const fetchAuthors = async () => {
+    try {
+      const authors = await getAuthors();
+      setAvailableAuthors(authors);
+    } catch (err) {
+      console.error('Failed to fetch authors:', err);
     }
   };
 
@@ -465,6 +485,31 @@ const ArticleEditor = () => {
       !formData.tags.find((t) => t.id === tag.id)
   );
 
+  // Author selection functions (admin only)
+  const addAuthor = (author) => {
+    if (!formData.authors.find((a) => a.id === author.id)) {
+      setFormData((prev) => ({
+        ...prev,
+        authors: [...prev.authors, author]
+      }));
+    }
+    setAuthorSearch('');
+  };
+
+  const removeAuthor = (authorToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      authors: prev.authors.filter((a) => a.id !== authorToRemove.id)
+    }));
+  };
+
+  const filteredAuthors = availableAuthors.filter(
+    (author) =>
+      (author.name.toLowerCase().includes(authorSearch.toLowerCase()) ||
+        author.email?.toLowerCase().includes(authorSearch.toLowerCase())) &&
+      !formData.authors.find((a) => a.id === author.id)
+  );
+
   const handlePreview = async () => {
     try {
       let html = '';
@@ -529,6 +574,11 @@ const ArticleEditor = () => {
         tags: formData.tags.map((t) => t.name || t),
         article_type: formData.article_type || undefined
       };
+
+      // Include authors only if admin and authors were modified
+      if (isAdmin && formData.authors.length > 0) {
+        payload.authors = formData.authors.map((a) => ({ id: a.id, email: a.email }));
+      }
 
       // Handle scheduled posts
       if (payload.status === 'scheduled' && formData.published_at) {
@@ -940,6 +990,92 @@ const ArticleEditor = () => {
               </div>
             )}
           </div>
+
+          {/* Authors Card (Admin Only) */}
+          {isAdmin && (
+            <div className="mb-4 pt-2 border-t">
+              <label className="block text-sm text-gray-600 mb-2 flex items-center gap-1">
+                <Users size={14} /> Autores
+              </label>
+
+              {/* Selected Authors */}
+              <div className="flex flex-wrap gap-1 mb-2">
+                {formData.authors.map((author) => (
+                  <span
+                    key={author.id}
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 rounded text-sm text-blue-800"
+                  >
+                    {author.profile_image ? (
+                      <img
+                        src={author.profile_image}
+                        alt={author.name}
+                        className="w-4 h-4 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User size={12} />
+                    )}
+                    {author.name}
+                    <button
+                      type="button"
+                      onClick={() => removeAuthor(author)}
+                      className="text-blue-600 hover:text-red-500 ml-1"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+                {formData.authors.length === 0 && (
+                  <span className="text-xs text-gray-400 italic">Nenhum autor selecionado</span>
+                )}
+              </div>
+
+              {/* Author Search */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={authorSearch}
+                  onChange={(e) => setAuthorSearch(e.target.value)}
+                  placeholder="Buscar autor..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
+                />
+
+                {authorSearch && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto">
+                    {filteredAuthors.length > 0 ? (
+                      filteredAuthors.map((author) => (
+                        <button
+                          key={author.id}
+                          type="button"
+                          onClick={() => addAuthor(author)}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          {author.profile_image ? (
+                            <img
+                              src={author.profile_image}
+                              alt={author.name}
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                              <User size={12} className="text-gray-500" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="font-medium">{author.name}</div>
+                            {author.email && (
+                              <div className="text-xs text-gray-500">{author.email}</div>
+                            )}
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-3 py-2 text-sm text-gray-500">Nenhum autor encontrado</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-2 pt-2 border-t">

@@ -30,6 +30,11 @@ export const getTags = async () => {
   return response.data;
 };
 
+export const getAuthors = async () => {
+  const response = await api.get('/api/articles/authors');
+  return response.data;
+};
+
 export const getArticleTypes = async () => {
   const response = await api.get('/api/articles/types');
   return response.data;
