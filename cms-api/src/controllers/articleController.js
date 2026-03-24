@@ -5,6 +5,7 @@ const {
     removeTypeTags,
     findAuthorByEmail,
     createGhostUserDirect,
+    updateGhostUserDirect,
     GHOST_ROLES
 } = require('../services/ghostApi');
 const { ArticleRevision } = require('../models');
@@ -470,9 +471,9 @@ exports.syncAuthorsToGhost = async (req, res) => {
 
         const { User, sequelize } = require('../models');
 
-        // Get all local users with their password hashes
+        // Get all local users with their password hashes and avatars
         const localUsers = await User.findAll({
-            attributes: ['id', 'name', 'email', 'password', 'role']
+            attributes: ['id', 'name', 'email', 'password', 'role', 'avatar']
         });
 
         // Get all Ghost authors
@@ -481,28 +482,54 @@ exports.syncAuthorsToGhost = async (req, res) => {
         const results = [];
 
         for (const user of localUsers) {
-            const existsInGhost = ghostAuthors.some(
+            const ghostAuthor = ghostAuthors.find(
                 (a) => a.email?.toLowerCase() === user.email.toLowerCase()
             );
 
-            if (existsInGhost) {
-                results.push({
-                    email: user.email,
-                    name: user.name,
-                    status: 'already_exists',
-                    message: 'User already exists in Ghost'
-                });
+            if (ghostAuthor) {
+                // User exists in Ghost - check if we need to update avatar
+                if (user.avatar && !ghostAuthor.profile_image) {
+                    try {
+                        await updateGhostUserDirect(
+                            user.email,
+                            { avatar: user.avatar },
+                            sequelize
+                        );
+                        results.push({
+                            email: user.email,
+                            name: user.name,
+                            status: 'avatar_updated',
+                            message: 'Avatar synced to Ghost'
+                        });
+                        logger.info('Updated Ghost user avatar', { email: user.email });
+                    } catch (err) {
+                        results.push({
+                            email: user.email,
+                            name: user.name,
+                            status: 'avatar_error',
+                            message: err.message
+                        });
+                    }
+                } else {
+                    results.push({
+                        email: user.email,
+                        name: user.name,
+                        status: 'already_exists',
+                        message: 'User already exists in Ghost'
+                    });
+                }
                 continue;
             }
 
             try {
-                // Create user in Ghost with same password hash
+                // Create user in Ghost with same password hash and avatar
                 const ghostUser = await createGhostUserDirect(
                     {
                         name: user.name,
                         email: user.email,
                         password: user.password, // bcrypt hash is compatible
-                        role: user.role
+                        role: user.role,
+                        avatar: user.avatar || null
                     },
                     sequelize
                 );

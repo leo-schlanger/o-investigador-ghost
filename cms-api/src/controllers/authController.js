@@ -260,6 +260,7 @@ exports.updateMe = async (req, res) => {
         if (name) ghostUpdateData.name = name;
         if (email && email !== currentEmail) ghostUpdateData.newEmail = email;
         if (hashedPassword) ghostUpdateData.password = hashedPassword;
+        if (avatar !== undefined) ghostUpdateData.avatar = avatar;
 
         if (Object.keys(ghostUpdateData).length > 0) {
             updateUserInGhost(currentEmail, ghostUpdateData).catch((err) => {
@@ -333,6 +334,7 @@ exports.updateUser = async (req, res) => {
         if (email && email !== currentEmail) ghostUpdateData.newEmail = email;
         if (hashedPassword) ghostUpdateData.password = hashedPassword;
         if (role) ghostUpdateData.role = role;
+        if (avatar !== undefined) ghostUpdateData.avatar = avatar;
 
         if (Object.keys(ghostUpdateData).length > 0) {
             const ghostResult = await updateUserInGhost(currentEmail, ghostUpdateData);

@@ -265,7 +265,7 @@ exports.generateGhostId = generateGhostId;
  * @returns {Promise<Object>} - Created user
  */
 exports.createGhostUserDirect = async (userData, sequelize) => {
-    const { name, email, password, role } = userData;
+    const { name, email, password, role, avatar } = userData;
 
     // Generate Ghost-compatible ID
     const id = generateGhostId();
@@ -282,12 +282,12 @@ exports.createGhostUserDirect = async (userData, sequelize) => {
     const ghostRoleId = GHOST_ROLES[role] || GHOST_ROLES.author;
 
     try {
-        // Insert user
+        // Insert user with profile_image (avatar)
         await sequelize.query(
-            `INSERT INTO users (id, name, slug, password, email, status, visibility, created_at, created_by, updated_at, updated_by)
-             VALUES (?, ?, ?, ?, ?, 'active', 'public', ?, '1', ?, '1')`,
+            `INSERT INTO users (id, name, slug, password, email, profile_image, status, visibility, created_at, created_by, updated_at, updated_by)
+             VALUES (?, ?, ?, ?, ?, ?, 'active', 'public', ?, '1', ?, '1')`,
             {
-                replacements: [id, name, slug, password, email, now, now]
+                replacements: [id, name, slug, password, email, avatar || null, now, now]
             }
         );
 
@@ -300,7 +300,7 @@ exports.createGhostUserDirect = async (userData, sequelize) => {
             }
         );
 
-        return { id, name, email, slug, role: ghostRoleId };
+        return { id, name, email, slug, role: ghostRoleId, profile_image: avatar };
     } catch (err) {
         // Check for duplicate
         if (err.message && err.message.includes('Duplicate')) {
@@ -318,7 +318,7 @@ exports.createGhostUserDirect = async (userData, sequelize) => {
  * @returns {Promise<Object>} - Updated user info
  */
 exports.updateGhostUserDirect = async (email, userData, sequelize) => {
-    const { name, newEmail, password, role } = userData;
+    const { name, newEmail, password, role, avatar } = userData;
 
     try {
         // Find the Ghost user by email
@@ -361,6 +361,12 @@ exports.updateGhostUserDirect = async (email, userData, sequelize) => {
         if (password) {
             updates.push('password = ?');
             values.push(password);
+        }
+
+        // Update avatar/profile_image
+        if (avatar !== undefined) {
+            updates.push('profile_image = ?');
+            values.push(avatar || null);
         }
 
         updates.push('updated_at = ?');
