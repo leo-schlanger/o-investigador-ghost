@@ -7,7 +7,8 @@ import {
   updateArticle,
   getTags,
   getAuthors,
-  ARTICLE_TYPES
+  ARTICLE_TYPES,
+  ARTICLE_CATEGORIES
 } from '../../services/articles';
 import { useAuth } from '../../context/AuthContext';
 import { convertToHtml, htmlToEditorJs, generateSlug } from '../../utils/editorJsToHtml';
@@ -38,7 +39,8 @@ import {
   FileText,
   History,
   User,
-  Users
+  Users,
+  Folder
 } from 'lucide-react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -72,7 +74,8 @@ const ArticleEditor = () => {
     meta_description: '',
     tags: [],
     authors: [],
-    article_type: ''
+    article_type: '',
+    category: ''
   });
 
   const [loading, setLoading] = useState(isEditing);
@@ -328,6 +331,12 @@ const ArticleEditor = () => {
   const fetchArticle = async () => {
     try {
       const data = await getArticle(id);
+
+      // Extract category from tags
+      const categorySlugs = Object.keys(ARTICLE_CATEGORIES);
+      const existingCategory =
+        data.tags?.find((t) => categorySlugs.includes(t.slug))?.slug || '';
+
       setFormData({
         title: data.title || '',
         slug: data.slug || '',
@@ -340,7 +349,8 @@ const ArticleEditor = () => {
         meta_description: data.meta_description || '',
         tags: data.tags || [],
         authors: data.authors || [],
-        article_type: data.article_type || ''
+        article_type: data.article_type || '',
+        category: existingCategory
       });
 
       // Convert HTML to Editor.js format
@@ -561,6 +571,22 @@ const ArticleEditor = () => {
         return;
       }
 
+      // Build tags array: regular tags + category (if selected)
+      const categorySlugs = Object.keys(ARTICLE_CATEGORIES);
+      const tagsWithoutCategory = formData.tags
+        .map((t) => t.name || t)
+        .filter((tagName) => {
+          // Remove old category tags to avoid duplicates
+          const tagSlug = tagName.toLowerCase().replace(/\s+/g, '-');
+          return !categorySlugs.includes(tagSlug);
+        });
+
+      // Add selected category as a tag
+      const finalTags = [...tagsWithoutCategory];
+      if (formData.category && ARTICLE_CATEGORIES[formData.category]) {
+        finalTags.push(ARTICLE_CATEGORIES[formData.category].label);
+      }
+
       const payload = {
         title: formData.title.trim(),
         slug: formData.slug || undefined,
@@ -571,7 +597,7 @@ const ArticleEditor = () => {
         visibility: formData.visibility,
         meta_title: formData.meta_title || null,
         meta_description: formData.meta_description || null,
-        tags: formData.tags.map((t) => t.name || t),
+        tags: finalTags,
         article_type: formData.article_type || undefined
       };
 
@@ -986,6 +1012,33 @@ const ArticleEditor = () => {
                   }`}
                 >
                   {ARTICLE_TYPES[formData.article_type]?.label || formData.article_type}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Article Category */}
+          <div className="mb-4">
+            <label className="block text-sm text-gray-600 mb-1 flex items-center gap-1">
+              <Folder size={14} /> Categoria
+            </label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-brand focus:border-brand text-sm"
+            >
+              <option value="">Selecionar categoria...</option>
+              {Object.entries(ARTICLE_CATEGORIES).map(([key, cat]) => (
+                <option key={key} value={key}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+            {formData.category && (
+              <div className="mt-2">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-brand/10 text-brand">
+                  {ARTICLE_CATEGORIES[formData.category]?.label || formData.category}
                 </span>
               </div>
             )}

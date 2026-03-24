@@ -46,3 +46,19 @@ export const ARTICLE_TYPES = {
   reportagem: { value: 'reportagem', label: 'Reportagem', color: 'blue' },
   opiniao: { value: 'opiniao', label: 'Opiniao', color: 'orange' }
 };
+
+// Article category constants (matches routes.yaml)
+export const ARTICLE_CATEGORIES = {
+  politica: { value: 'politica', label: 'Politica', slug: 'politica' },
+  economia: { value: 'economia', label: 'Economia', slug: 'economia' },
+  justica: { value: 'justica', label: 'Justica', slug: 'justica' },
+  internacional: { value: 'internacional', label: 'Internacional', slug: 'internacional' },
+  sociedade: { value: 'sociedade', label: 'Sociedade', slug: 'sociedade' },
+  saude: { value: 'saude', label: 'Saude', slug: 'saude' },
+  educacao: { value: 'educacao', label: 'Educacao', slug: 'educacao' },
+  ambiente: { value: 'ambiente', label: 'Ambiente', slug: 'ambiente' },
+  tecnologia: { value: 'tecnologia', label: 'Tecnologia', slug: 'tecnologia' },
+  cultura: { value: 'cultura', label: 'Cultura', slug: 'cultura' },
+  magazine: { value: 'magazine', label: 'Magazine', slug: 'magazine' },
+  investigacoes: { value: 'investigacoes', label: 'Investigacoes', slug: 'investigacoes' }
+};
