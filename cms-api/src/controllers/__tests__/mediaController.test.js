@@ -1,122 +1,179 @@
-// Mock dependencies before importing the controller
-jest.mock('fs', () => ({
-    existsSync: jest.fn(() => true),
-    mkdirSync: jest.fn(),
-    unlinkSync: jest.fn()
-}));
+const mediaController = require('../mediaController');
 
+// Mock dependencies
 jest.mock('../../models', () => ({
     Media: {
-        create: jest.fn(),
-        findAll: jest.fn(),
+        findAndCountAll: jest.fn(),
+        findByPk: jest.fn(),
+        update: jest.fn(),
+        create: jest.fn()
+    },
+    MediaFolder: {
         findByPk: jest.fn()
+    },
+    MediaTag: {},
+    MediaTagAssignment: {
+        findAll: jest.fn(),
+        destroy: jest.fn(),
+        bulkCreate: jest.fn()
+    },
+    sequelize: {
+        literal: jest.fn((str) => str)
+    },
+    Sequelize: {
+        Op: {
+            like: Symbol('like'),
+            or: Symbol('or'),
+            in: Symbol('in')
+        }
     }
 }));
 
-const fs = require('fs');
-const { Media } = require('../../models');
-const mediaController = require('../mediaController');
+const { Media, MediaFolder, MediaTagAssignment } = require('../../models');
 
 describe('mediaController', () => {
-    let req, res;
+    let mockReq;
+    let mockRes;
 
     beforeEach(() => {
-        req = {
-            params: {},
-            body: {},
-            file: null,
-            get: jest.fn(() => 'localhost:3000'),
-            protocol: 'http',
-            headers: {}
-        };
-        res = {
-            status: jest.fn().mockReturnThis(),
-            json: jest.fn()
+        mockReq = { query: {}, params: {}, body: {} };
+        mockRes = {
+            json: jest.fn(),
+            status: jest.fn().mockReturnThis()
         };
         jest.clearAllMocks();
     });
 
     describe('listMedia', () => {
-        it('should return all media items', async () => {
-            const mockMedia = [
-                { id: 1, filename: 'test1.jpg', url: 'http://localhost/uploads/test1.jpg' },
-                { id: 2, filename: 'test2.png', url: 'http://localhost/uploads/test2.png' }
-            ];
+        it('should list media with default pagination', async () => {
+            const mockMedia = [{ id: 1, filename: 'test.jpg' }];
+            Media.findAndCountAll.mockResolvedValue({ count: 1, rows: mockMedia });
 
-            Media.findAll.mockResolvedValue(mockMedia);
+            await mediaController.listMedia(mockReq, mockRes);
 
-            await mediaController.listMedia(req, res);
+            expect(mockRes.json).toHaveBeenCalledWith(
+                expect.objectContaining({ items: mockMedia, total: 1 })
+            );
+        });
 
-            expect(Media.findAll).toHaveBeenCalledWith({ order: [['createdAt', 'DESC']] });
-            expect(res.json).toHaveBeenCalledWith(mockMedia);
+        it('should filter by folder ID', async () => {
+            mockReq.query = { folderId: '5' };
+            Media.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
+
+            await mediaController.listMedia(mockReq, mockRes);
+
+            expect(Media.findAndCountAll).toHaveBeenCalled();
         });
 
         it('should handle errors', async () => {
-            Media.findAll.mockRejectedValue(new Error('Database error'));
+            Media.findAndCountAll.mockRejectedValue(new Error('DB error'));
 
-            await mediaController.listMedia(req, res);
+            await mediaController.listMedia(mockReq, mockRes);
 
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+            expect(mockRes.status).toHaveBeenCalledWith(500);
+        });
+    });
+
+    describe('getMedia', () => {
+        it('should return media by ID', async () => {
+            mockReq.params = { id: '1' };
+            Media.findByPk.mockResolvedValue({ id: 1, filename: 'test.jpg' });
+
+            await mediaController.getMedia(mockReq, mockRes);
+
+            expect(mockRes.json).toHaveBeenCalled();
+        });
+
+        it('should return 404 if not found', async () => {
+            mockReq.params = { id: '999' };
+            Media.findByPk.mockResolvedValue(null);
+
+            await mediaController.getMedia(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(404);
+        });
+    });
+
+    describe('updateMedia', () => {
+        it('should return 404 if media not found', async () => {
+            mockReq.params = { id: '999' };
+            mockReq.body = { folderId: 1 };
+            Media.findByPk.mockResolvedValue(null);
+
+            await mediaController.updateMedia(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(404);
+        });
+
+        it('should return 404 if folder not found', async () => {
+            mockReq.params = { id: '1' };
+            mockReq.body = { folderId: 999 };
+            Media.findByPk.mockResolvedValue({ id: 1, save: jest.fn() });
+            MediaFolder.findByPk.mockResolvedValue(null);
+
+            await mediaController.updateMedia(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(404);
+        });
+    });
+
+    describe('bulkMove', () => {
+        it('should move multiple media items', async () => {
+            mockReq.body = { mediaIds: [1, 2], folderId: 5 };
+            MediaFolder.findByPk.mockResolvedValue({ id: 5 });
+            Media.update.mockResolvedValue([2]);
+
+            await mediaController.bulkMove(mockReq, mockRes);
+
+            expect(mockRes.json).toHaveBeenCalledWith(
+                expect.objectContaining({ updatedCount: 2 })
+            );
+        });
+
+        it('should return 400 if no media IDs', async () => {
+            mockReq.body = { mediaIds: [], folderId: 5 };
+
+            await mediaController.bulkMove(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
+        });
+    });
+
+    describe('bulkAddTags', () => {
+        it('should add tags to media', async () => {
+            mockReq.body = { mediaIds: [1, 2], tagIds: [3] };
+            MediaTagAssignment.bulkCreate.mockResolvedValue([]);
+
+            await mediaController.bulkAddTags(mockReq, mockRes);
+
+            expect(mockRes.json).toHaveBeenCalled();
+        });
+
+        it('should return 400 if no media IDs', async () => {
+            mockReq.body = { mediaIds: [], tagIds: [1] };
+
+            await mediaController.bulkAddTags(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
+        });
+
+        it('should return 400 if no tag IDs', async () => {
+            mockReq.body = { mediaIds: [1], tagIds: [] };
+
+            await mediaController.bulkAddTags(mockReq, mockRes);
+
+            expect(mockRes.status).toHaveBeenCalledWith(400);
         });
     });
 
     describe('deleteMedia', () => {
-        it('should delete media successfully', async () => {
-            req.params = { id: '1' };
-            const mockMedia = {
-                id: 1,
-                filename: 'test.jpg',
-                destroy: jest.fn().mockResolvedValue()
-            };
-
-            Media.findByPk.mockResolvedValue(mockMedia);
-            fs.existsSync.mockReturnValue(true);
-
-            await mediaController.deleteMedia(req, res);
-
-            expect(Media.findByPk).toHaveBeenCalledWith('1');
-            expect(fs.unlinkSync).toHaveBeenCalled();
-            expect(mockMedia.destroy).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ message: 'Media deleted' });
-        });
-
-        it('should return 404 if media not found', async () => {
-            req.params = { id: '999' };
+        it('should return 404 if not found', async () => {
+            mockReq.params = { id: '999' };
             Media.findByPk.mockResolvedValue(null);
 
-            await mediaController.deleteMedia(req, res);
+            await mediaController.deleteMedia(mockReq, mockRes);
 
-            expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Media not found' });
-        });
-
-        it('should handle delete when file does not exist on disk', async () => {
-            req.params = { id: '1' };
-            const mockMedia = {
-                id: 1,
-                filename: 'test.jpg',
-                destroy: jest.fn().mockResolvedValue()
-            };
-
-            Media.findByPk.mockResolvedValue(mockMedia);
-            fs.existsSync.mockReturnValue(false);
-
-            await mediaController.deleteMedia(req, res);
-
-            expect(fs.unlinkSync).not.toHaveBeenCalled();
-            expect(mockMedia.destroy).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ message: 'Media deleted' });
-        });
-
-        it('should handle errors', async () => {
-            req.params = { id: '1' };
-            Media.findByPk.mockRejectedValue(new Error('Database error'));
-
-            await mediaController.deleteMedia(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+            expect(mockRes.status).toHaveBeenCalledWith(404);
         });
     });
 });

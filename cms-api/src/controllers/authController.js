@@ -4,11 +4,9 @@ const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../config/env');
 
 const generateToken = (user) => {
-    return jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        getJwtSecret(),
-        { expiresIn: '24h' }
-    );
+    return jwt.sign({ id: user.id, email: user.email, role: user.role }, getJwtSecret(), {
+        expiresIn: '24h'
+    });
 };
 
 exports.register = async (req, res) => {
@@ -37,7 +35,13 @@ exports.register = async (req, res) => {
         const token = generateToken(user);
 
         res.status(201).json({
-            user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar
+            },
             token
         });
     } catch (err) {
@@ -65,7 +69,11 @@ exports.createUser = async (req, res) => {
         });
 
         res.status(201).json({
-            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -92,7 +100,13 @@ exports.login = async (req, res) => {
         const token = generateToken(user);
 
         res.json({
-            user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar },
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar
+            },
             token
         });
     } catch (err) {
@@ -146,7 +160,11 @@ exports.updateMe = async (req, res) => {
         await user.update(updateData);
 
         res.json({
-            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -198,7 +216,11 @@ exports.updateUser = async (req, res) => {
         await user.update(updateData);
 
         res.json({
-            id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar
         });
     } catch (err) {
         res.status(500).json({ error: err.message });

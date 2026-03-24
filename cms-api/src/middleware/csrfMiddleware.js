@@ -12,7 +12,7 @@
 
 const getAllowedOrigins = () => {
     const origins = process.env.CORS_ORIGIN
-        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+        ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
         : [];
     return origins;
 };
@@ -32,7 +32,7 @@ const validateOrigin = (req) => {
 
     // Check Origin header first
     if (origin) {
-        return allowedOrigins.some(allowed => {
+        return allowedOrigins.some((allowed) => {
             try {
                 const allowedUrl = new URL(allowed);
                 const originUrl = new URL(origin);
@@ -45,7 +45,7 @@ const validateOrigin = (req) => {
 
     // Fall back to Referer header
     if (referer) {
-        return allowedOrigins.some(allowed => {
+        return allowedOrigins.some((allowed) => {
             try {
                 const allowedUrl = new URL(allowed);
                 const refererUrl = new URL(referer);
@@ -83,7 +83,7 @@ const csrfProtection = (req, res, next) => {
         '/health'
     ];
 
-    const isPublicPath = publicPaths.some(path => req.path.startsWith(path));
+    const isPublicPath = publicPaths.some((path) => req.path.startsWith(path));
     if (isPublicPath) {
         return next();
     }

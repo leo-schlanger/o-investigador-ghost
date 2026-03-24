@@ -22,7 +22,10 @@ describe('authMiddleware', () => {
 
     describe('protect', () => {
         it('should call next() with valid token', async () => {
-            const token = jwt.sign({ id: 1, email: 'test@test.com', role: 'admin' }, 'test-secret-key');
+            const token = jwt.sign(
+                { id: 1, email: 'test@test.com', role: 'admin' },
+                'test-secret-key'
+            );
             req.headers.authorization = `Bearer ${token}`;
 
             await protect(req, res, next);

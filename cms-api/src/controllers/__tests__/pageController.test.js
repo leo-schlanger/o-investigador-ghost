@@ -5,7 +5,7 @@ jest.mock('../../services/ghostApi', () => ({
     createPage: jest.fn(),
     updatePage: jest.fn(),
     deletePage: jest.fn(),
-    transformGhostPost: jest.fn(page => ({
+    transformGhostPost: jest.fn((page) => ({
         id: page.id,
         title: page.title,
         slug: page.slug,
@@ -35,9 +35,7 @@ describe('pageController', () => {
     describe('list', () => {
         it('should return all pages', async () => {
             const mockPages = {
-                pages: [
-                    { id: '1', title: 'About', slug: 'about', status: 'published' }
-                ],
+                pages: [{ id: '1', title: 'About', slug: 'about', status: 'published' }],
                 meta: { pagination: { page: 1, total: 1 } }
             };
 
@@ -145,7 +143,12 @@ describe('pageController', () => {
         it('should update a page', async () => {
             req.params = { id: '1' };
             req.body = { title: 'Updated Page' };
-            const mockPage = { id: '1', title: 'Updated Page', slug: 'updated-page', status: 'published' };
+            const mockPage = {
+                id: '1',
+                title: 'Updated Page',
+                slug: 'updated-page',
+                status: 'published'
+            };
 
             ghostApi.updatePage.mockResolvedValue(mockPage);
 

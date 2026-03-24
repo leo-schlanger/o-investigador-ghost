@@ -144,13 +144,15 @@ router.get('/views-timeline', async (req, res) => {
                 viewedAt: { [Op.gte]: startDate }
             },
             group: [require('sequelize').fn('DATE', require('sequelize').col('viewed_at'))],
-            order: [[require('sequelize').fn('DATE', require('sequelize').col('viewed_at')), 'ASC']],
+            order: [
+                [require('sequelize').fn('DATE', require('sequelize').col('viewed_at')), 'ASC']
+            ],
             raw: true
         });
 
         // Fill in missing days with 0 views
         const result = [];
-        const dateMap = new Map(viewsTimeline.map(v => [v.date, parseInt(v.views)]));
+        const dateMap = new Map(viewsTimeline.map((v) => [v.date, parseInt(v.views)]));
 
         for (let i = 0; i < days; i++) {
             const date = new Date(startDate);

@@ -1,6 +1,7 @@
 const ghostApi = require('../services/ghostApi');
 const { ARTICLE_TYPES, getArticleTypeTag, removeTypeTags } = require('../services/ghostApi');
 const { ArticleRevision } = require('../models');
+const logger = require('../utils/logger');
 
 /**
  * Extract a meaningful error message from Ghost API errors
@@ -51,9 +52,7 @@ exports.list = async (req, res) => {
         const sanitizedLimit = Math.min(100, Math.max(1, parseInt(limit) || 15));
 
         // Sanitize search (remove dangerous characters, limit length)
-        const sanitizedSearch = (search || '')
-            .slice(0, 100)
-            .replace(/[<>'"]/g, '');
+        const sanitizedSearch = (search || '').slice(0, 100).replace(/[<>'"]/g, '');
 
         const options = {
             status: sanitizedStatus,
@@ -77,7 +76,7 @@ exports.list = async (req, res) => {
             meta: result.meta
         });
     } catch (err) {
-        console.error('Error listing articles:', err);
+        logger.error('Error listing articles:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -95,7 +94,7 @@ exports.get = async (req, res) => {
 
         res.json(article);
     } catch (err) {
-        console.error('Error getting article:', err);
+        logger.error('Error getting article:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Article not found' });
         }
@@ -155,7 +154,9 @@ exports.create = async (req, res) => {
         }
 
         if (data.status && !['draft', 'published', 'scheduled'].includes(data.status)) {
-            return res.status(400).json({ error: 'Invalid status. Must be: draft, published, or scheduled' });
+            return res
+                .status(400)
+                .json({ error: 'Invalid status. Must be: draft, published, or scheduled' });
         }
 
         if (data.status === 'scheduled' && !data.published_at) {
@@ -163,7 +164,9 @@ exports.create = async (req, res) => {
         }
 
         if (data.visibility && !['public', 'members', 'paid'].includes(data.visibility)) {
-            return res.status(400).json({ error: 'Invalid visibility. Must be: public, members, or paid' });
+            return res
+                .status(400)
+                .json({ error: 'Invalid visibility. Must be: public, members, or paid' });
         }
 
         // Validate article type if provided
@@ -181,7 +184,7 @@ exports.create = async (req, res) => {
 
         res.status(201).json(article);
     } catch (err) {
-        console.error('Error creating article:', err);
+        logger.error('Error creating article:', err);
         res.status(400).json({ error: extractErrorMessage(err) });
     }
 };
@@ -209,7 +212,9 @@ exports.update = async (req, res) => {
         }
 
         if (data.status && !['draft', 'published', 'scheduled'].includes(data.status)) {
-            return res.status(400).json({ error: 'Invalid status. Must be: draft, published, or scheduled' });
+            return res
+                .status(400)
+                .json({ error: 'Invalid status. Must be: draft, published, or scheduled' });
         }
 
         if (data.status === 'scheduled' && !data.published_at) {
@@ -217,7 +222,9 @@ exports.update = async (req, res) => {
         }
 
         if (data.visibility && !['public', 'members', 'paid'].includes(data.visibility)) {
-            return res.status(400).json({ error: 'Invalid visibility. Must be: public, members, or paid' });
+            return res
+                .status(400)
+                .json({ error: 'Invalid visibility. Must be: public, members, or paid' });
         }
 
         // Validate article type if provided
@@ -255,7 +262,7 @@ exports.update = async (req, res) => {
                 await ArticleRevision.cleanOldRevisions(id, 50);
             }
         } catch (revErr) {
-            console.error('Error saving revision:', revErr);
+            logger.error('Error saving revision:', revErr);
             // Continue with update even if revision save fails
         }
 
@@ -267,12 +274,14 @@ exports.update = async (req, res) => {
 
         res.json(article);
     } catch (err) {
-        console.error('Error updating article:', err);
+        logger.error('Error updating article:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Article not found' });
         }
         if (err.message && err.message.includes('UpdateCollisionError')) {
-            return res.status(409).json({ error: 'Update conflict: the article was modified by another user. Please refresh and try again.' });
+            return res.status(409).json({
+                error: 'Update conflict: the article was modified by another user. Please refresh and try again.'
+            });
         }
         res.status(400).json({ error: extractErrorMessage(err) });
     }
@@ -294,7 +303,7 @@ exports.delete = async (req, res) => {
 
         res.json({ message: 'Article deleted successfully' });
     } catch (err) {
-        console.error('Error deleting article:', err);
+        logger.error('Error deleting article:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Article not found' });
         }
@@ -310,15 +319,17 @@ exports.getTags = async (req, res) => {
     try {
         const tags = await ghostApi.listTags();
 
-        res.json(tags.map(tag => ({
-            id: tag.id,
-            name: tag.name,
-            slug: tag.slug,
-            description: tag.description,
-            count: tag.count ? tag.count.posts : 0
-        })));
+        res.json(
+            tags.map((tag) => ({
+                id: tag.id,
+                name: tag.name,
+                slug: tag.slug,
+                description: tag.description,
+                count: tag.count ? tag.count.posts : 0
+            }))
+        );
     } catch (err) {
-        console.error('Error getting tags:', err);
+        logger.error('Error getting tags:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -331,15 +342,17 @@ exports.getAuthors = async (req, res) => {
     try {
         const authors = await ghostApi.listAuthors();
 
-        res.json(authors.map(author => ({
-            id: author.id,
-            name: author.name,
-            slug: author.slug,
-            email: author.email,
-            profile_image: author.profile_image
-        })));
+        res.json(
+            authors.map((author) => ({
+                id: author.id,
+                name: author.name,
+                slug: author.slug,
+                email: author.email,
+                profile_image: author.profile_image
+            }))
+        );
     } catch (err) {
-        console.error('Error getting authors:', err);
+        logger.error('Error getting authors:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -359,7 +372,7 @@ exports.getTypes = async (req, res) => {
 
         res.json(types);
     } catch (err) {
-        console.error('Error getting article types:', err);
+        logger.error('Error getting article types:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -377,7 +390,7 @@ exports.initTypes = async (req, res) => {
             try {
                 // Check if tag already exists
                 const existingTags = await ghostApi.listTags();
-                const exists = existingTags.some(t => t.slug === typeData.slug);
+                const exists = existingTags.some((t) => t.slug === typeData.slug);
 
                 if (exists) {
                     results.push({
@@ -413,7 +426,7 @@ exports.initTypes = async (req, res) => {
             results
         });
     } catch (err) {
-        console.error('Error initializing article types:', err);
+        logger.error('Error initializing article types:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -434,7 +447,7 @@ exports.getRevisions = async (req, res) => {
 
         res.json(revisions);
     } catch (err) {
-        console.error('Error getting revisions:', err);
+        logger.error('Error getting revisions:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -457,7 +470,7 @@ exports.getRevision = async (req, res) => {
 
         res.json(revision);
     } catch (err) {
-        console.error('Error getting revision:', err);
+        logger.error('Error getting revision:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
@@ -516,7 +529,7 @@ exports.restoreRevision = async (req, res) => {
             article
         });
     } catch (err) {
-        console.error('Error restoring revision:', err);
+        logger.error('Error restoring revision:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };

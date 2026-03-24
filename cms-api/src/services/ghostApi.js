@@ -92,7 +92,7 @@ exports.getPost = async (id, options = {}) => {
     try {
         const queryOptions = {
             include: 'tags,authors',
-            formats: 'html'  // Required to get HTML content
+            formats: 'html' // Required to get HTML content
         };
 
         let post;
@@ -122,7 +122,7 @@ exports.createPost = async (data) => {
     try {
         const postPayload = buildGhostPayload(data);
         const post = await ghostApi.posts.add(postPayload, { source: 'html' });
-                return post;
+        return post;
     } catch (err) {
         console.error('Error creating post in Ghost:', err);
         throw err;
@@ -149,7 +149,7 @@ exports.updatePost = async (id, data) => {
         postPayload.updated_at = existingPost.updated_at;
 
         const post = await ghostApi.posts.edit(postPayload, { source: 'html' });
-                return post;
+        return post;
     } catch (err) {
         console.error(`Error updating post ${id} in Ghost:`, err);
         throw err;
@@ -168,7 +168,7 @@ exports.deletePost = async (id) => {
 
     try {
         await ghostApi.posts.delete({ id });
-                return true;
+        return true;
     } catch (err) {
         console.error(`Error deleting post ${id} from Ghost:`, err);
         throw err;
@@ -230,7 +230,8 @@ function buildGhostPayload(data) {
     if (data.excerpt !== undefined) payload.custom_excerpt = data.excerpt; // Alias
     if (data.feature_image !== undefined) payload.feature_image = data.feature_image || null;
     if (data.meta_title !== undefined) payload.meta_title = data.meta_title || null;
-    if (data.meta_description !== undefined) payload.meta_description = data.meta_description || null;
+    if (data.meta_description !== undefined)
+        payload.meta_description = data.meta_description || null;
 
     // Status handling
     if (data.status !== undefined) {
@@ -250,7 +251,7 @@ function buildGhostPayload(data) {
     // Tags - can be array of names or objects with id/name
     if (data.tags !== undefined) {
         if (Array.isArray(data.tags)) {
-            payload.tags = data.tags.map(tag => {
+            payload.tags = data.tags.map((tag) => {
                 if (typeof tag === 'string') {
                     return { name: tag };
                 }
@@ -262,7 +263,7 @@ function buildGhostPayload(data) {
     // Authors
     if (data.authors !== undefined) {
         if (Array.isArray(data.authors)) {
-            payload.authors = data.authors.map(author => {
+            payload.authors = data.authors.map((author) => {
                 if (typeof author === 'string') {
                     return { email: author };
                 }
@@ -299,9 +300,8 @@ exports.extractArticleType = (tags) => {
     if (!tags || !Array.isArray(tags)) return null;
 
     for (const [typeKey, typeData] of Object.entries(ARTICLE_TYPES)) {
-        const hasType = tags.some(tag =>
-            tag.name === typeData.name ||
-            tag.slug === typeData.slug
+        const hasType = tags.some(
+            (tag) => tag.name === typeData.name || tag.slug === typeData.slug
         );
         if (hasType) return typeKey;
     }
@@ -329,10 +329,10 @@ exports.getArticleTypeTag = (typeKey) => {
 exports.removeTypeTags = (tags) => {
     if (!tags || !Array.isArray(tags)) return [];
 
-    const typeNames = Object.values(ARTICLE_TYPES).map(t => t.name);
-    const typeSlugs = Object.values(ARTICLE_TYPES).map(t => t.slug);
+    const typeNames = Object.values(ARTICLE_TYPES).map((t) => t.name);
+    const typeSlugs = Object.values(ARTICLE_TYPES).map((t) => t.slug);
 
-    return tags.filter(tag => {
+    return tags.filter((tag) => {
         const tagName = typeof tag === 'string' ? tag : tag.name;
         const tagSlug = typeof tag === 'string' ? tag : tag.slug;
 
@@ -427,7 +427,7 @@ exports.getPage = async (id, options = {}) => {
     try {
         const queryOptions = {
             include: 'tags,authors',
-            formats: 'html'  // Required to get HTML content
+            formats: 'html' // Required to get HTML content
         };
         let page;
         if (options.by === 'slug') {
@@ -453,7 +453,7 @@ exports.createPage = async (data) => {
     try {
         const pagePayload = buildGhostPayload(data);
         const page = await ghostApi.pages.add(pagePayload, { source: 'html' });
-                return page;
+        return page;
     } catch (err) {
         console.error('Error creating page in Ghost:', err);
         throw err;
@@ -475,7 +475,7 @@ exports.updatePage = async (id, data) => {
         pagePayload.updated_at = existingPage.updated_at;
 
         const page = await ghostApi.pages.edit(pagePayload, { source: 'html' });
-                return page;
+        return page;
     } catch (err) {
         console.error(`Error updating page ${id} in Ghost:`, err);
         throw err;
@@ -492,7 +492,7 @@ exports.deletePage = async (id) => {
 
     try {
         await ghostApi.pages.delete({ id });
-                return true;
+        return true;
     } catch (err) {
         console.error(`Error deleting page ${id} from Ghost:`, err);
         throw err;
@@ -544,7 +544,7 @@ exports.createTag = async (data) => {
         };
 
         const tag = await ghostApi.tags.add(tagPayload);
-                return tag;
+        return tag;
     } catch (err) {
         console.error('Error creating tag in Ghost:', err);
         throw err;
@@ -567,14 +567,19 @@ exports.updateTag = async (id, data) => {
             updated_at: existingTag.updated_at,
             name: data.name !== undefined ? data.name : existingTag.name,
             slug: data.slug !== undefined ? data.slug : existingTag.slug,
-            description: data.description !== undefined ? data.description : existingTag.description,
-            feature_image: data.feature_image !== undefined ? data.feature_image : existingTag.feature_image,
+            description:
+                data.description !== undefined ? data.description : existingTag.description,
+            feature_image:
+                data.feature_image !== undefined ? data.feature_image : existingTag.feature_image,
             meta_title: data.meta_title !== undefined ? data.meta_title : existingTag.meta_title,
-            meta_description: data.meta_description !== undefined ? data.meta_description : existingTag.meta_description
+            meta_description:
+                data.meta_description !== undefined
+                    ? data.meta_description
+                    : existingTag.meta_description
         };
 
         const tag = await ghostApi.tags.edit(tagPayload);
-                return tag;
+        return tag;
     } catch (err) {
         console.error(`Error updating tag ${id} in Ghost:`, err);
         throw err;
@@ -591,7 +596,7 @@ exports.deleteTag = async (id) => {
 
     try {
         await ghostApi.tags.delete({ id });
-                return true;
+        return true;
     } catch (err) {
         console.error(`Error deleting tag ${id} from Ghost:`, err);
         throw err;
@@ -629,10 +634,9 @@ exports.updateSettings = async (data) => {
 
     try {
         const settings = await ghostApi.settings.edit(data);
-                return settings;
+        return settings;
     } catch (err) {
         console.error('Error updating settings in Ghost:', err);
         throw err;
     }
 };
-

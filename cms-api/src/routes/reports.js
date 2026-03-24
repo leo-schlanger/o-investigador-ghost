@@ -57,9 +57,17 @@ const formatDate = (date) => {
 // Get available report types
 router.get('/types', protect, (req, res) => {
     res.json([
-        { id: 'views', name: 'Visualizacoes', description: 'Relatorio de visualizacoes por artigo' },
+        {
+            id: 'views',
+            name: 'Visualizacoes',
+            description: 'Relatorio de visualizacoes por artigo'
+        },
         { id: 'articles', name: 'Artigos', description: 'Relatorio de artigos publicados' },
-        { id: 'users', name: 'Atividade de Usuarios', description: 'Relatorio de atividade da equipe' }
+        {
+            id: 'users',
+            name: 'Atividade de Usuarios',
+            description: 'Relatorio de atividade da equipe'
+        }
     ]);
 });
 
@@ -81,7 +89,7 @@ router.get('/preview/:type', protect, async (req, res) => {
                     order: [['viewCount', 'DESC']],
                     limit: 20
                 });
-                data = views.map(v => ({
+                data = views.map((v) => ({
                     title: v.postTitle || 'Sem titulo',
                     views: v.viewCount,
                     lastViewed: formatDate(v.lastViewedAt)
@@ -90,10 +98,15 @@ router.get('/preview/:type', protect, async (req, res) => {
 
             case 'articles':
                 const result = await ghostApi.listPosts({ status: 'all', limit: 100 });
-                const articles = result.posts.filter(p => new Date(p.created_at) >= startDate);
-                data = articles.map(a => ({
+                const articles = result.posts.filter((p) => new Date(p.created_at) >= startDate);
+                data = articles.map((a) => ({
                     title: a.title,
-                    status: a.status === 'published' ? 'Publicado' : a.status === 'scheduled' ? 'Agendado' : 'Rascunho',
+                    status:
+                        a.status === 'published'
+                            ? 'Publicado'
+                            : a.status === 'scheduled'
+                              ? 'Agendado'
+                              : 'Rascunho',
                     author: a.primary_author?.name || 'Desconhecido',
                     createdAt: formatDate(a.created_at),
                     publishedAt: a.published_at ? formatDate(a.published_at) : '-'
@@ -104,10 +117,15 @@ router.get('/preview/:type', protect, async (req, res) => {
                 const users = await User.findAll({
                     attributes: ['id', 'name', 'email', 'role', 'createdAt', 'lastLogin']
                 });
-                data = users.map(u => ({
+                data = users.map((u) => ({
                     name: u.name,
                     email: u.email,
-                    role: u.role === 'admin' ? 'Administrador' : u.role === 'editor' ? 'Editor' : 'Autor',
+                    role:
+                        u.role === 'admin'
+                            ? 'Administrador'
+                            : u.role === 'editor'
+                              ? 'Editor'
+                              : 'Autor',
                     createdAt: formatDate(u.createdAt),
                     lastLogin: u.lastLogin ? formatDate(u.lastLogin) : 'Nunca'
                 }));
@@ -167,7 +185,7 @@ router.get('/export/excel/:type', protect, async (req, res) => {
                     order: [['viewCount', 'DESC']]
                 });
 
-                views.forEach(v => {
+                views.forEach((v) => {
                     sheet.addRow({
                         title: v.postTitle || 'Sem titulo',
                         views: v.viewCount,
@@ -186,12 +204,17 @@ router.get('/export/excel/:type', protect, async (req, res) => {
                 ];
 
                 const result = await ghostApi.listPosts({ status: 'all', limit: 500 });
-                const articles = result.posts.filter(p => new Date(p.created_at) >= startDate);
+                const articles = result.posts.filter((p) => new Date(p.created_at) >= startDate);
 
-                articles.forEach(a => {
+                articles.forEach((a) => {
                     sheet.addRow({
                         title: a.title,
-                        status: a.status === 'published' ? 'Publicado' : a.status === 'scheduled' ? 'Agendado' : 'Rascunho',
+                        status:
+                            a.status === 'published'
+                                ? 'Publicado'
+                                : a.status === 'scheduled'
+                                  ? 'Agendado'
+                                  : 'Rascunho',
                         author: a.primary_author?.name || 'Desconhecido',
                         createdAt: formatDate(a.created_at),
                         publishedAt: a.published_at ? formatDate(a.published_at) : '-'
@@ -212,11 +235,16 @@ router.get('/export/excel/:type', protect, async (req, res) => {
                     attributes: ['id', 'name', 'email', 'role', 'createdAt', 'lastLogin']
                 });
 
-                users.forEach(u => {
+                users.forEach((u) => {
                     sheet.addRow({
                         name: u.name,
                         email: u.email,
-                        role: u.role === 'admin' ? 'Administrador' : u.role === 'editor' ? 'Editor' : 'Autor',
+                        role:
+                            u.role === 'admin'
+                                ? 'Administrador'
+                                : u.role === 'editor'
+                                  ? 'Editor'
+                                  : 'Autor',
                         createdAt: formatDate(u.createdAt),
                         lastLogin: u.lastLogin ? formatDate(u.lastLogin) : 'Nunca'
                     });
@@ -228,7 +256,7 @@ router.get('/export/excel/:type', protect, async (req, res) => {
         }
 
         // Apply header style
-        sheet.getRow(1).eachCell(cell => {
+        sheet.getRow(1).eachCell((cell) => {
             cell.font = headerStyle.font;
             cell.fill = headerStyle.fill;
             cell.alignment = headerStyle.alignment;
@@ -236,7 +264,10 @@ router.get('/export/excel/:type', protect, async (req, res) => {
 
         // Set response headers
         const filename = `relatorio-${type}-${new Date().toISOString().split('T')[0]}.xlsx`;
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
         await workbook.xlsx.write(res);
@@ -269,11 +300,19 @@ router.get('/export/pdf/:type', protect, async (req, res) => {
 
         // Header
         doc.fontSize(20).font('Helvetica-Bold').text('O Investigador', { align: 'center' });
-        doc.fontSize(14).font('Helvetica').text('Relatorio de ' + (
-            type === 'views' ? 'Visualizacoes' :
-            type === 'articles' ? 'Artigos' :
-            type === 'users' ? 'Atividade de Usuarios' : type
-        ), { align: 'center' });
+        doc.fontSize(14)
+            .font('Helvetica')
+            .text(
+                'Relatorio de ' +
+                    (type === 'views'
+                        ? 'Visualizacoes'
+                        : type === 'articles'
+                          ? 'Artigos'
+                          : type === 'users'
+                            ? 'Atividade de Usuarios'
+                            : type),
+                { align: 'center' }
+            );
         doc.fontSize(10).text(`Gerado em: ${formatDate(new Date())}`, { align: 'center' });
         doc.moveDown(2);
 
@@ -291,24 +330,29 @@ router.get('/export/pdf/:type', protect, async (req, res) => {
                 doc.moveDown();
 
                 views.forEach((v, index) => {
-                    doc.fontSize(10).font('Helvetica')
+                    doc.fontSize(10)
+                        .font('Helvetica')
                         .text(`${index + 1}. ${v.postTitle || 'Sem titulo'}`)
-                        .text(`   Visualizacoes: ${v.viewCount} | Ultima: ${formatDate(v.lastViewedAt)}`, { color: 'gray' });
+                        .text(
+                            `   Visualizacoes: ${v.viewCount} | Ultima: ${formatDate(v.lastViewedAt)}`,
+                            { color: 'gray' }
+                        );
                     doc.moveDown(0.5);
                 });
                 break;
 
             case 'articles':
                 const result = await ghostApi.listPosts({ status: 'all', limit: 500 });
-                const articles = result.posts.filter(p => new Date(p.created_at) >= startDate);
+                const articles = result.posts.filter((p) => new Date(p.created_at) >= startDate);
 
                 // Summary
-                const published = articles.filter(a => a.status === 'published').length;
-                const draft = articles.filter(a => a.status === 'draft').length;
-                const scheduled = articles.filter(a => a.status === 'scheduled').length;
+                const published = articles.filter((a) => a.status === 'published').length;
+                const draft = articles.filter((a) => a.status === 'draft').length;
+                const scheduled = articles.filter((a) => a.status === 'scheduled').length;
 
                 doc.fontSize(12).font('Helvetica-Bold').text('Resumo');
-                doc.fontSize(10).font('Helvetica')
+                doc.fontSize(10)
+                    .font('Helvetica')
                     .text(`Total de artigos: ${articles.length}`)
                     .text(`Publicados: ${published}`)
                     .text(`Rascunhos: ${draft}`)
@@ -319,9 +363,13 @@ router.get('/export/pdf/:type', protect, async (req, res) => {
                 doc.moveDown();
 
                 articles.slice(0, 50).forEach((a, index) => {
-                    doc.fontSize(10).font('Helvetica')
+                    doc.fontSize(10)
+                        .font('Helvetica')
                         .text(`${index + 1}. ${a.title}`)
-                        .text(`   Status: ${a.status} | Autor: ${a.primary_author?.name || 'N/A'} | Criado: ${formatDate(a.created_at)}`, { color: 'gray' });
+                        .text(
+                            `   Status: ${a.status} | Autor: ${a.primary_author?.name || 'N/A'} | Criado: ${formatDate(a.created_at)}`,
+                            { color: 'gray' }
+                        );
                     doc.moveDown(0.5);
                 });
                 break;
@@ -335,11 +383,20 @@ router.get('/export/pdf/:type', protect, async (req, res) => {
                 doc.moveDown();
 
                 users.forEach((u, index) => {
-                    const role = u.role === 'admin' ? 'Administrador' : u.role === 'editor' ? 'Editor' : 'Autor';
-                    doc.fontSize(10).font('Helvetica')
+                    const role =
+                        u.role === 'admin'
+                            ? 'Administrador'
+                            : u.role === 'editor'
+                              ? 'Editor'
+                              : 'Autor';
+                    doc.fontSize(10)
+                        .font('Helvetica')
                         .text(`${index + 1}. ${u.name} (${role})`)
                         .text(`   Email: ${u.email}`)
-                        .text(`   Ultimo login: ${u.lastLogin ? formatDate(u.lastLogin) : 'Nunca'}`, { color: 'gray' });
+                        .text(
+                            `   Ultimo login: ${u.lastLogin ? formatDate(u.lastLogin) : 'Nunca'}`,
+                            { color: 'gray' }
+                        );
                     doc.moveDown(0.5);
                 });
                 break;

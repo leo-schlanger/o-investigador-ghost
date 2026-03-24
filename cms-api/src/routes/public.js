@@ -34,7 +34,7 @@ router.get('/ads-config', async (req, res) => {
         });
 
         const config = {};
-        settings.forEach(setting => {
+        settings.forEach((setting) => {
             if (setting.key === 'adSlots') {
                 try {
                     config[setting.key] = JSON.parse(setting.value);
@@ -69,10 +69,11 @@ router.post('/track-view', async (req, res) => {
         }
 
         // Get client IP for geolocation
-        const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-            || req.headers['x-real-ip']
-            || req.socket?.remoteAddress
-            || '';
+        const clientIp =
+            req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+            req.headers['x-real-ip'] ||
+            req.socket?.remoteAddress ||
+            '';
 
         // Get geolocation (only country/city, IP is not stored)
         let country = null;
@@ -114,7 +115,7 @@ router.post('/track-view', async (req, res) => {
             country,
             city,
             viewedAt: new Date()
-        }).catch(err => console.error('ViewLog error:', err));
+        }).catch((err) => console.error('ViewLog error:', err));
 
         res.json({ success: true, views: created ? 1 : postView.viewCount + 1 });
     } catch (err) {

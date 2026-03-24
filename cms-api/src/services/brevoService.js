@@ -92,7 +92,7 @@ class BrevoService {
         try {
             const result = await this.contactsApi.getLists({ limit: 50, offset: 0 });
             return {
-                data: result.lists.map(list => ({
+                data: result.lists.map((list) => ({
                     id: list.id,
                     name: list.name,
                     subscribers: list.totalSubscribers,
@@ -158,7 +158,7 @@ class BrevoService {
             const result = await this.contactsApi.getContacts(options);
 
             return {
-                data: result.contacts.map(contact => ({
+                data: result.contacts.map((contact) => ({
                     id: contact.id,
                     email: contact.email,
                     name: contact.attributes?.NOME || contact.attributes?.FIRSTNAME || '',
@@ -213,7 +213,7 @@ class BrevoService {
             };
 
             if (data.listIds && data.listIds.length > 0) {
-                createContact.listIds = data.listIds.map(id => parseInt(id));
+                createContact.listIds = data.listIds.map((id) => parseInt(id));
             }
 
             createContact.updateEnabled = true;
@@ -243,7 +243,7 @@ class BrevoService {
             }
 
             if (data.listIds) {
-                updateContact.listIds = data.listIds.map(id => parseInt(id));
+                updateContact.listIds = data.listIds.map((id) => parseInt(id));
             }
 
             if (data.blocked !== undefined) {
@@ -279,13 +279,13 @@ class BrevoService {
 
         try {
             const requestContactImport = new SibApiV3Sdk.RequestContactImport();
-            requestContactImport.jsonBody = contacts.map(c => ({
+            requestContactImport.jsonBody = contacts.map((c) => ({
                 email: c.email,
                 attributes: { NOME: c.name || '' }
             }));
 
             if (listIds.length > 0) {
-                requestContactImport.listIds = listIds.map(id => parseInt(id));
+                requestContactImport.listIds = listIds.map((id) => parseInt(id));
             }
 
             await this.contactsApi.importContacts(requestContactImport);
@@ -316,7 +316,7 @@ class BrevoService {
             const result = await this.emailCampaignsApi.getEmailCampaigns(options);
 
             return {
-                data: result.campaigns.map(campaign => ({
+                data: result.campaigns.map((campaign) => ({
                     id: campaign.id,
                     name: campaign.name,
                     subject: campaign.subject,
@@ -327,12 +327,17 @@ class BrevoService {
                     recipients: campaign.statistics?.sent || 0,
                     opens: campaign.statistics?.uniqueOpens || 0,
                     clicks: campaign.statistics?.uniqueClicks || 0,
-                    openRate: campaign.statistics?.sent > 0
-                        ? ((campaign.statistics?.uniqueOpens || 0) / campaign.statistics.sent * 100)
-                        : 0,
-                    clickRate: campaign.statistics?.sent > 0
-                        ? ((campaign.statistics?.uniqueClicks || 0) / campaign.statistics.sent * 100)
-                        : 0
+                    openRate:
+                        campaign.statistics?.sent > 0
+                            ? ((campaign.statistics?.uniqueOpens || 0) / campaign.statistics.sent) *
+                              100
+                            : 0,
+                    clickRate:
+                        campaign.statistics?.sent > 0
+                            ? ((campaign.statistics?.uniqueClicks || 0) /
+                                  campaign.statistics.sent) *
+                              100
+                            : 0
                 })),
                 total: result.count
             };
@@ -386,11 +391,12 @@ class BrevoService {
                 email: data.senderEmail || process.env.BREVO_SENDER_EMAIL
             };
             emailCampaign.replyTo = data.replyTo || process.env.BREVO_REPLY_TO;
-            emailCampaign.htmlContent = data.htmlContent || this.generateHtmlFromBlocks(data.blocks);
+            emailCampaign.htmlContent =
+                data.htmlContent || this.generateHtmlFromBlocks(data.blocks);
 
             if (data.listIds && data.listIds.length > 0) {
                 emailCampaign.recipients = {
-                    listIds: data.listIds.map(id => parseInt(id))
+                    listIds: data.listIds.map((id) => parseInt(id))
                 };
             }
 
@@ -414,7 +420,8 @@ class BrevoService {
             if (data.subject) updateCampaign.subject = data.subject;
             if (data.preheader) updateCampaign.previewText = data.preheader;
             if (data.htmlContent || data.blocks) {
-                updateCampaign.htmlContent = data.htmlContent || this.generateHtmlFromBlocks(data.blocks);
+                updateCampaign.htmlContent =
+                    data.htmlContent || this.generateHtmlFromBlocks(data.blocks);
             }
             if (data.senderName || data.senderEmail) {
                 updateCampaign.sender = {
@@ -425,7 +432,7 @@ class BrevoService {
             if (data.replyTo) updateCampaign.replyTo = data.replyTo;
             if (data.listIds) {
                 updateCampaign.recipients = {
-                    listIds: data.listIds.map(id => parseInt(id))
+                    listIds: data.listIds.map((id) => parseInt(id))
                 };
             }
 
@@ -513,7 +520,9 @@ class BrevoService {
         }
 
         try {
-            const campaign = await this.emailCampaignsApi.getEmailCampaign(id, { statistics: 'globalStats' });
+            const campaign = await this.emailCampaignsApi.getEmailCampaign(id, {
+                statistics: 'globalStats'
+            });
             const stats = campaign.statistics?.globalStats || {};
 
             return {
@@ -524,8 +533,8 @@ class BrevoService {
                 bounces: stats.hardBounces + stats.softBounces || 0,
                 unsubscribes: stats.unsubscriptions || 0,
                 complaints: stats.complaints || 0,
-                openRate: stats.sent > 0 ? (stats.uniqueOpens / stats.sent * 100) : 0,
-                clickRate: stats.sent > 0 ? (stats.uniqueClicks / stats.sent * 100) : 0
+                openRate: stats.sent > 0 ? (stats.uniqueOpens / stats.sent) * 100 : 0,
+                clickRate: stats.sent > 0 ? (stats.uniqueClicks / stats.sent) * 100 : 0
             };
         } catch (error) {
             console.error('Error fetching campaign stats:', error);
@@ -541,7 +550,7 @@ class BrevoService {
         }
 
         try {
-            const contacts = ghostMembers.map(member => ({
+            const contacts = ghostMembers.map((member) => ({
                 email: member.email,
                 name: member.name || ''
             }));
@@ -575,7 +584,7 @@ class BrevoService {
             let totalClicks = 0;
             let totalSent = 0;
 
-            campaigns.campaigns.forEach(c => {
+            campaigns.campaigns.forEach((c) => {
                 if (c.statistics) {
                     totalOpens += c.statistics.uniqueOpens || 0;
                     totalClicks += c.statistics.uniqueClicks || 0;
@@ -587,8 +596,8 @@ class BrevoService {
                 totalSubscribers: contacts.count,
                 activeSubscribers: contacts.count, // Brevo doesn't give this directly
                 totalCampaigns: campaigns.count,
-                avgOpenRate: totalSent > 0 ? (totalOpens / totalSent * 100) : 0,
-                avgClickRate: totalSent > 0 ? (totalClicks / totalSent * 100) : 0,
+                avgOpenRate: totalSent > 0 ? (totalOpens / totalSent) * 100 : 0,
+                avgClickRate: totalSent > 0 ? (totalClicks / totalSent) * 100 : 0,
                 lastCampaignDate: campaigns.campaigns[0]?.sentDate || null
             };
         } catch (error) {
@@ -627,7 +636,7 @@ class BrevoService {
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;max-width:600px;">
 `;
 
-        blocks.forEach(block => {
+        blocks.forEach((block) => {
             html += this.renderBlockToHtml(block, colors);
         });
 
@@ -664,25 +673,37 @@ class BrevoService {
                 return `
                     <tr>
                         <td style="padding:24px;">
-                            ${block.content?.category ? `
+                            ${
+                                block.content?.category
+                                    ? `
                                 <span style="background-color:${colors.accent};color:#ffffff;font-size:11px;font-weight:bold;padding:4px 12px;text-transform:uppercase;">
                                     ${block.content.category}
                                 </span>
-                            ` : ''}
+                            `
+                                    : ''
+                            }
                             <h2 style="font-family:Georgia,serif;font-size:28px;color:${colors.text};line-height:1.2;margin:12px 0;">
                                 ${block.content?.title || 'Titulo da Noticia'}
                             </h2>
-                            ${block.content?.imageUrl ? `
+                            ${
+                                block.content?.imageUrl
+                                    ? `
                                 <img src="${block.content.imageUrl}" alt="" style="width:100%;height:auto;display:block;margin-bottom:16px;border-radius:4px;">
-                            ` : ''}
+                            `
+                                    : ''
+                            }
                             <p style="font-size:16px;color:${colors.textMuted};line-height:1.6;margin:0 0 20px 0;">
                                 ${block.content?.excerpt || ''}
                             </p>
-                            ${block.content?.link ? `
+                            ${
+                                block.content?.link
+                                    ? `
                                 <a href="${block.content.link}" style="display:inline-block;background-color:${colors.brand};color:#ffffff;font-size:14px;font-weight:bold;text-decoration:none;padding:12px 24px;border-radius:4px;text-transform:uppercase;">
                                     Ler Artigo Completo
                                 </a>
-                            ` : ''}
+                            `
+                                    : ''
+                            }
                         </td>
                     </tr>`;
 
@@ -693,18 +714,26 @@ class BrevoService {
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td width="120" valign="top" style="padding-right:16px;">
-                                        ${block.content?.imageUrl ? `
+                                        ${
+                                            block.content?.imageUrl
+                                                ? `
                                             <img src="${block.content.imageUrl}" alt="" style="width:120px;height:80px;object-fit:cover;border-radius:4px;">
-                                        ` : `
+                                        `
+                                                : `
                                             <div style="width:120px;height:80px;background-color:${colors.bgLight};border-radius:4px;"></div>
-                                        `}
+                                        `
+                                        }
                                     </td>
                                     <td valign="top">
-                                        ${block.content?.category ? `
+                                        ${
+                                            block.content?.category
+                                                ? `
                                             <span style="color:${colors.accent};font-size:11px;font-weight:bold;text-transform:uppercase;">
                                                 ${block.content.category}
                                             </span>
-                                        ` : ''}
+                                        `
+                                                : ''
+                                        }
                                         <h3 style="font-family:Georgia,serif;font-size:16px;color:${colors.text};margin:4px 0 8px 0;line-height:1.3;">
                                             <a href="${block.content?.link || '#'}" style="color:${colors.text};text-decoration:none;">
                                                 ${block.content?.title || 'Titulo do Artigo'}
@@ -739,11 +768,15 @@ class BrevoService {
                                         <p style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:${colors.text};line-height:1.5;margin:0 0 12px 0;">
                                             "${block.content?.text || ''}"
                                         </p>
-                                        ${block.content?.author ? `
+                                        ${
+                                            block.content?.author
+                                                ? `
                                             <p style="font-size:14px;color:${colors.textMuted};margin:0;">
                                                 — ${block.content.author}
                                             </p>
-                                        ` : ''}
+                                        `
+                                                : ''
+                                        }
                                     </td>
                                 </tr>
                             </table>
@@ -751,9 +784,10 @@ class BrevoService {
                     </tr>`;
 
             case 'button':
-                const btnStyle = block.content?.style === 'outline'
-                    ? `background-color:transparent;color:${colors.brand};border:2px solid ${colors.brand};`
-                    : `background-color:${colors.brand};color:#ffffff;border:none;`;
+                const btnStyle =
+                    block.content?.style === 'outline'
+                        ? `background-color:transparent;color:${colors.brand};border:2px solid ${colors.brand};`
+                        : `background-color:${colors.brand};color:#ffffff;border:none;`;
                 return `
                     <tr>
                         <td align="center" style="padding:24px;">
@@ -805,9 +839,19 @@ class BrevoService {
     getMockLists() {
         return {
             data: [
-                { id: 1, name: 'Geral', subscribers: 1280, description: 'Lista principal de subscritores' },
+                {
+                    id: 1,
+                    name: 'Geral',
+                    subscribers: 1280,
+                    description: 'Lista principal de subscritores'
+                },
                 { id: 2, name: 'Premium', subscribers: 245, description: 'Subscritores premium' },
-                { id: 3, name: 'Alertas', subscribers: 890, description: 'Alertas de noticias urgentes' }
+                {
+                    id: 3,
+                    name: 'Alertas',
+                    subscribers: 890,
+                    description: 'Alertas de noticias urgentes'
+                }
             ],
             total: 3,
             isMock: true
@@ -816,9 +860,30 @@ class BrevoService {
 
     getMockSubscribers(params = {}) {
         const mockData = [
-            { id: 1, email: 'joao.silva@email.pt', name: 'Joao Silva', status: 'active', lists: [1], subscribedAt: '2026-01-15T10:30:00Z' },
-            { id: 2, email: 'maria.santos@email.pt', name: 'Maria Santos', status: 'active', lists: [1, 2], subscribedAt: '2026-01-20T14:22:00Z' },
-            { id: 3, email: 'pedro.costa@email.pt', name: 'Pedro Costa', status: 'active', lists: [1], subscribedAt: '2026-02-01T09:15:00Z' }
+            {
+                id: 1,
+                email: 'joao.silva@email.pt',
+                name: 'Joao Silva',
+                status: 'active',
+                lists: [1],
+                subscribedAt: '2026-01-15T10:30:00Z'
+            },
+            {
+                id: 2,
+                email: 'maria.santos@email.pt',
+                name: 'Maria Santos',
+                status: 'active',
+                lists: [1, 2],
+                subscribedAt: '2026-01-20T14:22:00Z'
+            },
+            {
+                id: 3,
+                email: 'pedro.costa@email.pt',
+                name: 'Pedro Costa',
+                status: 'active',
+                lists: [1],
+                subscribedAt: '2026-02-01T09:15:00Z'
+            }
         ];
 
         return {
@@ -832,8 +897,30 @@ class BrevoService {
 
     getMockCampaigns(params = {}) {
         const mockData = [
-            { id: 1, name: 'Briefing Semanal', subject: 'As noticias da semana', status: 'sent', sentAt: '2026-03-08T08:00:00Z', recipients: 1250, opens: 487, clicks: 89, openRate: 38.96, clickRate: 7.12 },
-            { id: 2, name: 'Alerta Eleicoes', subject: 'URGENTE: Resultados', status: 'sent', sentAt: '2026-03-10T20:30:00Z', recipients: 1250, opens: 892, clicks: 234, openRate: 71.36, clickRate: 18.72 }
+            {
+                id: 1,
+                name: 'Briefing Semanal',
+                subject: 'As noticias da semana',
+                status: 'sent',
+                sentAt: '2026-03-08T08:00:00Z',
+                recipients: 1250,
+                opens: 487,
+                clicks: 89,
+                openRate: 38.96,
+                clickRate: 7.12
+            },
+            {
+                id: 2,
+                name: 'Alerta Eleicoes',
+                subject: 'URGENTE: Resultados',
+                status: 'sent',
+                sentAt: '2026-03-10T20:30:00Z',
+                recipients: 1250,
+                opens: 892,
+                clicks: 234,
+                openRate: 71.36,
+                clickRate: 18.72
+            }
         ];
 
         return {

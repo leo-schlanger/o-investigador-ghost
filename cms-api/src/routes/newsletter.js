@@ -113,7 +113,11 @@ router.post('/subscribers', async (req, res) => {
 router.put('/subscribers/:id', async (req, res) => {
     try {
         const { name, listIds, blocked } = req.body;
-        const result = await brevoService.updateSubscriber(req.params.id, { name, listIds, blocked });
+        const result = await brevoService.updateSubscriber(req.params.id, {
+            name,
+            listIds,
+            blocked
+        });
         res.json(result);
     } catch (error) {
         console.error('Error updating subscriber:', error);
@@ -158,14 +162,16 @@ router.get('/subscribers/export', async (req, res) => {
 
         // Generate CSV
         const headers = ['Email', 'Nome', 'Status', 'Data Subscricao'];
-        const rows = subscribers.data.map(s => [
+        const rows = subscribers.data.map((s) => [
             s.email,
             s.name || '',
             s.status,
             new Date(s.subscribedAt).toLocaleDateString('pt-PT')
         ]);
 
-        const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+        const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join(
+            '\n'
+        );
 
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=subscritores.csv');
@@ -209,7 +215,17 @@ router.get('/campaigns/:id', async (req, res) => {
 
 router.post('/campaigns', async (req, res) => {
     try {
-        const { name, subject, preheader, senderName, senderEmail, replyTo, listIds, blocks, htmlContent } = req.body;
+        const {
+            name,
+            subject,
+            preheader,
+            senderName,
+            senderEmail,
+            replyTo,
+            listIds,
+            blocks,
+            htmlContent
+        } = req.body;
 
         if (!name || !subject) {
             return res.status(400).json({ error: 'Nome e assunto obrigatorios' });
@@ -382,11 +398,13 @@ router.put('/settings', authorize('admin'), async (req, res) => {
     try {
         // Note: In production, these would be stored in database
         // For now, we just validate and return success
-        const { senderName, senderEmail, replyTo, defaultListId, doubleOptIn, welcomeEmail } = req.body;
+        const { senderName, senderEmail, replyTo, defaultListId, doubleOptIn, welcomeEmail } =
+            req.body;
 
         res.json({
             success: true,
-            message: 'Configuracoes atualizadas. Reinicie o servidor para aplicar as variaveis de ambiente.'
+            message:
+                'Configuracoes atualizadas. Reinicie o servidor para aplicar as variaveis de ambiente.'
         });
     } catch (error) {
         console.error('Error updating settings:', error);

@@ -108,9 +108,7 @@ describe('settingsController', () => {
             };
 
             Settings.findOrCreate.mockResolvedValue([mockSetting, true]);
-            Settings.findAll.mockResolvedValue([
-                { key: 'siteTitle', value: 'New Title' }
-            ]);
+            Settings.findAll.mockResolvedValue([{ key: 'siteTitle', value: 'New Title' }]);
 
             await settingsController.updateSettings(req, res);
 
@@ -141,7 +139,9 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "invalidSetting" is not allowed' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Setting "invalidSetting" is not allowed'
+            });
         });
 
         it('should validate setting value types', async () => {
@@ -152,7 +152,9 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "siteTitle" must be a string' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Setting "siteTitle" must be a string'
+            });
         });
 
         it('should validate enum settings', async () => {
@@ -163,7 +165,9 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "adsEnabled" must be one of: true, false' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Setting "adsEnabled" must be one of: true, false'
+            });
         });
 
         it('should validate JSON settings', async () => {
@@ -174,7 +178,9 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Setting "adSlots" must be valid JSON' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Setting "adSlots" must be valid JSON'
+            });
         });
 
         it('should accept valid JSON settings', async () => {
@@ -189,9 +195,7 @@ describe('settingsController', () => {
             };
 
             Settings.findOrCreate.mockResolvedValue([mockSetting, true]);
-            Settings.findAll.mockResolvedValue([
-                { key: 'adSlots', value: '{"slot1": "123"}' }
-            ]);
+            Settings.findAll.mockResolvedValue([{ key: 'adSlots', value: '{"slot1": "123"}' }]);
 
             await settingsController.updateSettings(req, res);
 

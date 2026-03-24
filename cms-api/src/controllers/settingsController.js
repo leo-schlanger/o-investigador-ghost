@@ -39,10 +39,16 @@ const validateSetting = (key, value) => {
             return { valid: false, error: `Setting "${key}" must be a string` };
         }
         if (rules.maxLength && value.length > rules.maxLength) {
-            return { valid: false, error: `Setting "${key}" exceeds max length of ${rules.maxLength}` };
+            return {
+                valid: false,
+                error: `Setting "${key}" exceeds max length of ${rules.maxLength}`
+            };
         }
         if (rules.enum && !rules.enum.includes(value)) {
-            return { valid: false, error: `Setting "${key}" must be one of: ${rules.enum.join(', ')}` };
+            return {
+                valid: false,
+                error: `Setting "${key}" must be one of: ${rules.enum.join(', ')}`
+            };
         }
     }
 
@@ -66,7 +72,7 @@ exports.getSettings = async (req, res) => {
 
         // Convert array to object for easier frontend consumption
         const settingsObject = {};
-        settings.forEach(setting => {
+        settings.forEach((setting) => {
             settingsObject[setting.key] = setting.value;
         });
 
@@ -113,7 +119,7 @@ exports.updateSettings = async (req, res) => {
         // Return updated settings
         const settings = await Settings.findAll();
         const settingsObject = {};
-        settings.forEach(setting => {
+        settings.forEach((setting) => {
             settingsObject[setting.key] = setting.value;
         });
 

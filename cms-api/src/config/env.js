@@ -3,14 +3,7 @@
  * This module validates required environment variables on startup
  */
 
-const requiredEnvVars = [
-    'DB_HOST',
-    'DB_PORT',
-    'DB_NAME',
-    'DB_USER',
-    'DB_PASSWORD',
-    'JWT_SECRET'
-];
+const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'JWT_SECRET'];
 
 const optionalEnvVars = [
     'GHOST_API_URL',
@@ -31,12 +24,12 @@ const optionalEnvVars = [
  * @throws {Error} If any required variable is missing
  */
 function validateEnv() {
-    const missing = requiredEnvVars.filter(varName => !process.env[varName]);
+    const missing = requiredEnvVars.filter((varName) => !process.env[varName]);
 
     if (missing.length > 0) {
         throw new Error(
             `Missing required environment variables: ${missing.join(', ')}\n` +
-            'Please check your .env file or environment configuration.'
+                'Please check your .env file or environment configuration.'
         );
     }
 
@@ -47,7 +40,9 @@ function validateEnv() {
 
     // Warn about missing optional but important vars
     if (!process.env.GHOST_API_URL || !process.env.GHOST_API_KEY) {
-        console.warn('⚠️  WARNING: GHOST_API_URL or GHOST_API_KEY not set. Ghost CMS features will be disabled.');
+        console.warn(
+            '⚠️  WARNING: GHOST_API_URL or GHOST_API_KEY not set. Ghost CMS features will be disabled.'
+        );
     }
 }
 

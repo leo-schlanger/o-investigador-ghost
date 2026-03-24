@@ -317,9 +317,7 @@ describe('BrevoService', () => {
 
         describe('syncGhostMembers', () => {
             it('should sync ghost members (mock response if not configured)', async () => {
-                const ghostMembers = [
-                    { email: 'member1@test.com', name: 'Member 1' }
-                ];
+                const ghostMembers = [{ email: 'member1@test.com', name: 'Member 1' }];
                 const result = await brevoService.syncGhostMembers(ghostMembers, 1);
 
                 expect(result).toHaveProperty('success');

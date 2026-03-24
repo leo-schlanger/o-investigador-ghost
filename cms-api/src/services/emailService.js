@@ -3,12 +3,14 @@
  * Handles sending contact form emails
  */
 
+const logger = require('../utils/logger');
+
 // Check if SendGrid is available (optional dependency)
 let sgMail = null;
 try {
     sgMail = require('@sendgrid/mail');
 } catch (e) {
-    console.warn('SendGrid not installed. Email features will be disabled.');
+    logger.warn('SendGrid not installed. Email features will be disabled.');
 }
 
 /**
@@ -44,7 +46,9 @@ function getContactEmail() {
  * SendGrid requires verified sender
  */
 function getSenderEmail() {
-    return process.env.SENDGRID_FROM_EMAIL || process.env.CONTACT_EMAIL || 'noreply@oinvestigador.com';
+    return (
+        process.env.SENDGRID_FROM_EMAIL || process.env.CONTACT_EMAIL || 'noreply@oinvestigador.com'
+    );
 }
 
 /**
@@ -155,7 +159,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
 /**
@@ -222,7 +226,7 @@ async function sendContactEmail({ name, email, subject, message }) {
         if (error.response) {
             const { body } = error.response;
             if (body && body.errors && body.errors.length > 0) {
-                errorMessage = body.errors.map(e => e.message).join(', ');
+                errorMessage = body.errors.map((e) => e.message).join(', ');
             }
         }
 

@@ -1,0 +1,232 @@
+paths:
+  /api/articles:
+    get:
+      tags:
+        - Articles
+      summary: List articles
+      description: Get paginated list of articles with optional filters
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [all, draft, published, scheduled]
+            default: all
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search in title
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 15
+            maximum: 100
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [cronica, reportagem, opiniao]
+          description: Filter by article type
+      responses:
+        '200':
+          description: List of articles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        type: object
+                        properties:
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          pages:
+                            type: integer
+                          total:
+                            type: integer
+
+    post:
+      tags:
+        - Articles
+      summary: Create article
+      description: Create a new article in Ghost CMS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                slug:
+                  type: string
+                  maxLength: 191
+                html:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, published, scheduled]
+                  default: draft
+                visibility:
+                  type: string
+                  enum: [public, members, paid]
+                  default: public
+                feature_image:
+                  type: string
+                published_at:
+                  type: string
+                  format: date-time
+                tags:
+                  type: array
+                  items:
+                    type: string
+                authors:
+                  type: array
+                  items:
+                    type: string
+                type:
+                  type: string
+                  enum: [cronica, reportagem, opiniao]
+      responses:
+        '201':
+          description: Article created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          description: Validation error
+
+  /api/articles/{id}:
+    get:
+      tags:
+        - Articles
+      summary: Get article
+      description: Get a single article by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Article details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          description: Article not found
+
+    put:
+      tags:
+        - Articles
+      summary: Update article
+      description: Update an existing article
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                html:
+                  type: string
+                status:
+                  type: string
+                updated_at:
+                  type: string
+                  format: date-time
+                  description: Required for conflict detection
+      responses:
+        '200':
+          description: Article updated
+        '404':
+          description: Article not found
+        '409':
+          description: Update conflict - article was modified by another user
+
+    delete:
+      tags:
+        - Articles
+      summary: Delete article
+      description: Delete an article by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Article deleted
+        '404':
+          description: Article not found
+
+  /api/articles/types:
+    get:
+      tags:
+        - Articles
+      summary: Get article types
+      description: Return available article types (Cronica, Reportagem, Opiniao)
+      responses:
+        '200':
+          description: List of article types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    value:
+                      type: string
+                    label:
+                      type: string
+                    color:
+                      type: string
+
+  /api/articles/{id}/revisions:
+    get:
+      tags:
+        - Articles
+      summary: Get article revisions
+      description: Get revision history for an article
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of revisions

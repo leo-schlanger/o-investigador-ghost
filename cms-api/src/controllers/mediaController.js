@@ -1,7 +1,14 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { Media, MediaFolder, MediaTag, MediaTagAssignment, sequelize, Sequelize } = require('../models');
+const {
+    Media,
+    MediaFolder,
+    MediaTag,
+    MediaTagAssignment,
+    sequelize,
+    Sequelize
+} = require('../models');
 const { Op } = Sequelize;
 
 // Ensure uploads directory exists
@@ -15,7 +22,7 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
@@ -119,7 +126,10 @@ exports.listMedia = async (req, res) => {
 
         // Filter by tags (comma-separated tag IDs)
         if (tags && tags.trim()) {
-            const tagIds = tags.split(',').map(t => t.trim()).filter(Boolean);
+            const tagIds = tags
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean);
             if (tagIds.length > 0) {
                 // Find media that has ALL specified tags
                 const mediaIdsWithTags = await MediaTagAssignment.findAll({
@@ -129,7 +139,7 @@ exports.listMedia = async (req, res) => {
                     having: sequelize.literal(`COUNT(DISTINCT tagId) = ${tagIds.length}`)
                 });
 
-                const mediaIds = mediaIdsWithTags.map(m => m.mediaId);
+                const mediaIds = mediaIdsWithTags.map((m) => m.mediaId);
                 where.id = { [Op.in]: mediaIds };
             }
         }
@@ -203,7 +213,7 @@ exports.updateMedia = async (req, res) => {
 
             // Create new assignments
             if (Array.isArray(tagIds) && tagIds.length > 0) {
-                const assignments = tagIds.map(tagId => ({
+                const assignments = tagIds.map((tagId) => ({
                     mediaId: id,
                     tagId
                 }));

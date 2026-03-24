@@ -1,4 +1,5 @@
 const ghostApi = require('../services/ghostApi');
+const logger = require('../utils/logger');
 
 /**
  * List pages from Ghost
@@ -23,7 +24,7 @@ exports.list = async (req, res) => {
             meta: result.meta
         });
     } catch (err) {
-        console.error('Error listing pages:', err);
+        logger.error('Error listing pages:', err);
         res.status(500).json({ error: err.message });
     }
 };
@@ -39,7 +40,7 @@ exports.get = async (req, res) => {
         const transformed = ghostApi.transformGhostPost(page);
         res.json(transformed);
     } catch (err) {
-        console.error('Error getting page:', err);
+        logger.error('Error getting page:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Page not found' });
         }
@@ -64,7 +65,7 @@ exports.create = async (req, res) => {
 
         res.status(201).json(transformed);
     } catch (err) {
-        console.error('Error creating page:', err);
+        logger.error('Error creating page:', err);
         res.status(400).json({ error: err.message });
     }
 };
@@ -83,7 +84,7 @@ exports.update = async (req, res) => {
 
         res.json(transformed);
     } catch (err) {
-        console.error('Error updating page:', err);
+        logger.error('Error updating page:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Page not found' });
         }
@@ -101,7 +102,7 @@ exports.delete = async (req, res) => {
         await ghostApi.deletePage(id);
         res.json({ message: 'Page deleted successfully' });
     } catch (err) {
-        console.error('Error deleting page:', err);
+        logger.error('Error deleting page:', err);
         if (err.message && err.message.includes('not found')) {
             return res.status(404).json({ error: 'Page not found' });
         }

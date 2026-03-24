@@ -5,50 +5,33 @@
 
 const Joi = require('joi');
 const emailService = require('../services/emailService');
+const logger = require('../utils/logger');
 
 // Validation schema for contact form
 const contactSchema = Joi.object({
-    name: Joi.string()
-        .min(2)
-        .max(100)
-        .required()
-        .messages({
-            'string.min': 'Nome deve ter pelo menos 2 caracteres',
-            'string.max': 'Nome deve ter no maximo 100 caracteres',
-            'any.required': 'Nome e obrigatorio'
-        }),
-    email: Joi.string()
-        .email()
-        .required()
-        .messages({
-            'string.email': 'Email invalido',
-            'any.required': 'Email e obrigatorio'
-        }),
-    subject: Joi.string()
-        .min(3)
-        .max(200)
-        .required()
-        .messages({
-            'string.min': 'Assunto deve ter pelo menos 3 caracteres',
-            'string.max': 'Assunto deve ter no maximo 200 caracteres',
-            'any.required': 'Assunto e obrigatorio'
-        }),
-    message: Joi.string()
-        .min(10)
-        .max(5000)
-        .required()
-        .messages({
-            'string.min': 'Mensagem deve ter pelo menos 10 caracteres',
-            'string.max': 'Mensagem deve ter no maximo 5000 caracteres',
-            'any.required': 'Mensagem e obrigatoria'
-        }),
+    name: Joi.string().min(2).max(100).required().messages({
+        'string.min': 'Nome deve ter pelo menos 2 caracteres',
+        'string.max': 'Nome deve ter no maximo 100 caracteres',
+        'any.required': 'Nome e obrigatorio'
+    }),
+    email: Joi.string().email().required().messages({
+        'string.email': 'Email invalido',
+        'any.required': 'Email e obrigatorio'
+    }),
+    subject: Joi.string().min(3).max(200).required().messages({
+        'string.min': 'Assunto deve ter pelo menos 3 caracteres',
+        'string.max': 'Assunto deve ter no maximo 200 caracteres',
+        'any.required': 'Assunto e obrigatorio'
+    }),
+    message: Joi.string().min(10).max(5000).required().messages({
+        'string.min': 'Mensagem deve ter pelo menos 10 caracteres',
+        'string.max': 'Mensagem deve ter no maximo 5000 caracteres',
+        'any.required': 'Mensagem e obrigatoria'
+    }),
     // Honeypot field - should be empty
-    website: Joi.string()
-        .allow('')
-        .max(0)
-        .messages({
-            'string.max': 'Invalid submission'
-        })
+    website: Joi.string().allow('').max(0).messages({
+        'string.max': 'Invalid submission'
+    })
 });
 
 /**
@@ -63,7 +46,7 @@ async function submitContact(req, res) {
         });
 
         if (error) {
-            const errors = error.details.map(d => ({
+            const errors = error.details.map((d) => ({
                 field: d.path[0],
                 message: d.message
             }));
@@ -95,7 +78,7 @@ async function submitContact(req, res) {
         });
 
         if (!result.success) {
-            console.error('Email send failed:', result.error);
+            logger.error('Email send failed:', result.error);
 
             // Check if it's a configuration issue
             const status = emailService.getEmailServiceStatus();
@@ -123,9 +106,8 @@ async function submitContact(req, res) {
             message: 'Mensagem enviada com sucesso! Responderemos em breve.',
             messageId: result.messageId
         });
-
     } catch (err) {
-        console.error('Contact submission error:', err);
+        logger.error('Contact submission error:', err);
         res.status(500).json({
             success: false,
             error: 'Erro interno. Tente novamente mais tarde.'

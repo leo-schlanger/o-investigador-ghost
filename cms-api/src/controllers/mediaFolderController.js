@@ -3,8 +3,8 @@ const { MediaFolder, Media } = require('../models');
 // Build a tree structure from flat folder list
 const buildTree = (folders, parentId = null) => {
     return folders
-        .filter(f => f.parentId === parentId)
-        .map(folder => ({
+        .filter((f) => f.parentId === parentId)
+        .map((folder) => ({
             ...folder.toJSON(),
             children: buildTree(folders, folder.id)
         }));
@@ -17,15 +17,17 @@ exports.listFolders = async (req, res) => {
 
         const folders = await MediaFolder.findAll({
             order: [['name', 'ASC']],
-            include: [{
-                model: Media,
-                as: 'media',
-                attributes: ['id']
-            }]
+            include: [
+                {
+                    model: Media,
+                    as: 'media',
+                    attributes: ['id']
+                }
+            ]
         });
 
         // Add media count to each folder
-        const foldersWithCount = folders.map(f => ({
+        const foldersWithCount = folders.map((f) => ({
             ...f.toJSON(),
             mediaCount: f.media ? f.media.length : 0,
             media: undefined // Remove media array, keep only count
@@ -47,10 +49,12 @@ exports.listFolders = async (req, res) => {
 // Helper to add media count to tree
 const buildTreeWithCount = (tree, flatWithCount) => {
     const countMap = {};
-    flatWithCount.forEach(f => { countMap[f.id] = f.mediaCount; });
+    flatWithCount.forEach((f) => {
+        countMap[f.id] = f.mediaCount;
+    });
 
     const addCount = (nodes) => {
-        return nodes.map(node => ({
+        return nodes.map((node) => ({
             ...node,
             mediaCount: countMap[node.id] || 0,
             children: addCount(node.children || [])
@@ -121,7 +125,9 @@ exports.updateFolder = async (req, res) => {
                 // Check if the new parent is a descendant of this folder
                 const isDescendant = await checkIsDescendant(parentId, id);
                 if (isDescendant) {
-                    return res.status(400).json({ error: 'Nao pode mover pasta para dentro de um descendente' });
+                    return res
+                        .status(400)
+                        .json({ error: 'Nao pode mover pasta para dentro de um descendente' });
                 }
             }
 
@@ -155,16 +161,10 @@ exports.deleteFolder = async (req, res) => {
         }
 
         // Move all media to parent folder (or root if no parent)
-        await Media.update(
-            { folderId: folder.parentId },
-            { where: { folderId: id } }
-        );
+        await Media.update({ folderId: folder.parentId }, { where: { folderId: id } });
 
         // Move all child folders to parent folder
-        await MediaFolder.update(
-            { parentId: folder.parentId },
-            { where: { parentId: id } }
-        );
+        await MediaFolder.update({ parentId: folder.parentId }, { where: { parentId: id } });
 
         await folder.destroy();
         res.json({ message: 'Pasta eliminada' });

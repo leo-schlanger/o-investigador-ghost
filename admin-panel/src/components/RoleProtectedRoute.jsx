@@ -3,22 +3,22 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RoleProtectedRoute = ({ allowedRoles }) => {
-    const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
-    if (loading) {
-        return <div className="flex h-screen items-center justify-center">Carregando...</div>;
-    }
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+  }
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-    if (!allowedRoles.includes(user.role)) {
-        // Redirect to dashboard if they don't have permission for this route
-        return <Navigate to="/" replace />;
-    }
+  if (!allowedRoles.includes(user.role)) {
+    // Redirect to dashboard if they don't have permission for this route
+    return <Navigate to="/" replace />;
+  }
 
-    return <Outlet />;
+  return <Outlet />;
 };
 
 export default RoleProtectedRoute;

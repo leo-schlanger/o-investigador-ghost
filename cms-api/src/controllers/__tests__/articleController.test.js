@@ -8,7 +8,7 @@ jest.mock('../../services/ghostApi', () => ({
     listTags: jest.fn(),
     listAuthors: jest.fn(),
     createTag: jest.fn(),
-    transformGhostPost: jest.fn(post => ({
+    transformGhostPost: jest.fn((post) => ({
         id: post.id,
         title: post.title,
         slug: post.slug,
@@ -20,8 +20,10 @@ jest.mock('../../services/ghostApi', () => ({
         reportagem: { name: '#Reportagem', slug: 'hash-reportagem', label: 'Reportagem' },
         opiniao: { name: '#Opiniao', slug: 'hash-opiniao', label: 'Opiniao' }
     },
-    getArticleTypeTag: jest.fn(type => ({ name: `#${type.charAt(0).toUpperCase() + type.slice(1)}` })),
-    removeTypeTags: jest.fn(tags => tags.filter(t => !t.startsWith('#')))
+    getArticleTypeTag: jest.fn((type) => ({
+        name: `#${type.charAt(0).toUpperCase() + type.slice(1)}`
+    })),
+    removeTypeTags: jest.fn((tags) => tags.filter((t) => !t.startsWith('#')))
 }));
 
 jest.mock('../../models', () => ({
@@ -175,7 +177,12 @@ describe('articleController', () => {
     describe('create', () => {
         it('should create an article successfully', async () => {
             req.body = { title: 'New Article', status: 'draft' };
-            const mockPost = { id: 'new123', title: 'New Article', slug: 'new-article', status: 'draft' };
+            const mockPost = {
+                id: 'new123',
+                title: 'New Article',
+                slug: 'new-article',
+                status: 'draft'
+            };
 
             ghostApi.createPost.mockResolvedValue(mockPost);
 
@@ -209,7 +216,9 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Title must be less than 255 characters' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Title must be less than 255 characters'
+            });
         });
 
         it('should return 400 if slug is too long', async () => {
@@ -218,7 +227,9 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Slug must be less than 191 characters' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Slug must be less than 191 characters'
+            });
         });
 
         it('should return 400 for invalid status', async () => {
@@ -227,7 +238,9 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid status. Must be: draft, published, or scheduled' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Invalid status. Must be: draft, published, or scheduled'
+            });
         });
 
         it('should return 400 if scheduled without publish date', async () => {
@@ -236,7 +249,9 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Scheduled posts require a publish date' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Scheduled posts require a publish date'
+            });
         });
 
         it('should return 400 for invalid visibility', async () => {
@@ -245,7 +260,9 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid visibility. Must be: public, members, or paid' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Invalid visibility. Must be: public, members, or paid'
+            });
         });
 
         it('should return 400 for invalid article type', async () => {
@@ -254,12 +271,19 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid article type. Must be: cronica, reportagem, or opiniao' });
+            expect(res.json).toHaveBeenCalledWith({
+                error: 'Invalid article type. Must be: cronica, reportagem, or opiniao'
+            });
         });
 
         it('should add article type tag when specified', async () => {
             req.body = { title: 'Test', article_type: 'cronica' };
-            ghostApi.createPost.mockResolvedValue({ id: '1', title: 'Test', slug: 'test', status: 'draft' });
+            ghostApi.createPost.mockResolvedValue({
+                id: '1',
+                title: 'Test',
+                slug: 'test',
+                status: 'draft'
+            });
 
             await articleController.create(req, res);
 
@@ -288,7 +312,12 @@ describe('articleController', () => {
 
         it('should update an article successfully', async () => {
             req.body = { title: 'Updated Title' };
-            const mockPost = { id: 'abc123', title: 'Updated Title', slug: 'test', status: 'draft' };
+            const mockPost = {
+                id: 'abc123',
+                title: 'Updated Title',
+                slug: 'test',
+                status: 'draft'
+            };
 
             ghostApi.getPost.mockResolvedValue(mockPost);
             ghostApi.updatePost.mockResolvedValue(mockPost);
@@ -330,7 +359,12 @@ describe('articleController', () => {
 
         it('should save revision before updating', async () => {
             req.body = { title: 'Updated' };
-            const currentPost = { id: 'abc123', title: 'Original', html: '<p>Content</p>', status: 'draft' };
+            const currentPost = {
+                id: 'abc123',
+                title: 'Original',
+                html: '<p>Content</p>',
+                status: 'draft'
+            };
 
             ghostApi.getPost.mockResolvedValue(currentPost);
             ghostApi.updatePost.mockResolvedValue({ ...currentPost, title: 'Updated' });
@@ -381,7 +415,13 @@ describe('articleController', () => {
     describe('getTags', () => {
         it('should return all tags', async () => {
             const mockTags = [
-                { id: '1', name: 'News', slug: 'news', description: 'News articles', count: { posts: 10 } },
+                {
+                    id: '1',
+                    name: 'News',
+                    slug: 'news',
+                    description: 'News articles',
+                    count: { posts: 10 }
+                },
                 { id: '2', name: 'Sports', slug: 'sports', description: null, count: { posts: 5 } }
             ];
 
@@ -407,7 +447,13 @@ describe('articleController', () => {
     describe('getAuthors', () => {
         it('should return all authors', async () => {
             const mockAuthors = [
-                { id: '1', name: 'John Doe', slug: 'john', email: 'john@test.com', profile_image: 'img.jpg' }
+                {
+                    id: '1',
+                    name: 'John Doe',
+                    slug: 'john',
+                    email: 'john@test.com',
+                    profile_image: 'img.jpg'
+                }
             ];
 
             ghostApi.listAuthors.mockResolvedValue(mockAuthors);
@@ -415,7 +461,13 @@ describe('articleController', () => {
             await articleController.getAuthors(req, res);
 
             expect(res.json).toHaveBeenCalledWith([
-                { id: '1', name: 'John Doe', slug: 'john', email: 'john@test.com', profile_image: 'img.jpg' }
+                {
+                    id: '1',
+                    name: 'John Doe',
+                    slug: 'john',
+                    email: 'john@test.com',
+                    profile_image: 'img.jpg'
+                }
             ]);
         });
 
@@ -433,8 +485,18 @@ describe('articleController', () => {
             await articleController.getTypes(req, res);
 
             expect(res.json).toHaveBeenCalledWith([
-                { value: 'cronica', label: 'Cronica', tagName: '#Cronica', tagSlug: 'hash-cronica' },
-                { value: 'reportagem', label: 'Reportagem', tagName: '#Reportagem', tagSlug: 'hash-reportagem' },
+                {
+                    value: 'cronica',
+                    label: 'Cronica',
+                    tagName: '#Cronica',
+                    tagSlug: 'hash-cronica'
+                },
+                {
+                    value: 'reportagem',
+                    label: 'Reportagem',
+                    tagName: '#Reportagem',
+                    tagSlug: 'hash-reportagem'
+                },
                 { value: 'opiniao', label: 'Opiniao', tagName: '#Opiniao', tagSlug: 'hash-opiniao' }
             ]);
         });
@@ -470,9 +532,7 @@ describe('articleController', () => {
             expect(ghostApi.createTag).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    results: expect.arrayContaining([
-                        expect.objectContaining({ status: 'exists' })
-                    ])
+                    results: expect.arrayContaining([expect.objectContaining({ status: 'exists' })])
                 })
             );
         });
@@ -482,8 +542,22 @@ describe('articleController', () => {
         it('should return revisions for an article', async () => {
             req.params = { id: 'abc123' };
             const mockRevisions = [
-                { id: 1, revisionNumber: 2, title: 'V2', userName: 'User', status: 'draft', createdAt: new Date() },
-                { id: 2, revisionNumber: 1, title: 'V1', userName: 'User', status: 'draft', createdAt: new Date() }
+                {
+                    id: 1,
+                    revisionNumber: 2,
+                    title: 'V2',
+                    userName: 'User',
+                    status: 'draft',
+                    createdAt: new Date()
+                },
+                {
+                    id: 2,
+                    revisionNumber: 1,
+                    title: 'V1',
+                    userName: 'User',
+                    status: 'draft',
+                    createdAt: new Date()
+                }
             ];
 
             ArticleRevision.findAll.mockResolvedValue(mockRevisions);
@@ -511,7 +585,12 @@ describe('articleController', () => {
     describe('getRevision', () => {
         it('should return a specific revision', async () => {
             req.params = { id: 'abc123', revisionId: '1' };
-            const mockRevision = { id: 1, articleId: 'abc123', title: 'Test', content: '<p>Test</p>' };
+            const mockRevision = {
+                id: 1,
+                articleId: 'abc123',
+                title: 'Test',
+                content: '<p>Test</p>'
+            };
 
             ArticleRevision.findOne.mockResolvedValue(mockRevision);
 
@@ -545,8 +624,18 @@ describe('articleController', () => {
                 excerpt: 'Old excerpt',
                 featureImage: 'old.jpg'
             };
-            const currentPost = { id: 'abc123', title: 'Current', html: '<p>Current</p>', status: 'draft' };
-            const restoredPost = { id: 'abc123', title: 'Old Title', slug: 'test', status: 'draft' };
+            const currentPost = {
+                id: 'abc123',
+                title: 'Current',
+                html: '<p>Current</p>',
+                status: 'draft'
+            };
+            const restoredPost = {
+                id: 'abc123',
+                title: 'Old Title',
+                slug: 'test',
+                status: 'draft'
+            };
 
             ArticleRevision.findOne
                 .mockResolvedValueOnce(mockRevision) // For initial check
