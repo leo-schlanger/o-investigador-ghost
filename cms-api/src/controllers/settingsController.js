@@ -1,4 +1,5 @@
 const { Settings } = require('../models');
+const cacheService = require('../services/cacheService');
 
 // Whitelist of allowed settings keys
 const ALLOWED_SETTINGS = {
@@ -68,13 +69,19 @@ const validateSetting = (key, value) => {
 
 exports.getSettings = async (req, res) => {
     try {
-        const settings = await Settings.findAll();
-
-        // Convert array to object for easier frontend consumption
-        const settingsObject = {};
-        settings.forEach((setting) => {
-            settingsObject[setting.key] = setting.value;
-        });
+        // Try to get from cache first
+        const settingsObject = await cacheService.wrap(
+            cacheService.keys.settings(),
+            async () => {
+                const settings = await Settings.findAll();
+                const obj = {};
+                settings.forEach((setting) => {
+                    obj[setting.key] = setting.value;
+                });
+                return obj;
+            },
+            cacheService.TTL.SETTINGS
+        );
 
         res.json(settingsObject);
     } catch (err) {
@@ -115,6 +122,9 @@ exports.updateSettings = async (req, res) => {
         });
 
         await Promise.all(promises);
+
+        // Invalidate cache
+        await cacheService.del(cacheService.keys.settings());
 
         // Return updated settings
         const settings = await Settings.findAll();

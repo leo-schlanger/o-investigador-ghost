@@ -54,6 +54,20 @@ services:
     networks:
       - o-investigador-network
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
   # Custom API (Node.js)
   api:
     build:
@@ -65,6 +79,8 @@ services:
       mysql:
         condition: service_healthy
       ghost:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       NODE_ENV: production
@@ -83,6 +99,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CORS_ORIGIN: https://jornalinvestigador.pt,https://admin.jornalinvestigador.pt
       PUBLIC_API_URL: https://api.jornalinvestigador.pt
+      REDIS_URL: redis://redis:6379
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
     volumes:
@@ -132,6 +149,7 @@ volumes:
   mysql_data:
   ghost_content:
   api_uploads:
+  redis_data:
 
 networks:
   o-investigador-network:

@@ -20,6 +20,7 @@ const { sequelize } = require('./src/models');
 const routes = require('./src/routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./src/config/swagger');
+const cacheService = require('./src/services/cacheService');
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
@@ -104,6 +105,9 @@ sequelize
     .then(async () => {
         logger.info('Database synced');
 
+        // Initialize Redis cache
+        cacheService.initRedis();
+
         // Run migrations
         try {
             const avatarMigration = require('./src/migrations/001_add_avatar_to_users');
@@ -118,6 +122,16 @@ sequelize
         } catch (migrationError) {
             logger.warn('Migration warning', {
                 migration: 'media_folders_tags',
+                error: migrationError.message
+            });
+        }
+
+        try {
+            const indexMigration = require('./src/migrations/003_add_performance_indexes');
+            await indexMigration.up();
+        } catch (migrationError) {
+            logger.warn('Migration warning', {
+                migration: 'performance_indexes',
                 error: migrationError.message
             });
         }
