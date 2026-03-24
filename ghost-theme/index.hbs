@@ -77,12 +77,29 @@
 <div class="container-custom pt-3 sm:pt-4 md:pt-6 pb-6 sm:pb-8 md:pb-12 overflow-hidden">
 
     {{!-- Last Update Timestamp --}}
-    <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-500 mb-2 sm:mb-3">
-        <span class="inline-flex items-center gap-1.5 bg-neutral-100 px-2 py-0.5 rounded">
-            <span class="text-neutral-400">|</span>
-            Atualizado: {{date format="D MMM YYYY, HH:mm"}}
+    <div class="flex items-center justify-end text-[10px] sm:text-xs text-neutral-500 mb-3 sm:mb-4">
+        <span id="last-update-container" class="inline-flex items-center gap-2 bg-neutral-50 border border-neutral-200 px-3 py-1.5 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span class="text-neutral-400">Atualizado:</span>
+            <span id="last-update-time" class="font-medium text-neutral-600"></span>
         </span>
     </div>
+    <script>
+    (function() {
+        var mesesAbrev = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        var agora = new Date();
+        var dia = agora.getDate();
+        var mes = mesesAbrev[agora.getMonth()];
+        var ano = agora.getFullYear();
+        var hora = agora.getHours().toString().padStart(2, '0');
+        var minuto = agora.getMinutes().toString().padStart(2, '0');
+        var el = document.getElementById('last-update-time');
+        if (el) el.textContent = dia + ' ' + mes + ' ' + ano + ', ' + hora + ':' + minuto;
+    })();
+    </script>
 
     {{!-- TOP AD: Leaderboard --}}
     {{> ad-slot type="leaderboard" label="Publicidade" slotId="header_leaderboard"}}
