@@ -6,6 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 // Tags, Authors and Types routes (must be before /:id to avoid conflict)
 router.get('/tags', protect, articleController.getTags);
 router.get('/authors', protect, articleController.getAuthors);
+router.get('/authors/sync-status', protect, articleController.getAuthorSyncStatus);
 router.get('/types', protect, articleController.getTypes);
 router.post('/types/init', protect, articleController.initTypes);
 

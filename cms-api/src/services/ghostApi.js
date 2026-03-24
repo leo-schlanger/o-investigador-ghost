@@ -212,6 +212,28 @@ exports.listAuthors = async () => {
 };
 
 /**
+ * Find a Ghost author by email
+ * @param {string} email - Email to search for
+ * @returns {Promise<Object|null>} - Author object or null if not found
+ */
+exports.findAuthorByEmail = async (email) => {
+    if (!ghostApi || !email) {
+        return null;
+    }
+
+    try {
+        const authors = await ghostApi.users.browse({ limit: 'all' });
+        const author = authors.find(
+            (a) => a.email && a.email.toLowerCase() === email.toLowerCase()
+        );
+        return author || null;
+    } catch (err) {
+        console.error('Error finding author by email:', err);
+        return null;
+    }
+};
+
+/**
  * Build Ghost API payload from frontend data
  * @param {Object} data - Frontend data
  * @returns {Object} - Ghost API payload

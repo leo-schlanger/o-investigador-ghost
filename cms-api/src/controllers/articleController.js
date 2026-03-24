@@ -1,5 +1,10 @@
 const ghostApi = require('../services/ghostApi');
-const { ARTICLE_TYPES, getArticleTypeTag, removeTypeTags } = require('../services/ghostApi');
+const {
+    ARTICLE_TYPES,
+    getArticleTypeTag,
+    removeTypeTags,
+    findAuthorByEmail
+} = require('../services/ghostApi');
 const { ArticleRevision } = require('../models');
 const logger = require('../utils/logger');
 
@@ -176,10 +181,28 @@ exports.create = async (req, res) => {
             });
         }
 
-        // Only admin can set authors - remove if not admin
+        // Handle author assignment
         if (data.authors && req.user?.role !== 'admin') {
+            // Non-admin cannot set custom authors
             delete data.authors;
             logger.warn('Non-admin user attempted to set authors', { userId: req.user?.id });
+        }
+
+        // Auto-assign author based on logged-in user's email if no authors specified
+        if (!data.authors && req.user?.email) {
+            const ghostAuthor = await findAuthorByEmail(req.user.email);
+            if (ghostAuthor) {
+                data.authors = [{ id: ghostAuthor.id, email: ghostAuthor.email }];
+                logger.info('Auto-assigned author from user email', {
+                    userId: req.user.id,
+                    ghostAuthorId: ghostAuthor.id
+                });
+            } else {
+                logger.warn('No matching Ghost author found for user', {
+                    userId: req.user.id,
+                    email: req.user.email
+                });
+            }
         }
 
         // Process article type (add tag)
@@ -365,6 +388,68 @@ exports.getAuthors = async (req, res) => {
         );
     } catch (err) {
         logger.error('Error getting authors:', err);
+        res.status(500).json({ error: extractErrorMessage(err) });
+    }
+};
+
+/**
+ * Check sync status between local users and Ghost authors
+ * GET /api/articles/authors/sync-status
+ * Admin only - shows which users need to be created in Ghost
+ */
+exports.getAuthorSyncStatus = async (req, res) => {
+    try {
+        const { User } = require('../models');
+
+        // Get all local users
+        const localUsers = await User.findAll({
+            attributes: ['id', 'name', 'email', 'role']
+        });
+
+        // Get all Ghost authors
+        const ghostAuthors = await ghostApi.listAuthors();
+        const ghostEmails = ghostAuthors.map((a) => a.email?.toLowerCase()).filter(Boolean);
+
+        // Find users without Ghost accounts
+        const syncStatus = localUsers.map((user) => {
+            const ghostAuthor = ghostAuthors.find(
+                (a) => a.email?.toLowerCase() === user.email.toLowerCase()
+            );
+
+            return {
+                localUser: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                },
+                ghostAuthor: ghostAuthor
+                    ? {
+                          id: ghostAuthor.id,
+                          name: ghostAuthor.name,
+                          email: ghostAuthor.email,
+                          slug: ghostAuthor.slug
+                      }
+                    : null,
+                synced: !!ghostAuthor
+            };
+        });
+
+        const unsynced = syncStatus.filter((s) => !s.synced);
+        const synced = syncStatus.filter((s) => s.synced);
+
+        res.json({
+            total: syncStatus.length,
+            synced: synced.length,
+            unsynced: unsynced.length,
+            users: syncStatus,
+            message:
+                unsynced.length > 0
+                    ? `${unsynced.length} user(s) need to be added as staff in Ghost CMS`
+                    : 'All users are synced with Ghost'
+        });
+    } catch (err) {
+        logger.error('Error checking author sync status:', err);
         res.status(500).json({ error: extractErrorMessage(err) });
     }
 };
