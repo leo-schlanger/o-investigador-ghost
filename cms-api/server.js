@@ -13,6 +13,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { csrfProtection } = require('./src/middleware/csrfMiddleware');
 const { sequelize } = require('./src/models');
 const routes = require('./src/routes');
 
@@ -32,7 +33,8 @@ const allowedOrigins = process.env.CORS_ORIGIN
 
 app.use(cors({
     origin: allowedOrigins,
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Trust proxy (nginx) - required for rate limiting behind reverse proxy
@@ -60,6 +62,9 @@ app.use('/api/', generalLimiter);
 app.use('/api/auth/login', authLimiter);
 
 app.use(express.json({ limit: '10mb' }));
+
+// CSRF Protection for state-changing operations
+app.use(csrfProtection);
 
 // Serve uploaded files statically
 const path = require('path');
