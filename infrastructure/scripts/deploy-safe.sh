@@ -10,7 +10,8 @@
 set -e
 
 COMPOSE_FILE="docker-compose.prod.yml"
-APP_SERVICES="ghost api admin nginx"
+APP_SERVICES="ghost api admin"
+INFRA_SERVICES="redis loki promtail grafana nginx"
 
 echo "=============================================="
 echo "  O Investigador - Safe Deploy"
@@ -101,23 +102,39 @@ docker compose -f $COMPOSE_FILE build --no-cache $APP_SERVICES
 log_info "Images built successfully!"
 
 # -----------------------------------------------------------------------------
-# 4. Stop and recreate application services (NOT mysql)
+# 4. Ensure infrastructure services are running (redis, monitoring)
+# -----------------------------------------------------------------------------
+log_info "Ensuring infrastructure services are running..."
+
+# Start infra services (these use official images, no build needed)
+docker compose -f $COMPOSE_FILE up -d redis loki
+sleep 5
+docker compose -f $COMPOSE_FILE up -d promtail grafana
+
+log_info "Infrastructure services ready!"
+
+# -----------------------------------------------------------------------------
+# 5. Stop and recreate application services (NOT mysql)
 # -----------------------------------------------------------------------------
 log_info "Updating application services..."
 
 # Stop app services gracefully
-docker compose -f $COMPOSE_FILE stop $APP_SERVICES
+docker compose -f $COMPOSE_FILE stop $APP_SERVICES nginx
 
 # Remove old containers (not volumes!)
-docker compose -f $COMPOSE_FILE rm -f $APP_SERVICES
+docker compose -f $COMPOSE_FILE rm -f $APP_SERVICES nginx
 
 # Start services with new images
 docker compose -f $COMPOSE_FILE up -d $APP_SERVICES
 
+# Wait for app services before starting nginx
+sleep 5
+docker compose -f $COMPOSE_FILE up -d nginx
+
 log_info "Application services updated!"
 
 # -----------------------------------------------------------------------------
-# 5. Wait for services to be healthy
+# 6. Wait for services to be healthy
 # -----------------------------------------------------------------------------
 log_info "Waiting for services to be healthy..."
 
@@ -146,14 +163,14 @@ check_service "API" "http://localhost:3001/health" || true
 check_service "Ghost" "http://localhost:2368/ghost/api/admin/site/" || true
 
 # -----------------------------------------------------------------------------
-# 6. Cleanup old images
+# 7. Cleanup old images
 # -----------------------------------------------------------------------------
 log_info "Cleaning up old images..."
 
 docker image prune -f > /dev/null 2>&1 || true
 
 # -----------------------------------------------------------------------------
-# 7. Show status
+# 8. Show status
 # -----------------------------------------------------------------------------
 echo ""
 echo "=============================================="
