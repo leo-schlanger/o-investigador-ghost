@@ -145,11 +145,76 @@ services:
     networks:
       - o-investigador-network
 
+  # ========================================
+  # MONITORING STACK (Grafana + Loki + Promtail)
+  # ========================================
+
+  # Loki - Log aggregation system
+  loki:
+    image: grafana/loki:2.9.0
+    restart: always
+    volumes:
+      - ./infrastructure/monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
+  # Promtail - Log collector (reads Docker container logs)
+  promtail:
+    image: grafana/promtail:2.9.0
+    restart: always
+    depends_on:
+      loki:
+        condition: service_healthy
+    volumes:
+      - ./infrastructure/monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - o-investigador-network
+
+  # Grafana - Visualization and dashboards
+  grafana:
+    image: grafana/grafana:10.2.0
+    restart: always
+    depends_on:
+      loki:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: https://admin.jornalinvestigador.pt/grafana/
+      GF_SERVER_DOMAIN: admin.jornalinvestigador.pt
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3002:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - o-investigador-network
+
 volumes:
   mysql_data:
   ghost_content:
   api_uploads:
   redis_data:
+  loki_data:
+  grafana_data:
 
 networks:
   o-investigador-network:

@@ -13,6 +13,7 @@
 - **Admin Panel:** https://admin.jornalinvestigador.pt
 - **API:** https://api.jornalinvestigador.pt
 - **Ghost Admin:** https://jornalinvestigador.pt/ghost
+- **Logs (Grafana):** https://admin.jornalinvestigador.pt/grafana/
 
 ## Deploy
 - **AUTOMÁTICO via GitHub Actions** - NÃO fazer build manual no servidor
@@ -36,6 +37,7 @@ docs/               → Documentação
 - Arquivo `.env` na raiz
 - `GHOST_API_KEY` - Content API key do Ghost
 - `GHOST_ADMIN_API_KEY` - Admin API key do Ghost (formato: id:secret)
+- `GRAFANA_ADMIN_PASSWORD` - Senha do admin do Grafana
 - Variáveis `VITE_*` são injetadas no build time do admin panel
 
 ## Tipos de Artigo
@@ -110,6 +112,40 @@ Organização avançada de ficheiros com pastas e tags:
 - `MediaTag` - Tags com nome e slug únicos
 - `MediaTagAssignment` - Relação N:N entre Media e Tags
 - `Media` - Campo folderId adicionado
+
+## Monitoring (Grafana + Loki + Promtail)
+
+Sistema de monitoramento centralizado de logs para todos os containers.
+
+**Stack:**
+- **Loki** - Agregação e armazenamento de logs (30 dias de retenção)
+- **Promtail** - Coleta logs de todos os containers Docker automaticamente
+- **Grafana** - Visualização e dashboards
+
+**Acesso:**
+- URL: https://admin.jornalinvestigador.pt/grafana/
+- Usuário: admin
+- Senha: Definida em `GRAFANA_ADMIN_PASSWORD`
+
+**Configuração:**
+- Arquivos em `infrastructure/monitoring/`
+- Dashboard pré-configurado: "O Investigador - Logs Overview"
+- Auto-provisioning do datasource Loki
+
+**Queries úteis no Grafana:**
+```
+# Logs de um serviço específico
+{compose_service="api"}
+
+# Buscar erros
+{compose_service=~".+"} |~ "(?i)error"
+
+# Logs do Ghost
+{compose_service="ghost"}
+
+# Filtrar por texto
+{compose_service="api"} |= "POST /api"
+```
 
 ## Observações Importantes
 - Editar código LOCALMENTE, não no servidor
