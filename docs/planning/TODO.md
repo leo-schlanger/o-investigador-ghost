@@ -106,10 +106,10 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
   - Cachear: configuracoes, posts populares, sessoes
   - Requer: Adicionar Redis ao docker-compose
 
-- [ ] **Monitoramento Dashboard**
-  - Criar dashboard com metricas operacionais
-  - Tecnologia sugerida: Grafana + Prometheus
-  - Metricas: requests, erros, latencia, recursos
+- [x] **Monitoramento Dashboard** (Implementado 25 Mar 2026)
+  - Stack: Grafana 10.2.0 + Loki 3.1.0 + Promtail 3.1.0
+  - Dashboard pre-configurado com logs de todos os servicos
+  - Acesso: https://admin.jornalinvestigador.pt/grafana/
 
 ### P2 - Media Prioridade
 
@@ -185,10 +185,11 @@ Este documento lista todas as tarefas pendentes, melhorias planejadas e bugs con
   - Criar historico de mudancas de schema
   - Script de rollback de schema
 
-- [ ] **Logs Estruturados**
-  - Padronizar formato de logs
-  - Adicionar correlation IDs
-  - Facilitar debugging
+- [~] **Logs Estruturados** (Parcial - 25 Mar 2026)
+  - [x] Agregacao centralizada via Loki
+  - [x] Dashboard Grafana para visualizacao
+  - [ ] Padronizar formato JSON nos servicos
+  - [ ] Adicionar correlation IDs
 
 - [ ] **Health Checks Detalhados**
   - Verificar cada dependencia
@@ -400,6 +401,7 @@ Veja [CONTRIBUTING.md](./CONTRIBUTING.md) para instrucoes.
 
 | Data | Mudanca |
 |------|---------|
+| 25 Mar 2026 | Implementado stack de monitoramento Grafana + Loki + Promtail |
 | 23 Mar 2026 | Checkup completo do projeto realizado |
 | 23 Mar 2026 | Identificadas 6+ vulnerabilidades de seguranca em dependencias |
 | 23 Mar 2026 | Correcoes de layout mobile no theme e admin panel |

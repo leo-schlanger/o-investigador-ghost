@@ -213,26 +213,110 @@ SELECT 1
 ### Portas Internas (Docker Network)
 ```
 mysql:3306    <- ghost, api
-ghost:2368   <- nginx, api
-api:3000     <- nginx
-admin:5173   <- nginx (dev only)
-nginx:80,443 <- internet
+ghost:2368    <- nginx, api
+api:3000      <- nginx
+admin:80      <- nginx
+redis:6379    <- api
+loki:3100     <- promtail, grafana
+grafana:3000  <- nginx (via /grafana/)
+nginx:80,443  <- internet
 ```
 
 ### Dependencias de Inicializacao
 ```
 1. mysql (deve estar healthy)
-2. ghost (depende de mysql)
-3. api (depende de ghost e mysql)
-4. admin (depende de api)
-5. nginx (depende de todos)
+2. redis (independente)
+3. ghost (depende de mysql)
+4. api (depende de ghost, mysql, redis)
+5. admin (depende de api)
+6. loki (independente)
+7. promtail (depende de loki)
+8. grafana (depende de loki)
+9. nginx (depende de ghost, api, admin, grafana)
+```
+
+---
+
+## 6. Redis Cache
+
+### Configuracao
+| Atributo | Valor |
+|----------|-------|
+| Imagem | `redis:7-alpine` |
+| Porta Interna | 6379 |
+| Persistencia | RDB snapshots |
+
+### Uso
+- Cache de sessoes
+- Cache de configuracoes
+- Rate limiting (futuro)
+
+---
+
+## 7. Stack de Monitoramento
+
+> Implementado em 25 Marco 2026
+
+### Loki (Log Aggregation)
+| Atributo | Valor |
+|----------|-------|
+| Imagem | `grafana/loki:3.1.0` |
+| Porta Interna | 3100 |
+| Retencao | 30 dias |
+| Storage | Filesystem (`loki_data` volume) |
+
+### Promtail (Log Collector)
+| Atributo | Valor |
+|----------|-------|
+| Imagem | `grafana/promtail:3.1.0` |
+| Funcao | Coleta logs dos containers Docker |
+| Descoberta | Via Docker socket |
+
+### Grafana (Visualization)
+| Atributo | Valor |
+|----------|-------|
+| Imagem | `grafana/grafana:10.2.0` |
+| Porta Externa | 3002 |
+| Acesso | `/grafana/` no admin subdomain |
+| Storage | `grafana_data` volume |
+
+### Arquitetura de Monitoramento
+```
+┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
+│  Ghost  │  │   API   │  │  Nginx  │  │  MySQL  │
+│  :2368  │  │  :3000  │  │  :80    │  │  :3306  │
+└────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘
+     │            │            │            │
+     └────────────┴────────────┴────────────┘
+                       │
+                       ▼
+              ┌──────────────┐
+              │   Promtail   │  (Coleta logs via Docker socket)
+              └──────┬───────┘
+                     │
+                     ▼
+              ┌──────────────┐
+              │     Loki     │  (Armazena e indexa logs)
+              │    :3100     │
+              └──────┬───────┘
+                     │
+                     ▼
+              ┌──────────────┐
+              │   Grafana    │  (Dashboards e visualizacao)
+              │    :3002     │
+              └──────────────┘
 ```
 
 ---
 
 ## Logs e Monitoramento
 
-### Acessar Logs
+### Via Grafana (Recomendado)
+- URL: https://admin.jornalinvestigador.pt/grafana/
+- Dashboard: "O Investigador - Logs Overview"
+- Filtros por servico, busca por texto, time range
+
+### Via Docker (CLI)
 ```bash
 # Todos os servicos
 docker compose logs -f
@@ -245,12 +329,16 @@ docker compose logs --tail=100 ghost
 ```
 
 ### Localizacao dos Logs
-| Servico | Local |
-|---------|-------|
-| Nginx | stdout/stderr + /var/log/nginx/ |
-| Ghost | stdout/stderr |
-| API | stdout/stderr |
-| MySQL | stdout/stderr |
+| Servico | Local | Agregado no Loki |
+|---------|-------|------------------|
+| Nginx | stdout/stderr | Sim |
+| Ghost | stdout/stderr | Sim |
+| API | stdout/stderr | Sim |
+| MySQL | stdout/stderr | Sim |
+| Redis | stdout/stderr | Sim |
+| Loki | stdout/stderr | Nao |
+| Promtail | stdout/stderr | Nao |
+| Grafana | stdout/stderr | Nao |
 
 ---
 
@@ -280,3 +368,18 @@ restart: unless-stopped  # Reinicia exceto se parado manualmente
 - RAM: 8 GB
 - Disco: 50 GB SSD
 - Banda: 1 TB/mes
+
+### Consumo por Servico (Estimado)
+
+| Servico | RAM | CPU | Disco |
+|---------|-----|-----|-------|
+| MySQL | 512MB | 0.5 | Variavel |
+| Ghost | 256MB | 0.25 | Variavel |
+| API | 256MB | 0.25 | Minimo |
+| Admin | 64MB | 0.1 | Minimo |
+| Redis | 64MB | 0.1 | Minimo |
+| Nginx | 32MB | 0.1 | Minimo |
+| Loki | 256MB | 0.25 | ~1GB/mes logs |
+| Promtail | 128MB | 0.1 | Minimo |
+| Grafana | 256MB | 0.25 | ~100MB |
+| **TOTAL** | **~1.8GB** | **~2** | **~2GB/mes** |

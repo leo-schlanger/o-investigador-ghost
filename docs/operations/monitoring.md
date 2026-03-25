@@ -266,13 +266,133 @@ ab -n 100 -c 10 http://localhost:3001/health
 
 ---
 
+## Stack de Monitoramento (Grafana + Loki + Promtail)
+
+> **Implementado em:** 25 Marco 2026
+
+### Visao Geral
+
+O sistema utiliza a stack Grafana/Loki/Promtail para agregacao e visualizacao de logs de todos os containers.
+
+| Componente | Versao | Funcao |
+|------------|--------|--------|
+| Loki | 3.1.0 | Armazenamento e indexacao de logs |
+| Promtail | 3.1.0 | Coleta de logs dos containers Docker |
+| Grafana | 10.2.0 | Visualizacao e dashboards |
+
+### Acesso ao Grafana
+
+- **URL:** https://admin.jornalinvestigador.pt/grafana/
+- **Usuario:** admin
+- **Senha:** Definida em `GRAFANA_ADMIN_PASSWORD`
+
+### Dashboard Pre-configurado
+
+O dashboard "O Investigador - Logs Overview" inclui:
+
+1. **Log Volume by Service** - Grafico de volume de logs por servico
+2. **Log Distribution** - Distribuicao percentual entre servicos
+3. **Total Errors** - Contador de erros no periodo
+4. **Total Warnings** - Contador de warnings no periodo
+5. **Live Logs** - Stream de logs em tempo real com filtros
+6. **Error Logs** - Logs de erro de todos os servicos
+
+### Queries LogQL Uteis
+
+```logql
+# Logs de um servico especifico
+{compose_service="api"}
+
+# Buscar erros em todos os servicos
+{compose_service=~".+"} |~ "(?i)error"
+
+# Logs do Ghost
+{compose_service="ghost"}
+
+# Filtrar por texto especifico
+{compose_service="api"} |= "POST /api"
+
+# Logs com erros ou excecoes
+{compose_service=~".+"} |~ "(?i)(error|exception|fatal|panic)"
+
+# Logs do nginx com status 5xx
+{compose_service="nginx"} |~ "\" 5[0-9]{2} "
+
+# Logs de autenticacao
+{compose_service="api"} |= "auth" or |= "login"
+```
+
+### Filtros no Dashboard
+
+- **Service:** Selecionar servicos especificos (api, ghost, nginx, mysql, etc.)
+- **Search:** Busca por texto livre nos logs
+- **Time Range:** Selecionar periodo de tempo
+
+### Retencao de Logs
+
+- **Periodo:** 30 dias
+- **Configuravel em:** `infrastructure/monitoring/loki-config.yml`
+- **Parametro:** `limits_config.retention_period`
+
+### Arquivos de Configuracao
+
+```
+infrastructure/monitoring/
+├── loki-config.yml           # Configuracao do Loki
+├── promtail-config.yml       # Configuracao do Promtail
+└── grafana/
+    ├── provisioning/
+    │   ├── datasources/
+    │   │   └── loki.yml      # Datasource Loki
+    │   └── dashboards/
+    │       └── dashboard.yml # Provider de dashboards
+    └── dashboards/
+        └── logs-overview.json # Dashboard pre-configurado
+```
+
+### Troubleshooting
+
+#### Grafana nao carrega (503)
+```bash
+# Verificar se grafana esta rodando
+docker ps | grep grafana
+
+# Verificar logs do nginx
+docker logs o-investigador-nginx-1 | tail -20
+
+# Pode ser rate limiting - aguardar alguns segundos
+```
+
+#### Logs nao aparecem no Grafana
+```bash
+# Verificar se Promtail esta coletando
+docker logs o-investigador-promtail-1 | tail -20
+
+# Verificar se Loki esta recebendo
+docker logs o-investigador-loki-1 | tail -20
+
+# Testar Loki diretamente
+curl http://localhost:3100/ready
+```
+
+#### Resetar senha do Grafana
+```bash
+docker exec o-investigador-grafana-1 grafana-cli admin reset-admin-password NOVA_SENHA
+```
+
+#### Promtail nao descobre containers
+- Verificar versao do Promtail (requer 3.x+ para Docker 29+)
+- Verificar montagem do docker.sock
+
+---
+
 ## Automacao Futura
 
 ### Melhorias Planejadas
-- [ ] Dashboard Grafana
-- [ ] Alertas automaticos via Slack
+- [x] Dashboard Grafana (Implementado 25 Mar 2026)
+- [x] Log aggregation Loki (Implementado 25 Mar 2026)
+- [ ] Alertas automaticos via Slack/Email
 - [ ] Metricas Prometheus
-- [ ] Log aggregation (ELK/Loki)
 - [ ] APM integrado
 
 ### Scripts de Monitoramento

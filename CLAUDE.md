@@ -118,21 +118,38 @@ Organização avançada de ficheiros com pastas e tags:
 Sistema de monitoramento centralizado de logs para todos os containers.
 
 **Stack:**
-- **Loki** - Agregação e armazenamento de logs (30 dias de retenção)
-- **Promtail** - Coleta logs de todos os containers Docker automaticamente
-- **Grafana** - Visualização e dashboards
+- **Loki 3.1.0** - Agregação e armazenamento de logs (30 dias de retenção)
+- **Promtail 3.1.0** - Coleta logs de todos os containers Docker automaticamente
+- **Grafana 10.2.0** - Visualização e dashboards
 
 **Acesso:**
 - URL: https://admin.jornalinvestigador.pt/grafana/
 - Usuário: admin
-- Senha: Definida em `GRAFANA_ADMIN_PASSWORD`
+- Senha: Definida em `GRAFANA_ADMIN_PASSWORD` (usar `$$` para escapar `$` no .env)
 
 **Configuração:**
-- Arquivos em `infrastructure/monitoring/`
-- Dashboard pré-configurado: "O Investigador - Logs Overview"
-- Auto-provisioning do datasource Loki
+```
+infrastructure/monitoring/
+├── loki-config.yml           → Configuração do Loki
+├── promtail-config.yml       → Configuração do Promtail
+└── grafana/
+    ├── provisioning/
+    │   ├── datasources/
+    │   │   └── loki.yml      → Auto-configura Loki como datasource
+    │   └── dashboards/
+    │       └── dashboard.yml → Auto-importa dashboards
+    └── dashboards/
+        └── logs-overview.json → Dashboard pré-configurado
+```
 
-**Queries úteis no Grafana:**
+**Dashboard pré-configurado:** "O Investigador - Logs Overview"
+- Volume de logs por serviço
+- Distribuição de logs (pie chart)
+- Contadores de erros e warnings
+- Live logs com filtros
+- Logs de erro de todos os serviços
+
+**Queries úteis no Grafana (LogQL):**
 ```
 # Logs de um serviço específico
 {compose_service="api"}
@@ -145,7 +162,15 @@ Sistema de monitoramento centralizado de logs para todos os containers.
 
 # Filtrar por texto
 {compose_service="api"} |= "POST /api"
+
+# Logs dos últimos 5 minutos com erro
+{compose_service=~".+"} |~ "(?i)(error|exception|fatal)"
 ```
+
+**Troubleshooting:**
+- Se Promtail não coleta logs: verificar versão (requer 3.x+ para Docker 29+)
+- Se Grafana dá 503: rate limiting do nginx, verificar logs
+- Se senha não funciona: resetar via `docker exec grafana grafana-cli admin reset-admin-password NOVA_SENHA`
 
 ## Observações Importantes
 - Editar código LOCALMENTE, não no servidor
