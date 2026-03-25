@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
-const { PostView, ViewLog, Article, User } = require('../models');
+const { PostView, ViewLog, User } = require('../models');
+const ghostApi = require('../services/ghostApi');
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -37,8 +38,16 @@ router.get('/stats', async (req, res) => {
             }
         });
 
-        // Total articles
-        const articlesCount = await Article.count();
+        // Total articles from Ghost CMS
+        let articlesCount = 0;
+        try {
+            if (ghostApi.isAvailable()) {
+                const result = await ghostApi.listPosts({ limit: 1, status: 'published' });
+                articlesCount = result.meta?.pagination?.total || 0;
+            }
+        } catch (ghostErr) {
+            console.warn('Could not fetch articles count from Ghost:', ghostErr.message);
+        }
 
         // Total users
         const usersCount = await User.count();
