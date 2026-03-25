@@ -151,7 +151,7 @@ services:
 
   # Loki - Log aggregation system
   loki:
-    image: grafana/loki:2.9.0
+    image: grafana/loki:3.1.0
     restart: always
     volumes:
       - ./infrastructure/monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
@@ -167,7 +167,7 @@ services:
 
   # Promtail - Log collector (reads Docker container logs)
   promtail:
-    image: grafana/promtail:2.9.0
+    image: grafana/promtail:3.1.0
     restart: always
     depends_on:
       loki:
