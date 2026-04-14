@@ -155,6 +155,9 @@
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
 
+        // Save previously focused element to restore on close
+        previouslyFocused = document.activeElement;
+
         // Show history on open
         showState('initial');
         renderHistory();
@@ -165,6 +168,34 @@
             input?.focus();
         }, 100);
     }
+
+    // Focus trap - keep Tab/Shift+Tab within the modal
+    var previouslyFocused = null;
+    function handleFocusTrap(e) {
+        if (!modal || modal.classList.contains('hidden')) return;
+        if (e.key !== 'Tab') return;
+
+        var focusableEls = modal.querySelectorAll(
+            'input, button, a[href], [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusableEls.length) return;
+
+        var firstEl = focusableEls[0];
+        var lastEl = focusableEls[focusableEls.length - 1];
+
+        if (e.shiftKey) {
+            if (document.activeElement === firstEl) {
+                e.preventDefault();
+                lastEl.focus();
+            }
+        } else {
+            if (document.activeElement === lastEl) {
+                e.preventDefault();
+                firstEl.focus();
+            }
+        }
+    }
+    document.addEventListener('keydown', handleFocusTrap);
 
     // Close modal
     function closeModal() {
@@ -179,6 +210,12 @@
         lastQuery = '';
         currentQuery = '';
         selectedIndex = -1;
+
+        // Restore focus to previously focused element
+        if (previouslyFocused && previouslyFocused.focus) {
+            previouslyFocused.focus();
+            previouslyFocused = null;
+        }
     }
 
     // Show specific state

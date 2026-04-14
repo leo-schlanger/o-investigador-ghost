@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/articleController');
 const { protect } = require('../middleware/authMiddleware');
+const { auditLog } = require('../middleware/auditMiddleware');
 
 // Tags, Authors and Types routes (must be before /:id to avoid conflict)
 router.get('/tags', protect, articleController.getTags);
@@ -13,10 +14,12 @@ router.post('/types/init', protect, articleController.initTypes);
 
 // CRUD routes
 router.get('/', protect, articleController.list);
-router.post('/', protect, articleController.create);
+router.post('/', protect, auditLog('create', 'article', {
+    getDetails: (req) => ({ title: req.body.title })
+}), articleController.create);
 router.get('/:id', protect, articleController.get);
-router.put('/:id', protect, articleController.update);
-router.delete('/:id', protect, articleController.delete);
+router.put('/:id', protect, auditLog('update', 'article'), articleController.update);
+router.delete('/:id', protect, auditLog('delete', 'article'), articleController.delete);
 
 // Revision routes
 router.get('/:id/revisions', protect, articleController.getRevisions);

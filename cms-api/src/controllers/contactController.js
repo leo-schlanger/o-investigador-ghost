@@ -7,6 +7,26 @@ const Joi = require('joi');
 const emailService = require('../services/emailService');
 const logger = require('../utils/logger');
 
+/**
+ * Verify reCAPTCHA v3 token with Google
+ * Returns score (0.0-1.0) or null if not configured
+ */
+async function verifyRecaptcha(token) {
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (!secretKey) return null; // Skip if not configured
+
+    try {
+        const response = await fetch(
+            `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`
+        );
+        const data = await response.json();
+        return data;
+    } catch (err) {
+        logger.error('reCAPTCHA verification failed:', err);
+        return null;
+    }
+}
+
 // Validation schema for contact form
 const contactSchema = Joi.object({
     name: Joi.string().min(2).max(100).required().messages({
@@ -31,7 +51,9 @@ const contactSchema = Joi.object({
     // Honeypot field - should be empty
     website: Joi.string().allow('').max(0).messages({
         'string.max': 'Invalid submission'
-    })
+    }),
+    // reCAPTCHA v3 token (optional - only validated if RECAPTCHA_SECRET_KEY is set)
+    recaptchaToken: Joi.string().allow('').optional()
 });
 
 /**
@@ -65,6 +87,18 @@ async function submitContact(req, res) {
                 success: true,
                 message: 'Mensagem enviada com sucesso!'
             });
+        }
+
+        // Verify reCAPTCHA if configured
+        if (process.env.RECAPTCHA_SECRET_KEY) {
+            const recaptchaResult = await verifyRecaptcha(value.recaptchaToken);
+            if (!recaptchaResult || !recaptchaResult.success || recaptchaResult.score < 0.5) {
+                logger.warn('reCAPTCHA failed:', { score: recaptchaResult?.score, success: recaptchaResult?.success });
+                return res.status(400).json({
+                    success: false,
+                    error: 'Verificacao de seguranca falhou. Tente novamente.'
+                });
+            }
         }
 
         const { name, email, subject, message } = value;

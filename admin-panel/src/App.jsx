@@ -1,34 +1,39 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import MainLayout from './components/Layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
-
 import RoleProtectedRoute from './components/RoleProtectedRoute';
-import UsersPage from './pages/Users/Users';
+
+// Eagerly loaded (small/critical)
 import Profile from './pages/Profile/Profile';
-
-// Pages
 import ArticlesList from './pages/Articles/ArticlesList';
-import ArticleEditor from './pages/Articles/ArticleEditor';
-import MediaLibrary from './pages/Media/MediaLibrary';
-import SettingsPage from './pages/Settings/Settings';
-import AdvertisementsPage from './pages/Advertisements/Advertisements';
-import PagesList from './pages/Pages/PagesList';
-import PageEditor from './pages/Pages/PageEditor';
-import TagsList from './pages/Tags/TagsList';
-import Reports from './pages/Reports/Reports';
 
-// Newsletter
-import {
-  NewsletterDashboard,
-  Subscribers,
-  Campaigns,
-  CampaignEditor,
-  NewsletterSettings
-} from './pages/Newsletter';
+// Lazy loaded (heavy pages)
+const ArticleEditor = lazy(() => import('./pages/Articles/ArticleEditor'));
+const MediaLibrary = lazy(() => import('./pages/Media/MediaLibrary'));
+const UsersPage = lazy(() => import('./pages/Users/Users'));
+const SettingsPage = lazy(() => import('./pages/Settings/Settings'));
+const AdvertisementsPage = lazy(() => import('./pages/Advertisements/Advertisements'));
+const PagesList = lazy(() => import('./pages/Pages/PagesList'));
+const PageEditor = lazy(() => import('./pages/Pages/PageEditor'));
+const TagsList = lazy(() => import('./pages/Tags/TagsList'));
+const Reports = lazy(() => import('./pages/Reports/Reports'));
+
+// Newsletter (lazy loaded as a group)
+const NewsletterDashboard = lazy(() => import('./pages/Newsletter').then(m => ({ default: m.NewsletterDashboard })));
+const Subscribers = lazy(() => import('./pages/Newsletter').then(m => ({ default: m.Subscribers })));
+const Campaigns = lazy(() => import('./pages/Newsletter').then(m => ({ default: m.Campaigns })));
+const CampaignEditor = lazy(() => import('./pages/Newsletter').then(m => ({ default: m.CampaignEditor })));
+const NewsletterSettings = lazy(() => import('./pages/Newsletter').then(m => ({ default: m.NewsletterSettings })));
+
+const LazyFallback = () => (
+  <div className="flex h-64 items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
+  </div>
+);
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -41,46 +46,48 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+        <Suspense fallback={<LazyFallback />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Dashboard />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<Dashboard />} />
 
-              {/* Available to all authenticated */}
-              <Route path="profile" element={<Profile />} />
-              <Route path="articles" element={<ArticlesList />} />
-              <Route path="articles/new" element={<ArticleEditor />} />
-              <Route path="articles/:id" element={<ArticleEditor />} />
-              <Route path="media" element={<MediaLibrary />} />
+                {/* Available to all authenticated */}
+                <Route path="profile" element={<Profile />} />
+                <Route path="articles" element={<ArticlesList />} />
+                <Route path="articles/new" element={<ArticleEditor />} />
+                <Route path="articles/:id" element={<ArticleEditor />} />
+                <Route path="media" element={<MediaLibrary />} />
 
-              {/* Admins and Editors */}
-              <Route element={<RoleProtectedRoute allowedRoles={['admin', 'editor']} />}>
-                <Route path="pages" element={<PagesList />} />
-                <Route path="pages/new" element={<PageEditor />} />
-                <Route path="pages/:id" element={<PageEditor />} />
-                <Route path="tags" element={<TagsList />} />
-                <Route path="advertisements" element={<AdvertisementsPage />} />
-                <Route path="reports" element={<Reports />} />
+                {/* Admins and Editors */}
+                <Route element={<RoleProtectedRoute allowedRoles={['admin', 'editor']} />}>
+                  <Route path="pages" element={<PagesList />} />
+                  <Route path="pages/new" element={<PageEditor />} />
+                  <Route path="pages/:id" element={<PageEditor />} />
+                  <Route path="tags" element={<TagsList />} />
+                  <Route path="advertisements" element={<AdvertisementsPage />} />
+                  <Route path="reports" element={<Reports />} />
 
-                {/* Newsletter */}
-                <Route path="newsletter" element={<NewsletterDashboard />} />
-                <Route path="newsletter/subscribers" element={<Subscribers />} />
-                <Route path="newsletter/campaigns" element={<Campaigns />} />
-                <Route path="newsletter/campaigns/new" element={<CampaignEditor />} />
-                <Route path="newsletter/campaigns/:id" element={<CampaignEditor />} />
-                <Route path="newsletter/settings" element={<NewsletterSettings />} />
-              </Route>
+                  {/* Newsletter */}
+                  <Route path="newsletter" element={<NewsletterDashboard />} />
+                  <Route path="newsletter/subscribers" element={<Subscribers />} />
+                  <Route path="newsletter/campaigns" element={<Campaigns />} />
+                  <Route path="newsletter/campaigns/new" element={<CampaignEditor />} />
+                  <Route path="newsletter/campaigns/:id" element={<CampaignEditor />} />
+                  <Route path="newsletter/settings" element={<NewsletterSettings />} />
+                </Route>
 
-              {/* Admins Only */}
-              <Route element={<RoleProtectedRoute allowedRoles={['admin']} />}>
-                <Route path="users" element={<UsersPage />} />
-                <Route path="settings" element={<SettingsPage />} />
+                {/* Admins Only */}
+                <Route element={<RoleProtectedRoute allowedRoles={['admin']} />}>
+                  <Route path="users" element={<UsersPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </ErrorBoundary>
   );

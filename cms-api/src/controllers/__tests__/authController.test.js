@@ -196,7 +196,7 @@ describe('authController', () => {
             await authController.deleteUser(req, res);
 
             expect(mockUser.destroy).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith({ message: 'User deleted successfully' });
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: 'User deleted successfully' }));
         });
 
         it('should prevent self-deletion', async () => {

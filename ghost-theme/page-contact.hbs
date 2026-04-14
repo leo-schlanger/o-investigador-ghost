@@ -208,6 +208,18 @@
     </div>
 </section>
 
+{{!-- reCAPTCHA v3 (loaded only if site key is configured via Ghost code injection) --}}
+<script>
+(function() {
+    var siteKey = document.querySelector('meta[name="recaptcha-site-key"]');
+    if (siteKey) {
+        var s = document.createElement('script');
+        s.src = 'https://www.google.com/recaptcha/api.js?render=' + siteKey.content;
+        document.head.appendChild(s);
+    }
+})();
+</script>
+
 {{!-- Contact Form Script --}}
 <script>
 (function() {
@@ -281,6 +293,16 @@
         setLoading(true);
 
         try {
+            // Get reCAPTCHA token if available
+            var siteKeyMeta = document.querySelector('meta[name="recaptcha-site-key"]');
+            if (siteKeyMeta && window.grecaptcha) {
+                try {
+                    data.recaptchaToken = await grecaptcha.execute(siteKeyMeta.content, { action: 'contact' });
+                } catch (captchaErr) {
+                    console.warn('reCAPTCHA token generation failed:', captchaErr);
+                }
+            }
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {

@@ -4,6 +4,8 @@ services:
   mysql:
     image: mysql:8
     restart: always
+    mem_limit: 1g
+    memswap_limit: 1g
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -23,6 +25,8 @@ services:
   # Ghost CMS
   ghost:
     image: ghost:5-alpine
+    mem_limit: 512m
+    memswap_limit: 512m
     restart: always
     depends_on:
       mysql:
@@ -58,10 +62,20 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
+    command: >
+      sh -c "if [ -n \"$$REDIS_PASSWORD\" ]; then
+        redis-server --requirepass $$REDIS_PASSWORD;
+      else
+        redis-server;
+      fi"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "if [ -n \"$REDIS_PASSWORD\" ]; then redis-cli -a $REDIS_PASSWORD ping; else redis-cli ping; fi"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -70,6 +84,8 @@ services:
 
   # Custom API (Node.js)
   api:
+    mem_limit: 512m
+    memswap_limit: 512m
     build:
       context: ./cms-api
       dockerfile: Dockerfile
@@ -99,7 +115,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CORS_ORIGIN: https://jornalinvestigador.pt,https://admin.jornalinvestigador.pt
       PUBLIC_API_URL: https://api.jornalinvestigador.pt
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
     volumes:

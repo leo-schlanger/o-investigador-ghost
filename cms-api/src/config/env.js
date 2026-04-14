@@ -16,7 +16,9 @@ const optionalEnvVars = [
     // SendGrid / Email configuration
     'SENDGRID_API_KEY',
     'SENDGRID_FROM_EMAIL',
-    'CONTACT_EMAIL'
+    'CONTACT_EMAIL',
+    // reCAPTCHA v3
+    'RECAPTCHA_SECRET_KEY'
 ];
 
 /**

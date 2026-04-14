@@ -1,0 +1,39 @@
+{{!< default}}
+
+<section class="py-16 md:py-24 lg:py-32 bg-neutral-50">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+        <div class="mb-8">
+            <span class="text-6xl md:text-8xl font-bold text-primary-500/20">{{statusCode}}</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-neutral-900 mb-4">
+            {{#is "404"}}
+                Pagina nao encontrada
+            {{else}}
+                {{message}}
+            {{/is}}
+        </h1>
+        <p class="text-base md:text-lg text-neutral-600 mb-8">
+            {{#is "404"}}
+                O conteudo que procura pode ter sido movido ou ja nao existe.
+            {{else}}
+                Ocorreu um erro inesperado. Tente novamente mais tarde.
+            {{/is}}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{@site.url}}"
+                class="inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-semibold rounded-lg hover:bg-brand-dark transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Voltar ao Inicio
+            </a>
+            <button onclick="history.back()"
+                class="inline-flex items-center justify-center px-6 py-3 border border-neutral-300 text-neutral-700 font-semibold rounded-lg hover:bg-neutral-100 transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Voltar
+            </button>
+        </div>
+    </div>
+</section>

@@ -38,6 +38,8 @@ docs/               → Documentação
 - `GHOST_API_KEY` - Content API key do Ghost
 - `GHOST_ADMIN_API_KEY` - Admin API key do Ghost (formato: id:secret)
 - `GRAFANA_ADMIN_PASSWORD` - Senha do admin do Grafana
+- `RECAPTCHA_SECRET_KEY` - (Opcional) reCAPTCHA v3 secret para formulário de contacto
+- `REDIS_PASSWORD` - (Opcional) Senha do Redis para autenticação
 - Variáveis `VITE_*` são injetadas no build time do admin panel
 
 ## Tipos de Artigo
@@ -172,8 +174,31 @@ infrastructure/monitoring/
 - Se Grafana dá 503: rate limiting do nginx, verificar logs
 - Se senha não funciona: resetar via `docker exec grafana grafana-cli admin reset-admin-password NOVA_SENHA`
 
+## Audit Logging
+- Modelo `AuditLog` registra ações críticas (login, CRUD users/articles/media/settings)
+- Middleware `auditMiddleware.js` captura automaticamente nas rotas
+- Endpoint: `GET /api/audit-logs` (admin only) - consultar logs
+- Tabela: `audit_logs` (user_id, action, resource, resource_id, details, ip, created_at)
+
+## reCAPTCHA v3 (Formulário de Contacto)
+- Backend valida token se `RECAPTCHA_SECRET_KEY` configurado
+- Frontend carrega script se meta tag `recaptcha-site-key` presente
+- Configurar site key via Ghost Admin > Code Injection: `<meta name="recaptcha-site-key" content="YOUR_KEY">`
+- Score threshold: 0.5 (rejeita bots)
+- Honeypot mantido como camada adicional
+
+## Dark Mode (Admin Panel)
+- Toggle no header mobile (Sun/Moon icon)
+- Persistido em localStorage
+- ThemeContext em `admin-panel/src/context/ThemeContext.jsx`
+- Tailwind `darkMode: 'class'` habilitado
+
+## Backup & Restore
+- Backup: `infrastructure/scripts/backup.sh` (automático via cron às 3h)
+- Restore: `infrastructure/scripts/restore.sh <file.sql.gz>`
+
 ## Observações Importantes
 - Editar código LOCALMENTE, não no servidor
 - Confiar no deploy automático após push
 - Ghost theme usa routes.yaml para roteamento customizado
-- Login de membros está temporariamente desabilitado (TODO no header.hbs)
+- Sistema de membros Ghost reativado no header (login/signup/account)

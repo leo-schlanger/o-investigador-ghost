@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Outlet } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { darkMode, toggleDarkMode } = useTheme();
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
@@ -35,7 +37,7 @@ const MainLayout = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-brand-dark text-white h-14 flex items-center px-4 shadow-lg">
         <button
@@ -59,6 +61,13 @@ const MainLayout = () => {
             painel admin
           </span>
         </div>
+        <button
+          onClick={toggleDarkMode}
+          className="ml-auto p-2 rounded-lg hover:bg-white/10 transition-colors"
+          aria-label={darkMode ? 'Modo claro' : 'Modo escuro'}
+        >
+          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
       </header>
 
       {/* Mobile Sidebar Overlay */}

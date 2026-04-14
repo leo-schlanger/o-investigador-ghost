@@ -1,6 +1,69 @@
 {{!< default}} {{#post}}
 {{!-- Post ID for view tracking --}}
 <meta name="post-id" content="{{id}}">
+
+{{!-- Schema.org NewsArticle structured data --}}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": "{{title}}",
+    "description": "{{#if custom_excerpt}}{{custom_excerpt}}{{else}}{{excerpt}}{{/if}}",
+    "datePublished": "{{date published_at format='YYYY-MM-DDTHH:mm:ssZ'}}",
+    "dateModified": "{{date updated_at format='YYYY-MM-DDTHH:mm:ssZ'}}",
+    {{#if feature_image}}
+    "image": "{{feature_image}}",
+    {{/if}}
+    "author": [{{#foreach authors}}{{#unless @first}},{{/unless}}{
+        "@type": "Person",
+        "name": "{{name}}"{{#if profile_image}},
+        "image": "{{profile_image}}"{{/if}}
+    }{{/foreach}}],
+    "publisher": {
+        "@type": "NewsMediaOrganization",
+        "name": "{{@site.title}}",
+        "url": "{{@site.url}}"{{#if @site.logo}},
+        "logo": {
+            "@type": "ImageObject",
+            "url": "{{@site.logo}}"
+        }{{/if}}
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "{{url absolute='true'}}"
+    }
+}
+</script>
+
+{{!-- BreadcrumbList --}}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Inicio",
+            "item": "{{@site.url}}"
+        },
+        {{#foreach tags limit="1"}}
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{name}}",
+            "item": "{{url absolute='true'}}"
+        },
+        {{/foreach}}
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{title}}"
+        }
+    ]
+}
+</script>
+
 <article class="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
     <div class="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 overflow-hidden">
 

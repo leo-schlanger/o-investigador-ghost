@@ -13,6 +13,7 @@ const tagRoutes = require('./tags');
 const analyticsRoutes = require('./analytics');
 const reportsRoutes = require('./reports');
 const newsletterRoutes = require('./newsletter');
+const auditLogRoutes = require('./auditLogs');
 
 router.use('/articles', articleRoutes);
 router.use('/auth', authRoutes);
@@ -26,5 +27,6 @@ router.use('/tags', tagRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/reports', reportsRoutes);
 router.use('/newsletter', newsletterRoutes);
+router.use('/audit-logs', auditLogRoutes);
 
 module.exports = router;

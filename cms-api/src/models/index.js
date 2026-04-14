@@ -12,8 +12,6 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Import models
-// Note: Article model was deprecated and moved to archive/Article.deprecated.js
-// Articles are now stored in Ghost CMS, accessed via ghostApi service
 db.User = require('./User')(sequelize, Sequelize);
 db.Settings = require('./Settings')(sequelize, Sequelize);
 db.Media = require('./Media')(sequelize, Sequelize);
@@ -23,6 +21,7 @@ db.MediaTagAssignment = require('./MediaTagAssignment')(sequelize, Sequelize);
 db.PostView = require('./PostView')(sequelize, Sequelize);
 db.ViewLog = require('./ViewLog')(sequelize, Sequelize);
 db.ArticleRevision = require('./ArticleRevision')(sequelize, Sequelize);
+db.AuditLog = require('./AuditLog')(sequelize, Sequelize);
 
 // Set up associations
 Object.keys(db).forEach((modelName) => {
