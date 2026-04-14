@@ -43,6 +43,7 @@ module.exports = (sequelize, Sequelize) => {
             tableName: 'audit_logs',
             timestamps: true,
             updatedAt: false,
+            underscored: true,
             indexes: [
                 { fields: ['user_id'] },
                 { fields: ['action'] },
