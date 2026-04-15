@@ -3,6 +3,11 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const { PostView, ViewLog, User } = require('../models');
 const ghostApi = require('../services/ghostApi');
+const { protect, authorize } = require('../middleware/authMiddleware');
+
+// All analytics routes require authentication
+router.use(protect);
+router.use(authorize('admin', 'editor'));
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -69,7 +74,7 @@ router.get('/stats', async (req, res) => {
 // Get top articles
 router.get('/top-articles', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 10, 100));
         const period = req.query.period || 'all';
 
         let whereClause = {};
@@ -112,7 +117,7 @@ router.get('/top-articles', async (req, res) => {
 // Get views by country
 router.get('/views-by-country', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 10, 100));
 
         const viewsByCountry = await ViewLog.findAll({
             attributes: [
@@ -138,7 +143,7 @@ router.get('/views-by-country', async (req, res) => {
 // Get views over time (for charts)
 router.get('/views-timeline', async (req, res) => {
     try {
-        const days = parseInt(req.query.days) || 30;
+        const days = Math.max(1, Math.min(parseInt(req.query.days, 10) || 30, 365));
 
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);

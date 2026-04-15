@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { History, RotateCcw, X, Eye, ChevronRight } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import api from '../services/api';
 
 const RevisionHistory = ({ articleId, onRestore, onClose }) => {
@@ -196,7 +197,7 @@ const RevisionHistory = ({ articleId, onRestore, onClose }) => {
                   <div
                     className="mt-1 prose prose-sm max-w-none bg-white border rounded-lg p-4 max-h-64 overflow-y-auto"
                     dangerouslySetInnerHTML={{
-                      __html: previewRevision.content || '<p>Sem conteudo</p>'
+                      __html: DOMPurify.sanitize(previewRevision.content || '<p>Sem conteudo</p>')
                     }}
                   />
                 </div>

@@ -11,7 +11,11 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-CONTAINER_NAME="o-investigador-mysql-1"
+# Detect MySQL container name dynamically
+CONTAINER_NAME=$(cd "$PROJECT_DIR" && docker compose -f docker-compose.prod.yml ps -q mysql 2>/dev/null | head -1)
+if [ -z "$CONTAINER_NAME" ]; then
+    CONTAINER_NAME="o-investigador-mysql-1"
+fi
 
 # Load environment
 if [ -f "$PROJECT_DIR/.env" ]; then
@@ -58,7 +62,7 @@ cd "$PROJECT_DIR"
 docker compose -f docker-compose.prod.yml stop api ghost 2>/dev/null || true
 
 echo -e "${YELLOW}[2/4] Checking MySQL container...${NC}"
-if ! docker ps --format '{{.Names}}' | grep -q "$CONTAINER_NAME"; then
+if ! docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null | grep -q "true"; then
     echo -e "${RED}Error: MySQL container not running${NC}"
     echo "Start it with: docker compose -f docker-compose.prod.yml up -d mysql"
     exit 1

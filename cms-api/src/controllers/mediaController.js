@@ -132,11 +132,15 @@ exports.listMedia = async (req, res) => {
                 .filter(Boolean);
             if (tagIds.length > 0) {
                 // Find media that has ALL specified tags
+                const tagCount = parseInt(tagIds.length, 10);
                 const mediaIdsWithTags = await MediaTagAssignment.findAll({
                     attributes: ['mediaId'],
                     where: { tagId: { [Op.in]: tagIds } },
                     group: ['mediaId'],
-                    having: sequelize.literal(`COUNT(DISTINCT tagId) = ${tagIds.length}`)
+                    having: sequelize.where(
+                        sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('tagId'))),
+                        tagCount
+                    )
                 });
 
                 const mediaIds = mediaIdsWithTags.map((m) => m.mediaId);

@@ -160,6 +160,15 @@ router.get('/subscribers/export', async (req, res) => {
             list
         });
 
+        // Escape CSV cell to prevent formula injection
+        const escapeCsvCell = (cell) => {
+            const str = String(cell);
+            if (/^[=+\-@\t\r]/.test(str)) {
+                return `"'${str.replace(/"/g, '""')}"`;
+            }
+            return `"${str.replace(/"/g, '""')}"`;
+        };
+
         // Generate CSV
         const headers = ['Email', 'Nome', 'Status', 'Data Subscricao'];
         const rows = subscribers.data.map((s) => [
@@ -169,9 +178,10 @@ router.get('/subscribers/export', async (req, res) => {
             new Date(s.subscribedAt).toLocaleDateString('pt-PT')
         ]);
 
-        const csv = [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join(
-            '\n'
-        );
+        const csv = [
+            headers.join(','),
+            ...rows.map((r) => r.map(escapeCsvCell).join(','))
+        ].join('\n');
 
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=subscritores.csv');

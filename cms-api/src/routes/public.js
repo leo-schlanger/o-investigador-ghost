@@ -127,7 +127,7 @@ router.post('/track-view', async (req, res) => {
 // Get most viewed posts
 router.get('/most-viewed', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 5;
+        const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 5, 50));
         const period = req.query.period || 'all'; // 'day', 'week', 'month', 'all'
 
         let whereClause = {};
@@ -173,7 +173,9 @@ router.get('/most-viewed', async (req, res) => {
 // Contact form submission
 router.post('/contact', contactLimiter, contactController.submitContact);
 
-// Contact service status (for debugging)
-router.get('/contact/status', contactController.getStatus);
+// Contact service status (minimal info for frontend form)
+router.get('/contact/status', (req, res) => {
+    res.json({ available: true });
+});
 
 module.exports = router;

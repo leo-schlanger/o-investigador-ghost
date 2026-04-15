@@ -51,12 +51,15 @@ exports.listPosts = async (options = {}) => {
             queryOptions.filter = `status:${options.status}`;
         }
 
-        // Handle search
+        // Handle search (sanitize to prevent filter injection)
         if (options.search) {
-            const searchFilter = `title:~'${options.search}'`;
-            queryOptions.filter = queryOptions.filter
-                ? `${queryOptions.filter}+${searchFilter}`
-                : searchFilter;
+            const sanitizedSearch = options.search.replace(/['+\\]/g, '');
+            if (sanitizedSearch) {
+                const searchFilter = `title:~'${sanitizedSearch}'`;
+                queryOptions.filter = queryOptions.filter
+                    ? `${queryOptions.filter}+${searchFilter}`
+                    : searchFilter;
+            }
         }
 
         // Additional custom filter
@@ -617,10 +620,13 @@ exports.listPages = async (options = {}) => {
         }
 
         if (options.search) {
-            const searchFilter = `title:~'${options.search}'`;
-            queryOptions.filter = queryOptions.filter
-                ? `${queryOptions.filter}+${searchFilter}`
-                : searchFilter;
+            const sanitizedSearch = options.search.replace(/['+\\]/g, '');
+            if (sanitizedSearch) {
+                const searchFilter = `title:~'${sanitizedSearch}'`;
+                queryOptions.filter = queryOptions.filter
+                    ? `${queryOptions.filter}+${searchFilter}`
+                    : searchFilter;
+            }
         }
 
         const result = await ghostApi.pages.browse(queryOptions);
