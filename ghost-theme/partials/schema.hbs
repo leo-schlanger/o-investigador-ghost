@@ -1,6 +1,4 @@
-{{!-- Schema.org JSON-LD Structured Data --}}
-
-{{!-- Organization Schema (for all pages) --}}
+{{!-- Schema.org JSON-LD: NewsMediaOrganization (Ghost already generates WebSite schema) --}}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -14,20 +12,5 @@
     },
     {{/if}}
     "sameAs": []
-}
-</script>
-
-{{!-- WebSite Schema with SearchAction --}}
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "{{@site.title}}",
-    "url": "{{@site.url}}",
-    "potentialAction": {
-        "@type": "SearchAction",
-        "target": "{{@site.url}}/?s={search_term_string}",
-        "query-input": "required name=search_term_string"
-    }
 }
 </script>
