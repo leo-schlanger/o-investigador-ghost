@@ -3,14 +3,17 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { auditLog } = require('../middleware/auditMiddleware');
+const { validateBody } = require('../middleware/validateRequest');
+const { loginSchema, registerSchema } = require('../validators/schemas');
 
 // Public
-router.post('/register', auditLog('register', 'auth', {
+router.post('/register', validateBody(registerSchema), auditLog('register', 'auth', {
     getDetails: (req) => ({ email: req.body.email })
 }), authController.register);
-router.post('/login', auditLog('login', 'auth', {
+router.post('/login', validateBody(loginSchema), auditLog('login', 'auth', {
     getDetails: (req) => ({ email: req.body.email })
 }), authController.login);
+router.post('/refresh', authController.refresh);
 
 // Protected (Any authenticated user)
 router.get('/me', protect, authController.me);

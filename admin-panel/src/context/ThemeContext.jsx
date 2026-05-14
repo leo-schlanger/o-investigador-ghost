@@ -2,14 +2,28 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
+// Detect system theme preference
+const getSystemTheme = () => {
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    return false;
+  }
+};
+
+const getInitialTheme = () => {
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored === 'dark';
+    // No stored preference - use system theme
+    return getSystemTheme();
+  } catch {
+    return false;
+  }
+};
+
 export function ThemeProvider({ children }) {
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('theme') === 'dark';
-    } catch {
-      return false;
-    }
-  });
+  const [darkMode, setDarkMode] = useState(getInitialTheme);
 
   useEffect(() => {
     if (darkMode) {
@@ -23,6 +37,23 @@ export function ThemeProvider({ children }) {
       // Private browsing
     }
   }, [darkMode]);
+
+  // Listen for system theme changes (only when no stored preference)
+  useEffect(() => {
+    try {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e) => {
+        const hasStoredPref = localStorage.getItem('theme');
+        if (!hasStoredPref) {
+          setDarkMode(e.matches);
+        }
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } catch {
+      // matchMedia not supported
+    }
+  }, []);
 
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
 

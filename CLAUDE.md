@@ -187,9 +187,31 @@ infrastructure/monitoring/
 - Score threshold: 0.5 (rejeita bots)
 - Honeypot mantido como camada adicional
 
+## Respostas Padronizadas da API
+- Utility `cms-api/src/utils/apiResponse.js` com funções: `success()`, `error()`, `validationError()`, `notFound()`, `unauthorized()`, `forbidden()`
+- Formato padrão: `{ success: boolean, data: any|null, error: { message, errors? }|null }`
+- Middleware de validação Joi: `cms-api/src/middleware/validateRequest.js` (`validateBody()`, `validateQuery()`)
+- Schemas centralizados: `cms-api/src/validators/schemas.js`
+
+## Autenticação (JWT + Refresh Token)
+- Token de acesso expira em 2h (anteriormente 24h)
+- Refresh token expira em 7 dias
+- Endpoint: `POST /api/auth/refresh` com `{ refreshToken }` → retorna novo token + refreshToken
+- Frontend faz refresh automático 5 min antes do token expirar
+- Interceptor axios tenta refresh antes de redirecionar para login em 401
+
+## Notificações (Admin Panel)
+- `NotificationProvider` em `admin-panel/src/context/NotificationContext.jsx`
+- Hook `useNotification()` com: `showSuccess()`, `showError()`, `showWarning()`, `showInfo()`
+- Auto-dismiss após 5s (erros: 8s)
+- Suporta múltiplas notificações empilhadas
+- Acessível com `role="alert"` e botão de fechar
+
 ## Dark Mode (Admin Panel)
 - Toggle no header mobile (Sun/Moon icon)
 - Persistido em localStorage
+- Detecta `prefers-color-scheme` do sistema como default
+- Listener para mudanças de tema do sistema em tempo real
 - ThemeContext em `admin-panel/src/context/ThemeContext.jsx`
 - Tailwind `darkMode: 'class'` habilitado
 

@@ -27,6 +27,14 @@
     const MAX_HISTORY = 5;
     let selectedIndex = -1;
 
+    // Sanitize strings to prevent XSS when inserting into HTML
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     // Try to get API config from Ghost's built-in search or meta tags
     function initializeApi() {
         // Method 1: Check for ghost-search config in page
@@ -118,12 +126,12 @@
                     </div>
                     <div class="space-y-1">
                         ${history.map((h, i) => `
-                            <button class="history-item flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-700 hover:bg-neutral-100 rounded-lg transition ${i === selectedIndex ? 'bg-neutral-100' : ''}" data-query="${h}">
+                            <button class="history-item flex items-center gap-2 w-full px-3 py-2 text-left text-neutral-700 hover:bg-neutral-100 rounded-lg transition ${i === selectedIndex ? 'bg-neutral-100' : ''}" data-query="${escapeHtml(h)}">
                                 <svg class="w-4 h-4 text-neutral-400 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span class="truncate">${h}</span>
+                                <span class="truncate">${escapeHtml(h)}</span>
                             </button>
                         `).join('')}
                     </div>
@@ -246,15 +254,19 @@
         const tag = post.primary_tag ? post.primary_tag.name : '';
         const date = formatDate(post.published_at);
         const isSelected = index === selectedIndex;
+        const safeUrl = escapeHtml(post.url);
+        const safeImage = escapeHtml(post.feature_image);
+        const safeTitle = escapeHtml(post.title);
+        const safeTag = escapeHtml(tag);
 
         return `
-            <a href="${post.url}" class="search-result block p-4 hover:bg-neutral-50 transition group ${isSelected ? 'bg-primary-50' : ''}" data-index="${index}">
+            <a href="${safeUrl}" class="search-result block p-4 hover:bg-neutral-50 transition group ${isSelected ? 'bg-primary-50' : ''}" data-index="${index}">
                 <div class="flex gap-4">
                     ${post.feature_image ? `
                         <div class="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24">
                             <img
-                                src="${post.feature_image}"
-                                alt="${post.title}"
+                                src="${safeImage}"
+                                alt="${safeTitle}"
                                 class="w-full h-full object-cover rounded-lg"
                                 loading="lazy"
                             >
@@ -262,14 +274,14 @@
                     ` : ''}
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
-                            ${tag ? `<span class="text-xs font-medium text-brand">${tag}</span>` : ''}
+                            ${tag ? `<span class="text-xs font-medium text-brand">${safeTag}</span>` : ''}
                             <span class="text-xs text-neutral-400">${date}</span>
                         </div>
                         <h3 class="font-semibold text-neutral-900 group-hover:text-brand transition line-clamp-2 mb-1">
-                            ${highlightTerms(post.title, currentQuery)}
+                            ${highlightTerms(safeTitle, currentQuery)}
                         </h3>
                         <p class="text-sm text-neutral-500 line-clamp-2">
-                            ${highlightTerms(truncate(excerpt), currentQuery)}
+                            ${highlightTerms(truncate(escapeHtml(excerpt)), currentQuery)}
                         </p>
                     </div>
                 </div>

@@ -11,7 +11,13 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html'],
-            exclude: ['node_modules/', 'src/setupTests.js']
+            exclude: ['node_modules/', 'src/setupTests.js'],
+            thresholds: {
+                lines: 30,
+                branches: 20,
+                functions: 25,
+                statements: 30
+            }
         }
     }
 });

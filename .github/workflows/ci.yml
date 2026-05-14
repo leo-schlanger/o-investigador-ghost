@@ -36,6 +36,10 @@ jobs:
         working-directory: ./cms-api
         run: npm test
 
+      - name: Security audit
+        run: npm audit --audit-level=high || true
+        working-directory: cms-api
+
   # -------------------------------------------------
   # Frontend Tests (React Admin Panel)
   # -------------------------------------------------
@@ -61,6 +65,10 @@ jobs:
       - name: Run tests
         working-directory: ./admin-panel
         run: npm test -- --run
+
+      - name: Security audit
+        run: npm audit --audit-level=high || true
+        working-directory: admin-panel
 
   # -------------------------------------------------
   # Build Check (ensures production build works)

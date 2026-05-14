@@ -80,7 +80,7 @@
                 }
 
                 // Clear container
-                container.innerHTML = '';
+                container.replaceChildren();
 
                 posts.forEach((post, index) => {
                     const li = document.createElement('li');

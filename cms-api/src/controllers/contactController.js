@@ -82,7 +82,7 @@ async function submitContact(req, res) {
         // Check honeypot (anti-spam)
         if (value.website && value.website.length > 0) {
             // Silently reject spam but return success to not reveal detection
-            console.log('Honeypot triggered - spam detected');
+            logger.debug('Honeypot triggered - spam detected');
             return res.json({
                 success: true,
                 message: 'Mensagem enviada com sucesso!'
@@ -118,8 +118,7 @@ async function submitContact(req, res) {
             const status = emailService.getEmailServiceStatus();
             if (!status.apiKeyConfigured || !status.recipientConfigured) {
                 // Log the message for manual handling
-                console.log('Contact form submission (email not configured):');
-                console.log({ name, email, subject, message: message.substring(0, 100) + '...' });
+                logger.info('Contact form submission (email not configured)', { name, email, subject });
 
                 // Still return success to user - message is logged
                 return res.json({

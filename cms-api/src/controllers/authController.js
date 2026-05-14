@@ -9,10 +9,17 @@ const {
     deleteGhostUserDirect
 } = require('../services/ghostApi');
 const logger = require('../utils/logger');
+const apiResponse = require('../utils/apiResponse');
 
 const generateToken = (user) => {
     return jwt.sign({ id: user.id, email: user.email, role: user.role }, getJwtSecret(), {
-        expiresIn: '24h'
+        expiresIn: '2h'
+    });
+};
+
+const generateRefreshToken = (user) => {
+    return jwt.sign({ id: user.id, type: 'refresh' }, getJwtSecret(), {
+        expiresIn: '7d'
     });
 };
 
@@ -112,16 +119,21 @@ exports.register = async (req, res) => {
 
         // Generate token
         const token = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
 
         res.status(201).json({
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                avatar: user.avatar
-            },
-            token
+            success: true,
+            data: {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    avatar: user.avatar
+                },
+                token,
+                refreshToken
+            }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -155,7 +167,7 @@ exports.createUser = async (req, res) => {
             role: role || 'author'
         });
 
-        res.status(201).json({
+        apiResponse.success(res, {
             id: user.id,
             name: user.name,
             email: user.email,
@@ -166,7 +178,7 @@ exports.createUser = async (req, res) => {
                 : ghostResult.exists
                   ? 'already_exists'
                   : 'failed'
-        });
+        }, 201);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -190,16 +202,21 @@ exports.login = async (req, res) => {
 
         // Generate token
         const token = generateToken(user);
+        const refreshToken = generateRefreshToken(user);
 
         res.json({
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                avatar: user.avatar
-            },
-            token
+            success: true,
+            data: {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    avatar: user.avatar
+                },
+                token,
+                refreshToken
+            }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -383,5 +400,40 @@ exports.deleteUser = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+exports.refresh = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return apiResponse.error(res, 'Refresh token is required', 400);
+        }
+
+        const decoded = jwt.verify(refreshToken, getJwtSecret());
+        if (decoded.type !== 'refresh') {
+            return apiResponse.error(res, 'Invalid token type', 400);
+        }
+
+        const user = await User.findByPk(decoded.id, {
+            attributes: { exclude: ['password'] }
+        });
+
+        if (!user) {
+            return apiResponse.notFound(res, 'User');
+        }
+
+        const newToken = generateToken(user);
+        const newRefreshToken = generateRefreshToken(user);
+
+        res.json({
+            success: true,
+            data: { token: newToken, refreshToken: newRefreshToken }
+        });
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return apiResponse.error(res, 'Refresh token expired. Please login again.', 401);
+        }
+        return apiResponse.error(res, 'Invalid refresh token', 401);
     }
 };

@@ -4,6 +4,7 @@ import MainLayout from './components/Layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
 
@@ -45,6 +46,7 @@ const ProtectedRoute = () => {
 function App() {
   return (
     <ErrorBoundary>
+      <NotificationProvider>
       <AuthProvider>
         <Suspense fallback={<LazyFallback />}>
           <Routes>
@@ -89,6 +91,7 @@ function App() {
           </Routes>
         </Suspense>
       </AuthProvider>
+      </NotificationProvider>
     </ErrorBoundary>
   );
 }

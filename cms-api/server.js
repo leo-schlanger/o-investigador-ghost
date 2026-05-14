@@ -85,9 +85,19 @@ const authLimiter = rateLimit({
     legacyHeaders: false
 });
 
+const adminLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 30, // 30 requests per minute for admin operations
+    message: { error: 'Muitas requisicoes administrativas. Aguarde um momento.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 // Apply rate limiting
 app.use('/api/', generalLimiter);
 app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/users', adminLimiter);
+app.use('/api/settings', adminLimiter);
 
 app.use(express.json({ limit: '10mb' }));
 

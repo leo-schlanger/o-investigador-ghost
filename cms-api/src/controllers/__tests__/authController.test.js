@@ -53,8 +53,12 @@ describe('authController', () => {
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    user: expect.objectContaining({ email: 'test@example.com' }),
-                    token: expect.any(String)
+                    success: true,
+                    data: expect.objectContaining({
+                        user: expect.objectContaining({ email: 'test@example.com' }),
+                        token: expect.any(String),
+                        refreshToken: expect.any(String)
+                    })
                 })
             );
         });
@@ -95,8 +99,12 @@ describe('authController', () => {
 
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    user: expect.objectContaining({ email: 'test@example.com' }),
-                    token: expect.any(String)
+                    success: true,
+                    data: expect.objectContaining({
+                        user: expect.objectContaining({ email: 'test@example.com' }),
+                        token: expect.any(String),
+                        refreshToken: expect.any(String)
+                    })
                 })
             );
         });
