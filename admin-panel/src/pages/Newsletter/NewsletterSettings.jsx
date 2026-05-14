@@ -22,9 +22,11 @@ import {
   createList,
   deleteList
 } from '../../services/newsletter';
+import { useNotification } from '../../context/NotificationContext';
 import NewsletterNav from './NewsletterNav';
 
 const NewsletterSettings = () => {
+  const { showError, showInfo } = useNotification();
   const [settings, setSettings] = useState({
     apiKey: '',
     senderName: '',
@@ -121,21 +123,21 @@ const NewsletterSettings = () => {
 
   const handleCreateList = async () => {
     if (!newList.name) {
-      alert('O nome da lista e obrigatorio');
+      showError('O nome da lista e obrigatorio');
       return;
     }
 
     try {
       const result = await createList(newList);
       if (result.isMock) {
-        alert('Modo de demonstracao: lista simulada.');
+        showInfo('Modo de demonstracao: lista simulada.');
       }
       setShowNewListModal(false);
       setNewList({ name: '', description: '' });
       fetchLists();
     } catch (err) {
       console.error('Error creating list:', err);
-      alert('Erro ao criar lista');
+      showError('Erro ao criar lista');
     }
   };
 
@@ -147,7 +149,7 @@ const NewsletterSettings = () => {
       fetchLists();
     } catch (err) {
       console.error('Error deleting list:', err);
-      alert('Erro ao eliminar lista');
+      showError('Erro ao eliminar lista');
     }
   };
 

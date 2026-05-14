@@ -59,32 +59,35 @@ describe('tagController', () => {
             await tagController.list(req, res);
 
             expect(ghostApi.listTags).toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalledWith([
-                {
-                    id: '1',
-                    name: 'News',
-                    slug: 'news',
-                    description: 'News articles',
-                    feature_image: 'news.jpg',
-                    meta_title: 'News',
-                    meta_description: 'News meta',
-                    count: 10,
-                    created_at: '2024-01-01',
-                    updated_at: '2024-01-02'
-                },
-                {
-                    id: '2',
-                    name: 'Sports',
-                    slug: 'sports',
-                    description: null,
-                    feature_image: null,
-                    meta_title: null,
-                    meta_description: null,
-                    count: 0,
-                    created_at: '2024-01-01',
-                    updated_at: '2024-01-02'
-                }
-            ]);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: [
+                    {
+                        id: '1',
+                        name: 'News',
+                        slug: 'news',
+                        description: 'News articles',
+                        feature_image: 'news.jpg',
+                        meta_title: 'News',
+                        meta_description: 'News meta',
+                        count: 10,
+                        created_at: '2024-01-01',
+                        updated_at: '2024-01-02'
+                    },
+                    {
+                        id: '2',
+                        name: 'Sports',
+                        slug: 'sports',
+                        description: null,
+                        feature_image: null,
+                        meta_title: null,
+                        meta_description: null,
+                        count: 0,
+                        created_at: '2024-01-01',
+                        updated_at: '2024-01-02'
+                    }
+                ]
+            });
         });
 
         it('should handle errors', async () => {
@@ -93,7 +96,7 @@ describe('tagController', () => {
             await tagController.list(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'API Error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'API Error' } });
         });
     });
 
@@ -117,14 +120,17 @@ describe('tagController', () => {
 
             expect(ghostApi.getTag).toHaveBeenCalledWith('1');
             expect(res.json).toHaveBeenCalledWith({
-                id: '1',
-                name: 'News',
-                slug: 'news',
-                description: 'News articles',
-                feature_image: 'news.jpg',
-                meta_title: 'News',
-                meta_description: 'News meta',
-                count: 10
+                success: true,
+                data: {
+                    id: '1',
+                    name: 'News',
+                    slug: 'news',
+                    description: 'News articles',
+                    feature_image: 'news.jpg',
+                    meta_title: 'News',
+                    meta_description: 'News meta',
+                    count: 10
+                }
             });
         });
 
@@ -135,7 +141,7 @@ describe('tagController', () => {
             await tagController.get(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Tag not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Tag not found' } });
         });
 
         it('should handle other errors', async () => {
@@ -145,7 +151,7 @@ describe('tagController', () => {
             await tagController.get(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Server error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Server error' } });
         });
     });
 
@@ -168,7 +174,18 @@ describe('tagController', () => {
 
             expect(ghostApi.createTag).toHaveBeenCalledWith(req.body);
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith(mockTag);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: {
+                    id: mockTag.id,
+                    name: mockTag.name,
+                    slug: mockTag.slug,
+                    description: mockTag.description,
+                    feature_image: mockTag.feature_image,
+                    meta_title: mockTag.meta_title,
+                    meta_description: mockTag.meta_description
+                }
+            });
         });
 
         it('should return 400 if name is missing', async () => {
@@ -177,7 +194,7 @@ describe('tagController', () => {
             await tagController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Name is required' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Name is required' } });
             expect(ghostApi.createTag).not.toHaveBeenCalled();
         });
 
@@ -188,7 +205,7 @@ describe('tagController', () => {
             await tagController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Duplicate slug' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Duplicate slug' } });
         });
     });
 
@@ -211,7 +228,18 @@ describe('tagController', () => {
             await tagController.update(req, res);
 
             expect(ghostApi.updateTag).toHaveBeenCalledWith('1', req.body);
-            expect(res.json).toHaveBeenCalledWith(mockTag);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: {
+                    id: mockTag.id,
+                    name: mockTag.name,
+                    slug: mockTag.slug,
+                    description: mockTag.description,
+                    feature_image: mockTag.feature_image,
+                    meta_title: mockTag.meta_title,
+                    meta_description: mockTag.meta_description
+                }
+            });
         });
 
         it('should return 404 if tag not found', async () => {
@@ -222,7 +250,7 @@ describe('tagController', () => {
             await tagController.update(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Tag not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Tag not found' } });
         });
 
         it('should handle other errors', async () => {
@@ -233,7 +261,7 @@ describe('tagController', () => {
             await tagController.update(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Validation error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Validation error' } });
         });
     });
 
@@ -245,7 +273,7 @@ describe('tagController', () => {
             await tagController.delete(req, res);
 
             expect(ghostApi.deleteTag).toHaveBeenCalledWith('1');
-            expect(res.json).toHaveBeenCalledWith({ message: 'Tag deleted successfully' });
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: { message: 'Tag deleted successfully' } });
         });
 
         it('should return 404 if tag not found', async () => {
@@ -255,7 +283,7 @@ describe('tagController', () => {
             await tagController.delete(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Tag not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Tag not found' } });
         });
 
         it('should handle other errors', async () => {
@@ -265,7 +293,7 @@ describe('tagController', () => {
             await tagController.delete(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Server error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Server error' } });
         });
     });
 });

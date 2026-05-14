@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getTags, createTag, updateTag, deleteTag } from '../../services/tags';
+import { useNotification } from '../../context/NotificationContext';
 import { Plus, Edit2, Trash2, X, Tag, Image as ImageIcon } from 'lucide-react';
 import MediaLibrary from '../Media/MediaLibrary';
 
 const TagsList = () => {
+  const { showError } = useNotification();
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,7 +90,7 @@ const TagsList = () => {
       handleCloseModal();
       loadTags();
     } catch (err) {
-      alert(err.response?.data?.error || 'Falha ao salvar tag');
+      showError(err.response?.data?.error || 'Falha ao salvar tag');
     }
   };
 
@@ -99,7 +101,7 @@ const TagsList = () => {
       setDeleteConfirm(null);
       loadTags();
     } catch (err) {
-      alert(err.response?.data?.error || 'Falha ao excluir tag');
+      showError(err.response?.data?.error || 'Falha ao excluir tag');
     }
   };
 

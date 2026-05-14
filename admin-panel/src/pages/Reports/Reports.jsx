@@ -10,8 +10,10 @@ import {
   RefreshCw
 } from 'lucide-react';
 import api from '../../services/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const Reports = () => {
+  const { showError } = useNotification();
   const [reportTypes, setReportTypes] = useState([]);
   const [selectedType, setSelectedType] = useState('views');
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -88,7 +90,7 @@ const Reports = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error exporting report:', err);
-      alert('Erro ao exportar relatorio');
+      showError('Erro ao exportar relatorio');
     } finally {
       setDownloading(false);
     }

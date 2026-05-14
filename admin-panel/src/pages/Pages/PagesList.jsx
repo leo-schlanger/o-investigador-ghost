@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPages, deletePage } from '../../services/pages';
 import { Link } from 'react-router-dom';
+import { useNotification } from '../../context/NotificationContext';
 import { Search, Trash2, Edit, Plus, FileText } from 'lucide-react';
 
 const PagesList = () => {
+  const { showError } = useNotification();
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,7 +52,7 @@ const PagesList = () => {
       fetchPages();
     } catch (error) {
       console.error('Failed to delete page', error);
-      alert('Falha ao excluir pagina');
+      showError('Falha ao excluir pagina');
     } finally {
       setDeleting(false);
     }

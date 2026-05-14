@@ -52,7 +52,10 @@ describe('mediaController', () => {
             await mediaController.listMedia(mockReq, mockRes);
 
             expect(mockRes.json).toHaveBeenCalledWith(
-                expect.objectContaining({ items: mockMedia, total: 1 })
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ items: mockMedia, total: 1 })
+                })
             );
         });
 
@@ -126,7 +129,10 @@ describe('mediaController', () => {
             await mediaController.bulkMove(mockReq, mockRes);
 
             expect(mockRes.json).toHaveBeenCalledWith(
-                expect.objectContaining({ updatedCount: 2 })
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ updatedCount: 2 })
+                })
             );
         });
 

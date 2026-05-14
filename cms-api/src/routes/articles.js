@@ -3,6 +3,8 @@ const router = express.Router();
 const articleController = require('../controllers/articleController');
 const { protect } = require('../middleware/authMiddleware');
 const { auditLog } = require('../middleware/auditMiddleware');
+const { validateQuery } = require('../middleware/validateRequest');
+const { articleQuerySchema } = require('../validators/schemas');
 
 // Tags, Authors and Types routes (must be before /:id to avoid conflict)
 router.get('/tags', protect, articleController.getTags);
@@ -13,7 +15,7 @@ router.get('/types', protect, articleController.getTypes);
 router.post('/types/init', protect, articleController.initTypes);
 
 // CRUD routes
-router.get('/', protect, articleController.list);
+router.get('/', protect, validateQuery(articleQuerySchema), articleController.list);
 router.post('/', protect, auditLog('create', 'article', {
     getDetails: (req) => ({ title: req.body.title })
 }), articleController.create);

@@ -20,12 +20,12 @@ function initializeSendGrid() {
     const apiKey = process.env.SENDGRID_API_KEY;
 
     if (!apiKey) {
-        console.warn('SENDGRID_API_KEY not configured. Email sending disabled.');
+        logger.warn('SENDGRID_API_KEY not configured. Email sending disabled.');
         return false;
     }
 
     if (!sgMail) {
-        console.warn('SendGrid package not installed. Run: npm install @sendgrid/mail');
+        logger.warn('SendGrid package not installed. Run: npm install @sendgrid/mail');
         return false;
     }
 
@@ -219,7 +219,7 @@ async function sendContactEmail({ name, email, subject, message }) {
             messageId: response.headers['x-message-id']
         };
     } catch (error) {
-        console.error('SendGrid error:', error);
+        logger.error('SendGrid error', { error: error.message });
 
         // Extract meaningful error message
         let errorMessage = 'Failed to send email';

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, deleteUser, createUser, updateUser } from '../../services/users';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import { Plus, Edit2, Trash2, X, Shield, User as UserIcon } from 'lucide-react';
 
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
+  const { showError } = useNotification();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,7 +65,7 @@ const UsersPage = () => {
       handleCloseModal();
       loadUsers();
     } catch (err) {
-      alert(err.response?.data?.error || 'Falha ao salvar usuario');
+      showError(err.response?.data?.error || 'Falha ao salvar usuario');
     }
   };
 
@@ -73,7 +75,7 @@ const UsersPage = () => {
         await deleteUser(id);
         loadUsers();
       } catch (err) {
-        alert(err.response?.data?.error || 'Falha ao excluir usuario');
+        showError(err.response?.data?.error || 'Falha ao excluir usuario');
       }
     }
   };

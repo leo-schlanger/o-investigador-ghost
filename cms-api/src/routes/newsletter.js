@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const brevoService = require('../services/brevoService');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const logger = require('../utils/logger');
 
 // Todas as rotas requerem autenticacao e role de editor ou admin
 router.use(protect);
@@ -19,7 +20,7 @@ router.get('/stats', async (req, res) => {
         const stats = await brevoService.getStats();
         res.json(stats);
     } catch (error) {
-        console.error('Error fetching stats:', error);
+        logger.error('Error fetching stats', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar estatisticas' });
     }
 });
@@ -31,7 +32,7 @@ router.get('/lists', async (req, res) => {
         const lists = await brevoService.getLists();
         res.json(lists);
     } catch (error) {
-        console.error('Error fetching lists:', error);
+        logger.error('Error fetching lists', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar listas' });
     }
 });
@@ -47,7 +48,7 @@ router.post('/lists', async (req, res) => {
         const result = await brevoService.createList({ name, description });
         res.json(result);
     } catch (error) {
-        console.error('Error creating list:', error);
+        logger.error('Error creating list', { error: error.message });
         res.status(500).json({ error: 'Erro ao criar lista' });
     }
 });
@@ -57,7 +58,7 @@ router.delete('/lists/:id', async (req, res) => {
         const result = await brevoService.deleteList(req.params.id);
         res.json(result);
     } catch (error) {
-        console.error('Error deleting list:', error);
+        logger.error('Error deleting list', { error: error.message });
         res.status(500).json({ error: 'Erro ao eliminar lista' });
     }
 });
@@ -76,7 +77,7 @@ router.get('/subscribers', async (req, res) => {
         });
         res.json(subscribers);
     } catch (error) {
-        console.error('Error fetching subscribers:', error);
+        logger.error('Error fetching subscribers', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar subscritores' });
     }
 });
@@ -89,7 +90,7 @@ router.get('/subscribers/:id', async (req, res) => {
         }
         res.json(subscriber);
     } catch (error) {
-        console.error('Error fetching subscriber:', error);
+        logger.error('Error fetching subscriber', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar subscritor' });
     }
 });
@@ -105,7 +106,7 @@ router.post('/subscribers', async (req, res) => {
         const result = await brevoService.createSubscriber({ email, name, listIds });
         res.json(result);
     } catch (error) {
-        console.error('Error creating subscriber:', error);
+        logger.error('Error creating subscriber', { error: error.message });
         res.status(500).json({ error: 'Erro ao criar subscritor' });
     }
 });
@@ -120,7 +121,7 @@ router.put('/subscribers/:id', async (req, res) => {
         });
         res.json(result);
     } catch (error) {
-        console.error('Error updating subscriber:', error);
+        logger.error('Error updating subscriber', { error: error.message });
         res.status(500).json({ error: 'Erro ao atualizar subscritor' });
     }
 });
@@ -130,7 +131,7 @@ router.delete('/subscribers/:id', async (req, res) => {
         const result = await brevoService.deleteSubscriber(req.params.id);
         res.json(result);
     } catch (error) {
-        console.error('Error deleting subscriber:', error);
+        logger.error('Error deleting subscriber', { error: error.message });
         res.status(500).json({ error: 'Erro ao eliminar subscritor' });
     }
 });
@@ -146,7 +147,7 @@ router.post('/subscribers/import', async (req, res) => {
         const result = await brevoService.importSubscribers(contacts, listIds);
         res.json(result);
     } catch (error) {
-        console.error('Error importing subscribers:', error);
+        logger.error('Error importing subscribers', { error: error.message });
         res.status(500).json({ error: 'Erro ao importar subscritores' });
     }
 });
@@ -187,7 +188,7 @@ router.get('/subscribers/export', async (req, res) => {
         res.setHeader('Content-Disposition', 'attachment; filename=subscritores.csv');
         res.send(csv);
     } catch (error) {
-        console.error('Error exporting subscribers:', error);
+        logger.error('Error exporting subscribers', { error: error.message });
         res.status(500).json({ error: 'Erro ao exportar subscritores' });
     }
 });
@@ -205,7 +206,7 @@ router.get('/campaigns', async (req, res) => {
         });
         res.json(campaigns);
     } catch (error) {
-        console.error('Error fetching campaigns:', error);
+        logger.error('Error fetching campaigns', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar campanhas' });
     }
 });
@@ -218,7 +219,7 @@ router.get('/campaigns/:id', async (req, res) => {
         }
         res.json(campaign);
     } catch (error) {
-        console.error('Error fetching campaign:', error);
+        logger.error('Error fetching campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar campanha' });
     }
 });
@@ -255,7 +256,7 @@ router.post('/campaigns', async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        console.error('Error creating campaign:', error);
+        logger.error('Error creating campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao criar campanha' });
     }
 });
@@ -265,7 +266,7 @@ router.put('/campaigns/:id', async (req, res) => {
         const result = await brevoService.updateCampaign(req.params.id, req.body);
         res.json(result);
     } catch (error) {
-        console.error('Error updating campaign:', error);
+        logger.error('Error updating campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao atualizar campanha' });
     }
 });
@@ -275,7 +276,7 @@ router.delete('/campaigns/:id', async (req, res) => {
         const result = await brevoService.deleteCampaign(req.params.id);
         res.json(result);
     } catch (error) {
-        console.error('Error deleting campaign:', error);
+        logger.error('Error deleting campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao eliminar campanha' });
     }
 });
@@ -285,7 +286,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
         const result = await brevoService.sendCampaign(req.params.id);
         res.json(result);
     } catch (error) {
-        console.error('Error sending campaign:', error);
+        logger.error('Error sending campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao enviar campanha' });
     }
 });
@@ -301,7 +302,7 @@ router.post('/campaigns/:id/schedule', async (req, res) => {
         const result = await brevoService.scheduleCampaign(req.params.id, scheduledAt);
         res.json(result);
     } catch (error) {
-        console.error('Error scheduling campaign:', error);
+        logger.error('Error scheduling campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao agendar campanha' });
     }
 });
@@ -317,7 +318,7 @@ router.post('/campaigns/:id/test', async (req, res) => {
         const result = await brevoService.sendTestEmail(req.params.id, email);
         res.json(result);
     } catch (error) {
-        console.error('Error sending test email:', error);
+        logger.error('Error sending test email', { error: error.message });
         res.status(500).json({ error: 'Erro ao enviar email de teste' });
     }
 });
@@ -341,7 +342,7 @@ router.post('/campaigns/:id/duplicate', async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        console.error('Error duplicating campaign:', error);
+        logger.error('Error duplicating campaign', { error: error.message });
         res.status(500).json({ error: 'Erro ao duplicar campanha' });
     }
 });
@@ -351,7 +352,7 @@ router.get('/campaigns/:id/stats', async (req, res) => {
         const stats = await brevoService.getCampaignStats(req.params.id);
         res.json(stats);
     } catch (error) {
-        console.error('Error fetching campaign stats:', error);
+        logger.error('Error fetching campaign stats', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar estatisticas' });
     }
 });
@@ -378,7 +379,7 @@ router.post('/sync-ghost-members', authorize('admin'), async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        console.error('Error syncing Ghost members:', error);
+        logger.error('Error syncing Ghost members', { error: error.message });
         res.status(500).json({ error: 'Erro ao sincronizar membros do Ghost' });
     }
 });
@@ -399,7 +400,7 @@ router.get('/settings', async (req, res) => {
             welcomeEmail: process.env.BREVO_WELCOME_EMAIL === 'true'
         });
     } catch (error) {
-        console.error('Error fetching settings:', error);
+        logger.error('Error fetching settings', { error: error.message });
         res.status(500).json({ error: 'Erro ao buscar configuracoes' });
     }
 });
@@ -417,7 +418,7 @@ router.put('/settings', authorize('admin'), async (req, res) => {
                 'Configuracoes atualizadas. Reinicie o servidor para aplicar as variaveis de ambiente.'
         });
     } catch (error) {
-        console.error('Error updating settings:', error);
+        logger.error('Error updating settings', { error: error.message });
         res.status(500).json({ error: 'Erro ao atualizar configuracoes' });
     }
 });
@@ -428,7 +429,7 @@ router.post('/test-connection', async (req, res) => {
         const result = await brevoService.testConnection(apiKey);
         res.json(result);
     } catch (error) {
-        console.error('Error testing connection:', error);
+        logger.error('Error testing connection', { error: error.message });
         res.status(500).json({ error: 'Erro ao testar conexao' });
     }
 });

@@ -1,4 +1,5 @@
 const { MediaFolder, Media } = require('../models');
+const apiResponse = require('../utils/apiResponse');
 
 // Build a tree structure from flat folder list
 const buildTree = (folders, parentId = null) => {
@@ -34,15 +35,15 @@ exports.listFolders = async (req, res) => {
         }));
 
         if (format === 'flat') {
-            return res.json(foldersWithCount);
+            return apiResponse.success(res, foldersWithCount);
         }
 
         // Build tree structure
         const tree = buildTree(folders);
         const treeWithCount = buildTreeWithCount(tree, foldersWithCount);
-        res.json(treeWithCount);
+        apiResponse.success(res, treeWithCount);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -70,14 +71,14 @@ exports.createFolder = async (req, res) => {
         const { name, parentId = null } = req.body;
 
         if (!name || !name.trim()) {
-            return res.status(400).json({ error: 'Nome da pasta e obrigatorio' });
+            return apiResponse.error(res, 'Nome da pasta e obrigatorio', 400);
         }
 
         // Verify parent exists if provided
         if (parentId) {
             const parent = await MediaFolder.findByPk(parentId);
             if (!parent) {
-                return res.status(404).json({ error: 'Pasta pai nao encontrada' });
+                return apiResponse.notFound(res, 'Pasta pai');
             }
         }
 
@@ -86,9 +87,9 @@ exports.createFolder = async (req, res) => {
             parentId
         });
 
-        res.status(201).json(folder);
+        apiResponse.success(res, folder, 201);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -100,12 +101,12 @@ exports.updateFolder = async (req, res) => {
 
         const folder = await MediaFolder.findByPk(id);
         if (!folder) {
-            return res.status(404).json({ error: 'Pasta nao encontrada' });
+            return apiResponse.notFound(res, 'Pasta');
         }
 
         if (name !== undefined) {
             if (!name.trim()) {
-                return res.status(400).json({ error: 'Nome da pasta nao pode estar vazio' });
+                return apiResponse.error(res, 'Nome da pasta nao pode estar vazio', 400);
             }
             folder.name = name.trim();
         }
@@ -113,21 +114,19 @@ exports.updateFolder = async (req, res) => {
         if (parentId !== undefined) {
             // Prevent circular references
             if (parentId === id) {
-                return res.status(400).json({ error: 'Uma pasta nao pode ser pai de si mesma' });
+                return apiResponse.error(res, 'Uma pasta nao pode ser pai de si mesma', 400);
             }
 
             if (parentId) {
                 const parent = await MediaFolder.findByPk(parentId);
                 if (!parent) {
-                    return res.status(404).json({ error: 'Pasta pai nao encontrada' });
+                    return apiResponse.notFound(res, 'Pasta pai');
                 }
 
                 // Check if the new parent is a descendant of this folder
                 const isDescendant = await checkIsDescendant(parentId, id);
                 if (isDescendant) {
-                    return res
-                        .status(400)
-                        .json({ error: 'Nao pode mover pasta para dentro de um descendente' });
+                    return apiResponse.error(res, 'Nao pode mover pasta para dentro de um descendente', 400);
                 }
             }
 
@@ -135,9 +134,9 @@ exports.updateFolder = async (req, res) => {
         }
 
         await folder.save();
-        res.json(folder);
+        apiResponse.success(res, folder);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -157,7 +156,7 @@ exports.deleteFolder = async (req, res) => {
 
         const folder = await MediaFolder.findByPk(id);
         if (!folder) {
-            return res.status(404).json({ error: 'Pasta nao encontrada' });
+            return apiResponse.notFound(res, 'Pasta');
         }
 
         // Move all media to parent folder (or root if no parent)
@@ -167,8 +166,8 @@ exports.deleteFolder = async (req, res) => {
         await MediaFolder.update({ parentId: folder.parentId }, { where: { parentId: id } });
 
         await folder.destroy();
-        res.json({ message: 'Pasta eliminada' });
+        apiResponse.success(res, { message: 'Pasta eliminada' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };

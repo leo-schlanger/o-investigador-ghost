@@ -1,5 +1,6 @@
 const { MediaTag, MediaTagAssignment, sequelize, Sequelize } = require('../models');
 const { Op } = Sequelize;
+const apiResponse = require('../utils/apiResponse');
 
 // List all tags with usage count
 exports.listTags = async (req, res) => {
@@ -20,9 +21,9 @@ exports.listTags = async (req, res) => {
             order: [['name', 'ASC']]
         });
 
-        res.json(tags);
+        apiResponse.success(res, tags);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -32,7 +33,7 @@ exports.createTag = async (req, res) => {
         const { name } = req.body;
 
         if (!name || !name.trim()) {
-            return res.status(400).json({ error: 'Nome da tag e obrigatorio' });
+            return apiResponse.error(res, 'Nome da tag e obrigatorio', 400);
         }
 
         // Check if tag already exists
@@ -45,19 +46,19 @@ exports.createTag = async (req, res) => {
         });
 
         if (existing) {
-            return res.status(409).json({ error: 'Tag ja existe', tag: existing });
+            return apiResponse.error(res, 'Tag ja existe', 409);
         }
 
         const tag = await MediaTag.create({
             name: name.trim()
         });
 
-        res.status(201).json(tag);
+        apiResponse.success(res, tag, 201);
     } catch (err) {
         if (err.name === 'SequelizeUniqueConstraintError') {
-            return res.status(409).json({ error: 'Tag ja existe' });
+            return apiResponse.error(res, 'Tag ja existe', 409);
         }
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -68,14 +69,14 @@ exports.deleteTag = async (req, res) => {
 
         const tag = await MediaTag.findByPk(id);
         if (!tag) {
-            return res.status(404).json({ error: 'Tag nao encontrada' });
+            return apiResponse.notFound(res, 'Tag');
         }
 
         // Assignments will be deleted via CASCADE
         await tag.destroy();
-        res.json({ message: 'Tag eliminada' });
+        apiResponse.success(res, { message: 'Tag eliminada' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -102,7 +103,7 @@ exports.getSuggestions = async (req, res) => {
                 order: [[sequelize.literal('usageCount'), 'DESC']],
                 limit: 10
             });
-            return res.json(tags);
+            return apiResponse.success(res, tags);
         }
 
         const tags = await MediaTag.findAll({
@@ -115,9 +116,9 @@ exports.getSuggestions = async (req, res) => {
             limit: 10
         });
 
-        res.json(tags);
+        apiResponse.success(res, tags);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -127,7 +128,7 @@ exports.getOrCreate = async (req, res) => {
         const { name } = req.body;
 
         if (!name || !name.trim()) {
-            return res.status(400).json({ error: 'Nome da tag e obrigatorio' });
+            return apiResponse.error(res, 'Nome da tag e obrigatorio', 400);
         }
 
         const [tag, created] = await MediaTag.findOrCreate({
@@ -141,8 +142,8 @@ exports.getOrCreate = async (req, res) => {
             }
         });
 
-        res.status(created ? 201 : 200).json({ tag, created });
+        apiResponse.success(res, { tag, created }, created ? 201 : 200);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };

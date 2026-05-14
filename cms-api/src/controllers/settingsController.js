@@ -1,5 +1,6 @@
 const { Settings } = require('../models');
 const cacheService = require('../services/cacheService');
+const apiResponse = require('../utils/apiResponse');
 
 // Whitelist of allowed settings keys
 const ALLOWED_SETTINGS = {
@@ -83,9 +84,9 @@ exports.getSettings = async (req, res) => {
             cacheService.TTL.SETTINGS
         );
 
-        res.json(settingsObject);
+        apiResponse.success(res, settingsObject);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -95,14 +96,14 @@ exports.updateSettings = async (req, res) => {
 
         // Validate input
         if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
-            return res.status(400).json({ error: 'Invalid settings data' });
+            return apiResponse.error(res, 'Invalid settings data', 400);
         }
 
         // Validate each setting against whitelist
         for (const [key, value] of Object.entries(updates)) {
             const validation = validateSetting(key, value);
             if (!validation.valid) {
-                return res.status(400).json({ error: validation.error });
+                return apiResponse.error(res, validation.error, 400);
             }
         }
 
@@ -133,8 +134,8 @@ exports.updateSettings = async (req, res) => {
             settingsObject[setting.key] = setting.value;
         });
 
-        res.json(settingsObject);
+        apiResponse.success(res, settingsObject);
     } catch (err) {
-        res.status(500).json({ error: 'Erro ao salvar configuracoes' });
+        apiResponse.error(res, 'Erro ao salvar configuracoes');
     }
 };

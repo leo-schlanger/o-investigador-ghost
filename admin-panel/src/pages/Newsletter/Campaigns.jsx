@@ -27,10 +27,12 @@ import {
   duplicateCampaign,
   CAMPAIGN_STATUS
 } from '../../services/newsletter';
+import { useNotification } from '../../context/NotificationContext';
 import NewsletterNav from './NewsletterNav';
 
 const Campaigns = () => {
   const navigate = useNavigate();
+  const { showError, showInfo } = useNotification();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -86,7 +88,7 @@ const Campaigns = () => {
       fetchCampaigns();
     } catch (err) {
       console.error('Error deleting campaign:', err);
-      alert('Erro ao eliminar campanha');
+      showError('Erro ao eliminar campanha');
     }
     setOpenMenu(null);
   };
@@ -95,12 +97,12 @@ const Campaigns = () => {
     try {
       const result = await duplicateCampaign(id);
       if (result.isMock) {
-        alert('Modo de demonstracao: campanha duplicada simulada.');
+        showInfo('Modo de demonstracao: campanha duplicada simulada.');
       }
       fetchCampaigns();
     } catch (err) {
       console.error('Error duplicating campaign:', err);
-      alert('Erro ao duplicar campanha');
+      showError('Erro ao duplicar campanha');
     }
     setOpenMenu(null);
   };

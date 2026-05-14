@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Determine API URL based on environment
-        const isProduction = window.location.hostname !== 'localhost';
-        const apiBaseUrl = isProduction
-            ? 'https://api.jornalinvestigador.pt'
-            : 'http://localhost:3001';
+        // Determine API URL from meta tag or dynamically
+        const apiBaseUrl = (() => {
+            const meta = document.querySelector('meta[name="api-url"]');
+            if (meta && meta.content) return meta.content;
+            return window.location.hostname !== 'localhost'
+                ? window.location.origin.replace('://', '://api.')
+                : 'http://localhost:3001';
+        })();
 
         // Fetch ad configuration from the CMS API
         const response = await fetch(`${apiBaseUrl}/api/public/ads-config`);
         if (!response.ok) {
-            console.error('Failed to fetch ad configuration:', response.status);
             return;
         }
 
@@ -17,7 +19,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // If ads are disabled globally, simply return
         if (!adConfig.adsEnabled) {
-            console.log('Ads are globally disabled.');
             return;
         }
 
@@ -37,6 +38,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (slotConfig && slotConfig.enabled) {
                 // Show the container (it's hidden by default in the template)
                 container.style.display = 'flex';
+                container.setAttribute('role', 'complementary');
+                container.setAttribute('aria-label', 'Publicidade');
 
                 // If we have both client ID and slot ID, inject real ad
                 if (clientId && slotConfig.slotId) {
@@ -62,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     try {
                         (window.adsbygoogle = window.adsbygoogle || []).push({});
                     } catch (e) {
-                        console.error('Error initializing AdSense slot', e);
+                        // AdSense initialization failed silently
                     }
 
                     scriptsAdded = true;
@@ -82,6 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
     } catch (error) {
-        console.error('Error in ads integrator:', error);
+        // Ads integrator error - fail silently
     }
 });

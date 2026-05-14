@@ -4,11 +4,14 @@
 (function() {
     'use strict';
 
-    // Determine API URL based on environment
-    const isProduction = window.location.hostname !== 'localhost';
-    const apiBaseUrl = isProduction
-        ? 'https://api.jornalinvestigador.pt'
-        : 'http://localhost:3001';
+    // Determine API URL from meta tag or dynamically
+    const apiBaseUrl = (() => {
+        const meta = document.querySelector('meta[name="api-url"]');
+        if (meta && meta.content) return meta.content;
+        return window.location.hostname !== 'localhost'
+            ? window.location.origin.replace('://', '://api.')
+            : 'http://localhost:3001';
+    })();
 
     /**
      * Track a view for the current post
@@ -60,7 +63,6 @@
             sessionStorage.setItem(sessionKey, 'true');
         })
         .catch(err => {
-            console.error('Error tracking view:', err);
         });
     }
 
@@ -101,7 +103,6 @@
                 });
             })
             .catch(err => {
-                console.error('Error loading most viewed:', err);
                 // Keep fallback content on error
             });
     }

@@ -122,7 +122,7 @@
                 <div class="text-left">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Pesquisas recentes</span>
-                        <button id="clear-history" class="text-xs text-neutral-400 hover:text-neutral-600 transition">Limpar</button>
+                        <button id="clear-history" class="text-xs text-neutral-400 hover:text-neutral-600 transition" aria-label="Limpar historico de pesquisa">Limpar</button>
                     </div>
                     <div class="space-y-1">
                         ${history.map((h, i) => `
@@ -351,7 +351,6 @@
 
         // Check if API key is configured
         if (!apiKey) {
-            console.warn('Ghost Content API key not configured for search');
             listContainer.innerHTML = `
                 <div class="p-6 text-center">
                     <p class="text-neutral-600 font-medium">Busca indisponivel</p>
@@ -408,7 +407,6 @@
 
             renderResults(posts.slice(0, 10));
         } catch (error) {
-            console.error('Search error:', error);
             listContainer.innerHTML = `
                 <div class="p-6 text-center">
                     <p class="text-neutral-600 font-medium">Erro na busca</p>

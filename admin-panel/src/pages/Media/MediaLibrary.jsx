@@ -25,8 +25,10 @@ import {
 import FolderTree from '../../components/Media/FolderTree';
 import MediaFilters from '../../components/Media/MediaFilters';
 import MediaDetailsSidebar from '../../components/Media/MediaDetailsSidebar';
+import { useNotification } from '../../context/NotificationContext';
 
 const MediaLibrary = ({ onSelect = null }) => {
+  const { showError } = useNotification();
   // State
   const [media, setMedia] = useState([]);
   const [folders, setFolders] = useState([]);
@@ -135,7 +137,7 @@ const MediaLibrary = ({ onSelect = null }) => {
       setShowDetails(false);
       await loadFolders();
     } catch (err) {
-      alert('Erro ao eliminar midia');
+      showError('Erro ao eliminar midia');
     }
   };
 
@@ -193,7 +195,7 @@ const MediaLibrary = ({ onSelect = null }) => {
       await loadMedia();
       await loadFolders();
     } catch (err) {
-      alert('Erro ao mover ficheiros');
+      showError('Erro ao mover ficheiros');
     }
   };
 
@@ -202,7 +204,7 @@ const MediaLibrary = ({ onSelect = null }) => {
       await createFolder(name, parentId);
       await loadFolders();
     } catch (err) {
-      alert('Erro ao criar pasta');
+      showError('Erro ao criar pasta');
     }
   };
 
@@ -211,7 +213,7 @@ const MediaLibrary = ({ onSelect = null }) => {
       await updateFolder(id, { name });
       await loadFolders();
     } catch (err) {
-      alert('Erro ao renomear pasta');
+      showError('Erro ao renomear pasta');
     }
   };
 
@@ -224,7 +226,7 @@ const MediaLibrary = ({ onSelect = null }) => {
       await loadFolders();
       await loadMedia();
     } catch (err) {
-      alert('Erro ao eliminar pasta');
+      showError('Erro ao eliminar pasta');
     }
   };
 

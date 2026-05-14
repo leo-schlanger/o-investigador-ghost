@@ -6,6 +6,18 @@ jest.mock('../../models', () => ({
     }
 }));
 
+// Mock cacheService
+jest.mock('../../services/cacheService', () => ({
+    wrap: jest.fn((key, fn) => fn()),
+    del: jest.fn().mockResolvedValue(true),
+    keys: {
+        settings: jest.fn(() => 'settings')
+    },
+    TTL: {
+        SETTINGS: 300
+    }
+}));
+
 const { Settings } = require('../../models');
 const settingsController = require('../settingsController');
 
@@ -36,8 +48,11 @@ describe('settingsController', () => {
 
             expect(Settings.findAll).toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith({
-                siteTitle: 'Test Site',
-                siteDescription: 'A test description'
+                success: true,
+                data: {
+                    siteTitle: 'Test Site',
+                    siteDescription: 'A test description'
+                }
             });
         });
 
@@ -46,7 +61,7 @@ describe('settingsController', () => {
 
             await settingsController.getSettings(req, res);
 
-            expect(res.json).toHaveBeenCalledWith({});
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: {} });
         });
 
         it('should handle errors', async () => {
@@ -55,7 +70,7 @@ describe('settingsController', () => {
             await settingsController.getSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Database error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Database error' } });
         });
     });
 
@@ -82,8 +97,11 @@ describe('settingsController', () => {
 
             expect(Settings.findOrCreate).toHaveBeenCalledTimes(2);
             expect(res.json).toHaveBeenCalledWith({
-                siteTitle: 'New Title',
-                siteDescription: 'New Description'
+                success: true,
+                data: {
+                    siteTitle: 'New Title',
+                    siteDescription: 'New Description'
+                }
             });
         });
 
@@ -93,7 +111,7 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid settings data' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Invalid settings data' } });
         });
 
         it('should create new settings if they do not exist', async () => {
@@ -117,7 +135,10 @@ describe('settingsController', () => {
                 defaults: { value: 'New Title' }
             });
             expect(res.json).toHaveBeenCalledWith({
-                siteTitle: 'New Title'
+                success: true,
+                data: {
+                    siteTitle: 'New Title'
+                }
             });
         });
 
@@ -128,7 +149,7 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Erro ao salvar configuracoes' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Erro ao salvar configuracoes' } });
         });
 
         it('should reject non-whitelisted settings', async () => {
@@ -140,7 +161,7 @@ describe('settingsController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Setting "invalidSetting" is not allowed'
+                success: false, error: { message: 'Setting "invalidSetting" is not allowed' }
             });
         });
 
@@ -153,7 +174,7 @@ describe('settingsController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Setting "siteTitle" must be a string'
+                success: false, error: { message: 'Setting "siteTitle" must be a string' }
             });
         });
 
@@ -166,7 +187,7 @@ describe('settingsController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Setting "adsEnabled" must be one of: true, false'
+                success: false, error: { message: 'Setting "adsEnabled" must be one of: true, false' }
             });
         });
 
@@ -179,7 +200,7 @@ describe('settingsController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Setting "adSlots" must be valid JSON'
+                success: false, error: { message: 'Setting "adSlots" must be valid JSON' }
             });
         });
 
@@ -200,7 +221,10 @@ describe('settingsController', () => {
             await settingsController.updateSettings(req, res);
 
             expect(res.json).toHaveBeenCalledWith({
-                adSlots: '{"slot1": "123"}'
+                success: true,
+                data: {
+                    adSlots: '{"slot1": "123"}'
+                }
             });
         });
     });

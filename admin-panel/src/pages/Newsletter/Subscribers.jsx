@@ -25,9 +25,11 @@ import {
   exportSubscribers,
   SUBSCRIBER_STATUS
 } from '../../services/newsletter';
+import { useNotification } from '../../context/NotificationContext';
 import NewsletterNav from './NewsletterNav';
 
 const Subscribers = () => {
+  const { showSuccess, showError, showInfo } = useNotification();
   const [subscribers, setSubscribers] = useState([]);
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +113,7 @@ const Subscribers = () => {
       fetchSubscribers();
     } catch (err) {
       console.error('Error deleting subscriber:', err);
-      alert('Erro ao remover subscritor');
+      showError('Erro ao remover subscritor');
     }
   };
 
@@ -123,7 +125,7 @@ const Subscribers = () => {
     try {
       const result = await createSubscriber(newSubscriber);
       if (result.isMock) {
-        alert('Modo de demonstracao: subscritor nao foi realmente adicionado.');
+        showInfo('Modo de demonstracao: subscritor nao foi realmente adicionado.');
       }
       setShowAddModal(false);
       setNewSubscriber({ email: '', name: '', lists: [] });
@@ -162,7 +164,7 @@ const Subscribers = () => {
       }
     } catch (err) {
       console.error('Error exporting:', err);
-      alert('Erro ao exportar subscritores');
+      showError('Erro ao exportar subscritores');
     }
   };
 
@@ -173,15 +175,15 @@ const Subscribers = () => {
     try {
       const result = await importSubscribers(file);
       if (result.isMock) {
-        alert('Modo de demonstracao: importacao simulada.');
+        showInfo('Modo de demonstracao: importacao simulada.');
       } else {
-        alert(`Importados ${result.imported} subscritores com sucesso!`);
+        showSuccess(`Importados ${result.imported} subscritores com sucesso!`);
       }
       setShowImportModal(false);
       fetchSubscribers();
     } catch (err) {
       console.error('Error importing:', err);
-      alert('Erro ao importar ficheiro');
+      showError('Erro ao importar ficheiro');
     }
   };
 

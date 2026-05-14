@@ -1,5 +1,6 @@
 const ghostApi = require('../services/ghostApi');
 const logger = require('../utils/logger');
+const apiResponse = require('../utils/apiResponse');
 
 /**
  * List all tags
@@ -9,7 +10,7 @@ exports.list = async (req, res) => {
     try {
         const tags = await ghostApi.listTags();
 
-        res.json(
+        apiResponse.success(res,
             tags.map((tag) => ({
                 id: tag.id,
                 name: tag.name,
@@ -25,7 +26,7 @@ exports.list = async (req, res) => {
         );
     } catch (err) {
         logger.error('Error listing tags:', err);
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -38,7 +39,7 @@ exports.get = async (req, res) => {
         const { id } = req.params;
         const tag = await ghostApi.getTag(id);
 
-        res.json({
+        apiResponse.success(res, {
             id: tag.id,
             name: tag.name,
             slug: tag.slug,
@@ -51,9 +52,9 @@ exports.get = async (req, res) => {
     } catch (err) {
         logger.error('Error getting tag:', err);
         if (err.message && err.message.includes('not found')) {
-            return res.status(404).json({ error: 'Tag not found' });
+            return apiResponse.notFound(res, 'Tag');
         }
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -66,12 +67,12 @@ exports.create = async (req, res) => {
         const data = req.body;
 
         if (!data.name) {
-            return res.status(400).json({ error: 'Name is required' });
+            return apiResponse.error(res, 'Name is required', 400);
         }
 
         const tag = await ghostApi.createTag(data);
 
-        res.status(201).json({
+        apiResponse.success(res, {
             id: tag.id,
             name: tag.name,
             slug: tag.slug,
@@ -79,10 +80,10 @@ exports.create = async (req, res) => {
             feature_image: tag.feature_image,
             meta_title: tag.meta_title,
             meta_description: tag.meta_description
-        });
+        }, 201);
     } catch (err) {
         logger.error('Error creating tag:', err);
-        res.status(400).json({ error: err.message });
+        apiResponse.error(res, err.message, 400);
     }
 };
 
@@ -97,7 +98,7 @@ exports.update = async (req, res) => {
 
         const tag = await ghostApi.updateTag(id, data);
 
-        res.json({
+        apiResponse.success(res, {
             id: tag.id,
             name: tag.name,
             slug: tag.slug,
@@ -109,9 +110,9 @@ exports.update = async (req, res) => {
     } catch (err) {
         logger.error('Error updating tag:', err);
         if (err.message && err.message.includes('not found')) {
-            return res.status(404).json({ error: 'Tag not found' });
+            return apiResponse.notFound(res, 'Tag');
         }
-        res.status(400).json({ error: err.message });
+        apiResponse.error(res, err.message, 400);
     }
 };
 
@@ -123,13 +124,13 @@ exports.delete = async (req, res) => {
     try {
         const { id } = req.params;
         await ghostApi.deleteTag(id);
-        res.json({ message: 'Tag deleted successfully' });
+        apiResponse.success(res, { message: 'Tag deleted successfully' });
     } catch (err) {
         logger.error('Error deleting tag:', err);
         if (err.message && err.message.includes('not found')) {
-            return res.status(404).json({ error: 'Tag not found' });
+            return apiResponse.notFound(res, 'Tag');
         }
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -199,7 +200,7 @@ exports.initCategories = async (req, res) => {
             }
         }
 
-        res.json({
+        apiResponse.success(res, {
             message: 'Category tags initialization complete',
             created: results.created,
             existing: results.existing,
@@ -207,6 +208,6 @@ exports.initCategories = async (req, res) => {
         });
     } catch (err) {
         logger.error('Error initializing category tags:', err);
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };

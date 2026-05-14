@@ -10,6 +10,7 @@ const {
     Sequelize
 } = require('../models');
 const { Op } = Sequelize;
+const apiResponse = require('../utils/apiResponse');
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, '../../uploads');
@@ -41,8 +42,8 @@ const upload = multer({
 
 exports.uploadMedia = (req, res) => {
     upload(req, res, async (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        if (err) return apiResponse.error(res, err.message, 400);
+        if (!req.file) return apiResponse.error(res, 'No file uploaded', 400);
 
         // Use PUBLIC_API_URL env var in production, fallback to request host
         const publicApiUrl = process.env.PUBLIC_API_URL;
@@ -79,9 +80,9 @@ exports.uploadMedia = (req, res) => {
                 ]
             });
 
-            res.json(mediaWithAssociations);
+            apiResponse.success(res, mediaWithAssociations);
         } catch (dbErr) {
-            res.status(500).json({ error: dbErr.message });
+            apiResponse.error(res, dbErr.message);
         }
     });
 };
@@ -150,14 +151,14 @@ exports.listMedia = async (req, res) => {
 
         const { count, rows } = await Media.findAndCountAll(queryOptions);
 
-        res.json({
+        apiResponse.success(res, {
             items: rows,
             total: count,
             page: parseInt(page),
             totalPages: Math.ceil(count / parseInt(limit))
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -173,12 +174,12 @@ exports.getMedia = async (req, res) => {
         });
 
         if (!media) {
-            return res.status(404).json({ error: 'Media nao encontrada' });
+            return apiResponse.notFound(res, 'Media');
         }
 
-        res.json(media);
+        apiResponse.success(res, media);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -189,7 +190,7 @@ exports.updateMedia = async (req, res) => {
 
         const media = await Media.findByPk(id);
         if (!media) {
-            return res.status(404).json({ error: 'Media nao encontrada' });
+            return apiResponse.notFound(res, 'Media');
         }
 
         // Update folder
@@ -197,7 +198,7 @@ exports.updateMedia = async (req, res) => {
             if (folderId) {
                 const folder = await MediaFolder.findByPk(folderId);
                 if (!folder) {
-                    return res.status(404).json({ error: 'Pasta nao encontrada' });
+                    return apiResponse.notFound(res, 'Pasta');
                 }
             }
             media.folderId = folderId || null;
@@ -233,9 +234,9 @@ exports.updateMedia = async (req, res) => {
             ]
         });
 
-        res.json(updatedMedia);
+        apiResponse.success(res, updatedMedia);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -244,14 +245,14 @@ exports.bulkMove = async (req, res) => {
         const { mediaIds, folderId } = req.body;
 
         if (!Array.isArray(mediaIds) || mediaIds.length === 0) {
-            return res.status(400).json({ error: 'Lista de media IDs e obrigatoria' });
+            return apiResponse.error(res, 'Lista de media IDs e obrigatoria', 400);
         }
 
         // Verify folder exists if provided
         if (folderId) {
             const folder = await MediaFolder.findByPk(folderId);
             if (!folder) {
-                return res.status(404).json({ error: 'Pasta nao encontrada' });
+                return apiResponse.notFound(res, 'Pasta');
             }
         }
 
@@ -260,12 +261,12 @@ exports.bulkMove = async (req, res) => {
             { where: { id: { [Op.in]: mediaIds } } }
         );
 
-        res.json({
+        apiResponse.success(res, {
             message: `${updatedCount} items movidos`,
             updatedCount
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
@@ -274,11 +275,11 @@ exports.bulkAddTags = async (req, res) => {
         const { mediaIds, tagIds } = req.body;
 
         if (!Array.isArray(mediaIds) || mediaIds.length === 0) {
-            return res.status(400).json({ error: 'Lista de media IDs e obrigatoria' });
+            return apiResponse.error(res, 'Lista de media IDs e obrigatoria', 400);
         }
 
         if (!Array.isArray(tagIds) || tagIds.length === 0) {
-            return res.status(400).json({ error: 'Lista de tag IDs e obrigatoria' });
+            return apiResponse.error(res, 'Lista de tag IDs e obrigatoria', 400);
         }
 
         // Create assignments for each media-tag pair
@@ -291,18 +292,18 @@ exports.bulkAddTags = async (req, res) => {
 
         await MediaTagAssignment.bulkCreate(assignments, { ignoreDuplicates: true });
 
-        res.json({
+        apiResponse.success(res, {
             message: `Tags adicionadas a ${mediaIds.length} items`
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };
 
 exports.deleteMedia = async (req, res) => {
     try {
         const media = await Media.findByPk(req.params.id);
-        if (!media) return res.status(404).json({ error: 'Media not found' });
+        if (!media) return apiResponse.notFound(res, 'Media');
 
         // Delete from disk
         const filePath = path.join(uploadDir, media.filename);
@@ -312,8 +313,8 @@ exports.deleteMedia = async (req, res) => {
 
         // Tag assignments will be deleted via CASCADE
         await media.destroy();
-        res.json({ message: 'Media deleted' });
+        apiResponse.success(res, { message: 'Media deleted' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        apiResponse.error(res, err.message);
     }
 };

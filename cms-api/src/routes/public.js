@@ -3,13 +3,14 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { Settings, PostView, ViewLog } = require('../models');
 const contactController = require('../controllers/contactController');
+const logger = require('../utils/logger');
 
 // Optional geoip - may fail on some systems
 let geoip = null;
 try {
     geoip = require('geoip-lite');
 } catch (err) {
-    console.warn('geoip-lite not available, geolocation disabled');
+    logger.warn('geoip-lite not available, geolocation disabled');
 }
 
 // Rate limiter for contact form (3 requests per hour per IP)
@@ -115,11 +116,11 @@ router.post('/track-view', async (req, res) => {
             country,
             city,
             viewedAt: new Date()
-        }).catch((err) => console.error('ViewLog error:', err));
+        }).catch((err) => logger.error('ViewLog error', { error: err.message }));
 
         res.json({ success: true, views: created ? 1 : postView.viewCount + 1 });
     } catch (err) {
-        console.error('Error tracking view:', err);
+        logger.error('Error tracking view', { error: err.message });
         res.status(500).json({ error: err.message });
     }
 });
@@ -165,7 +166,7 @@ router.get('/most-viewed', async (req, res) => {
 
         res.json(mostViewed);
     } catch (err) {
-        console.error('Error fetching most viewed:', err);
+        logger.error('Error fetching most viewed', { error: err.message });
         res.status(500).json({ error: err.message });
     }
 });

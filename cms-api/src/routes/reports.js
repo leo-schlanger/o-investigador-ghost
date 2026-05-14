@@ -4,6 +4,7 @@ const { Op } = require('sequelize');
 const { PostView, ViewLog, User, Article } = require('../models');
 const { protect } = require('../middleware/authMiddleware');
 const ghostApi = require('../services/ghostApi');
+const logger = require('../utils/logger');
 
 // Optional dependencies for exports
 let PDFDocument = null;
@@ -11,12 +12,12 @@ let ExcelJS = null;
 try {
     PDFDocument = require('pdfkit');
 } catch (err) {
-    console.warn('pdfkit not available, PDF export disabled');
+    logger.warn('pdfkit not available, PDF export disabled');
 }
 try {
     ExcelJS = require('exceljs');
 } catch (err) {
-    console.warn('exceljs not available, Excel export disabled');
+    logger.warn('exceljs not available, Excel export disabled');
 }
 
 // Helper: Get date range
@@ -143,7 +144,7 @@ router.get('/preview/:type', protect, async (req, res) => {
             data
         });
     } catch (err) {
-        console.error('Report preview error:', err);
+        logger.error('Report preview error', { error: err.message });
         res.status(500).json({ error: err.message });
     }
 });
@@ -273,7 +274,7 @@ router.get('/export/excel/:type', protect, async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (err) {
-        console.error('Excel export error:', err);
+        logger.error('Excel export error', { error: err.message });
         res.status(500).json({ error: err.message });
     }
 });
@@ -411,7 +412,7 @@ router.get('/export/pdf/:type', protect, async (req, res) => {
 
         doc.end();
     } catch (err) {
-        console.error('PDF export error:', err);
+        logger.error('PDF export error', { error: err.message });
         res.status(500).json({ error: err.message });
     }
 });

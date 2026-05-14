@@ -148,6 +148,8 @@ services:
   nginx:
     image: nginx:alpine
     restart: always
+    mem_limit: 128m
+    memswap_limit: 128m
     depends_on:
       - ghost
       - api
@@ -169,6 +171,8 @@ services:
   loki:
     image: grafana/loki:3.1.0
     restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
     volumes:
       - ./infrastructure/monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
@@ -185,6 +189,8 @@ services:
   promtail:
     image: grafana/promtail:3.1.0
     restart: always
+    mem_limit: 128m
+    memswap_limit: 128m
     depends_on:
       loki:
         condition: service_healthy
@@ -200,6 +206,8 @@ services:
   grafana:
     image: grafana/grafana:10.2.0
     restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
     depends_on:
       loki:
         condition: service_healthy

@@ -1,4 +1,5 @@
 const GhostAdminAPI = require('@tryghost/admin-api');
+const logger = require('../utils/logger');
 
 // Initialize the Ghost Admin API client
 let ghostApi = null;
@@ -12,10 +13,10 @@ try {
         });
         // Ghost Admin API initialized
     } else {
-        console.warn('GHOST_API_URL or GHOST_API_KEY not provided. Ghost API is disabled.');
+        logger.warn('GHOST_API_URL or GHOST_API_KEY not provided. Ghost API is disabled.');
     }
 } catch (err) {
-    console.error('Failed to initialize Ghost Admin API:', err);
+    logger.error('Failed to initialize Ghost Admin API', { error: err.message });
 }
 
 /**
@@ -76,7 +77,7 @@ exports.listPosts = async (options = {}) => {
             meta: result.meta
         };
     } catch (err) {
-        console.error('Error listing posts from Ghost:', err);
+        logger.error('Error listing posts from Ghost', { error: err.message });
         throw err;
     }
 };
@@ -107,7 +108,7 @@ exports.getPost = async (id, options = {}) => {
 
         return post;
     } catch (err) {
-        console.error(`Error getting post ${id} from Ghost:`, err);
+        logger.error(`Error getting post ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -127,7 +128,7 @@ exports.createPost = async (data) => {
         const post = await ghostApi.posts.add(postPayload, { source: 'html' });
         return post;
     } catch (err) {
-        console.error('Error creating post in Ghost:', err);
+        logger.error('Error creating post in Ghost', { error: err.message });
         throw err;
     }
 };
@@ -154,7 +155,7 @@ exports.updatePost = async (id, data) => {
         const post = await ghostApi.posts.edit(postPayload, { source: 'html' });
         return post;
     } catch (err) {
-        console.error(`Error updating post ${id} in Ghost:`, err);
+        logger.error(`Error updating post ${id} in Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -173,7 +174,7 @@ exports.deletePost = async (id) => {
         await ghostApi.posts.delete({ id });
         return true;
     } catch (err) {
-        console.error(`Error deleting post ${id} from Ghost:`, err);
+        logger.error(`Error deleting post ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -191,7 +192,7 @@ exports.listTags = async () => {
         const tags = await ghostApi.tags.browse({ limit: 'all', order: 'name ASC' });
         return tags;
     } catch (err) {
-        console.error('Error listing tags from Ghost:', err);
+        logger.error('Error listing tags from Ghost', { error: err.message });
         throw err;
     }
 };
@@ -209,7 +210,7 @@ exports.listAuthors = async () => {
         const authors = await ghostApi.users.browse({ limit: 'all' });
         return authors;
     } catch (err) {
-        console.error('Error listing authors from Ghost:', err);
+        logger.error('Error listing authors from Ghost', { error: err.message });
         throw err;
     }
 };
@@ -231,7 +232,7 @@ exports.findAuthorByEmail = async (email) => {
         );
         return author || null;
     } catch (err) {
-        console.error('Error finding author by email:', err);
+        logger.error('Error finding author by email', { error: err.message });
         return null;
     }
 };
@@ -635,7 +636,7 @@ exports.listPages = async (options = {}) => {
             meta: result.meta
         };
     } catch (err) {
-        console.error('Error listing pages from Ghost:', err);
+        logger.error('Error listing pages from Ghost', { error: err.message });
         throw err;
     }
 };
@@ -661,7 +662,7 @@ exports.getPage = async (id, options = {}) => {
         }
         return page;
     } catch (err) {
-        console.error(`Error getting page ${id} from Ghost:`, err);
+        logger.error(`Error getting page ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -679,7 +680,7 @@ exports.createPage = async (data) => {
         const page = await ghostApi.pages.add(pagePayload, { source: 'html' });
         return page;
     } catch (err) {
-        console.error('Error creating page in Ghost:', err);
+        logger.error('Error creating page in Ghost', { error: err.message });
         throw err;
     }
 };
@@ -701,7 +702,7 @@ exports.updatePage = async (id, data) => {
         const page = await ghostApi.pages.edit(pagePayload, { source: 'html' });
         return page;
     } catch (err) {
-        console.error(`Error updating page ${id} in Ghost:`, err);
+        logger.error(`Error updating page ${id} in Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -718,7 +719,7 @@ exports.deletePage = async (id) => {
         await ghostApi.pages.delete({ id });
         return true;
     } catch (err) {
-        console.error(`Error deleting page ${id} from Ghost:`, err);
+        logger.error(`Error deleting page ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -744,7 +745,7 @@ exports.getTag = async (id, options = {}) => {
         }
         return tag;
     } catch (err) {
-        console.error(`Error getting tag ${id} from Ghost:`, err);
+        logger.error(`Error getting tag ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -770,7 +771,7 @@ exports.createTag = async (data) => {
         const tag = await ghostApi.tags.add(tagPayload);
         return tag;
     } catch (err) {
-        console.error('Error creating tag in Ghost:', err);
+        logger.error('Error creating tag in Ghost', { error: err.message });
         throw err;
     }
 };
@@ -805,7 +806,7 @@ exports.updateTag = async (id, data) => {
         const tag = await ghostApi.tags.edit(tagPayload);
         return tag;
     } catch (err) {
-        console.error(`Error updating tag ${id} in Ghost:`, err);
+        logger.error(`Error updating tag ${id} in Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -822,7 +823,7 @@ exports.deleteTag = async (id) => {
         await ghostApi.tags.delete({ id });
         return true;
     } catch (err) {
-        console.error(`Error deleting tag ${id} from Ghost:`, err);
+        logger.error(`Error deleting tag ${id} from Ghost`, { error: err.message });
         throw err;
     }
 };
@@ -843,7 +844,7 @@ exports.getSettings = async () => {
         const settings = await ghostApi.settings.browse();
         return settings;
     } catch (err) {
-        console.error('Error getting settings from Ghost:', err);
+        logger.error('Error getting settings from Ghost', { error: err.message });
         throw err;
     }
 };
@@ -860,7 +861,7 @@ exports.updateSettings = async (data) => {
         const settings = await ghostApi.settings.edit(data);
         return settings;
     } catch (err) {
-        console.error('Error updating settings in Ghost:', err);
+        logger.error('Error updating settings in Ghost', { error: err.message });
         throw err;
     }
 };

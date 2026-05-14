@@ -38,6 +38,7 @@ import {
   sendTestEmail,
   getLists
 } from '../../services/newsletter';
+import { useNotification } from '../../context/NotificationContext';
 import EmailPreview from './EmailPreview';
 import { NEWSLETTER_TEMPLATES, getTemplateById, getDefaultBlockContent } from './templates';
 
@@ -73,6 +74,7 @@ const BLOCK_TYPES = [
 const CampaignEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showSuccess, showError, showInfo } = useNotification();
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get('template');
 
@@ -187,12 +189,12 @@ const CampaignEditor = () => {
       if (isEditing) {
         const result = await updateCampaign(id, data);
         if (result.isMock) {
-          alert('Modo de demonstracao: alteracoes simuladas.');
+          showInfo('Modo de demonstracao: alteracoes simuladas.');
         }
       } else {
         const result = await createCampaign(data);
         if (result.isMock) {
-          alert('Modo de demonstracao: campanha simulada.');
+          showInfo('Modo de demonstracao: campanha simulada.');
         }
         if (result.id) {
           navigate(`/newsletter/campaigns/${result.id}`, { replace: true });
@@ -217,11 +219,11 @@ const CampaignEditor = () => {
     try {
       const result = await sendCampaign(id || 'new');
       if (result.isMock) {
-        alert(
+        showInfo(
           'Modo de demonstracao: Para enviar campanhas reais, configure as credenciais do Brevo.'
         );
       } else {
-        alert('Campanha enviada com sucesso!');
+        showSuccess('Campanha enviada com sucesso!');
         navigate('/newsletter/campaigns');
       }
     } catch (err) {
@@ -232,16 +234,16 @@ const CampaignEditor = () => {
 
   const handleSchedule = async () => {
     if (!scheduleDate) {
-      alert('Selecione uma data e hora');
+      showError('Selecione uma data e hora');
       return;
     }
 
     try {
       const result = await scheduleCampaign(id || 'new', scheduleDate);
       if (result.isMock) {
-        alert('Modo de demonstracao: agendamento simulado.');
+        showInfo('Modo de demonstracao: agendamento simulado.');
       } else {
-        alert('Campanha agendada com sucesso!');
+        showSuccess('Campanha agendada com sucesso!');
       }
       setShowScheduleModal(false);
     } catch (err) {
@@ -252,23 +254,23 @@ const CampaignEditor = () => {
 
   const handleSendTest = async () => {
     if (!testEmail) {
-      alert('Insira um email para teste');
+      showError('Insira um email para teste');
       return;
     }
 
     try {
       const result = await sendTestEmail(id || 'new', testEmail);
       if (result.isMock) {
-        alert(
+        showInfo(
           'Modo de demonstracao: Para enviar emails de teste, configure as credenciais do Brevo.'
         );
       } else {
-        alert('Email de teste enviado!');
+        showSuccess('Email de teste enviado!');
       }
       setShowTestModal(false);
     } catch (err) {
       console.error('Error sending test:', err);
-      alert('Erro ao enviar email de teste');
+      showError('Erro ao enviar email de teste');
     }
   };
 

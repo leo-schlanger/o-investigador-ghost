@@ -143,11 +143,12 @@ sleep 15
 # Check each service
 check_service() {
     local service=$1
-    local url=$2
+    local container=$2
+    local url=$3
     local retries=10
 
     while [ $retries -gt 0 ]; do
-        if curl -sf "$url" > /dev/null 2>&1; then
+        if docker exec "$container" wget -qO- "$url" > /dev/null 2>&1; then
             log_info "$service is healthy!"
             return 0
         fi
@@ -159,8 +160,8 @@ check_service() {
     return 1
 }
 
-check_service "API" "http://localhost:3001/health" || true
-check_service "Ghost" "http://localhost:2368/ghost/api/admin/site/" || true
+check_service "API" "o-investigador-api-1" "http://localhost:3000/health" || true
+check_service "Ghost" "o-investigador-ghost-1" "http://localhost:2368/ghost/api/admin/site/" || true
 
 # -----------------------------------------------------------------------------
 # 7. Cleanup old images

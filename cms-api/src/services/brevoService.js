@@ -3,14 +3,16 @@
  * Integra com Ghost Members e gerencia campanhas de newsletter
  */
 
+const logger = require('../utils/logger');
+
 let SibApiV3Sdk = null;
 
 // Tentar importar o SDK do Brevo (graceful degradation)
 try {
     SibApiV3Sdk = require('@getbrevo/brevo');
 } catch (e) {
-    console.warn('Brevo SDK not installed. Newsletter features will be in demo mode.');
-    console.warn('To enable: npm install @getbrevo/brevo');
+    logger.warn('Brevo SDK not installed. Newsletter features will be in demo mode.');
+    logger.warn('To enable: npm install @getbrevo/brevo');
 }
 
 class BrevoService {
@@ -39,9 +41,9 @@ class BrevoService {
             this.sendersApi = new SibApiV3Sdk.SendersApi();
             this.configured = true;
 
-            console.log('Brevo service initialized successfully');
+            logger.info('Brevo service initialized successfully');
         } catch (error) {
-            console.error('Failed to initialize Brevo service:', error.message);
+            logger.error('Failed to initialize Brevo service', { error: error.message });
             this.configured = false;
         }
     }
@@ -101,7 +103,7 @@ class BrevoService {
                 total: result.count
             };
         } catch (error) {
-            console.error('Error fetching lists:', error);
+            logger.error('Error fetching lists', { error: error.message });
             throw error;
         }
     }
@@ -119,7 +121,7 @@ class BrevoService {
             const result = await this.contactsApi.createList(createList);
             return { success: true, id: result.id };
         } catch (error) {
-            console.error('Error creating list:', error);
+            logger.error('Error creating list', { error: error.message });
             throw error;
         }
     }
@@ -133,7 +135,7 @@ class BrevoService {
             await this.contactsApi.deleteList(id);
             return { success: true };
         } catch (error) {
-            console.error('Error deleting list:', error);
+            logger.error('Error deleting list', { error: error.message });
             throw error;
         }
     }
@@ -172,7 +174,7 @@ class BrevoService {
                 limit: params.limit || 50
             };
         } catch (error) {
-            console.error('Error fetching subscribers:', error);
+            logger.error('Error fetching subscribers', { error: error.message });
             throw error;
         }
     }
@@ -221,7 +223,7 @@ class BrevoService {
             const result = await this.contactsApi.createContact(createContact);
             return { success: true, id: result.id };
         } catch (error) {
-            console.error('Error creating subscriber:', error);
+            logger.error('Error creating subscriber', { error: error.message });
             throw error;
         }
     }
@@ -253,7 +255,7 @@ class BrevoService {
             await this.contactsApi.updateContact(identifier, updateContact);
             return { success: true };
         } catch (error) {
-            console.error('Error updating subscriber:', error);
+            logger.error('Error updating subscriber', { error: error.message });
             throw error;
         }
     }
@@ -267,7 +269,7 @@ class BrevoService {
             await this.contactsApi.deleteContact(identifier);
             return { success: true };
         } catch (error) {
-            console.error('Error deleting subscriber:', error);
+            logger.error('Error deleting subscriber', { error: error.message });
             throw error;
         }
     }
@@ -291,7 +293,7 @@ class BrevoService {
             await this.contactsApi.importContacts(requestContactImport);
             return { success: true, imported: contacts.length };
         } catch (error) {
-            console.error('Error importing subscribers:', error);
+            logger.error('Error importing subscribers', { error: error.message });
             throw error;
         }
     }
@@ -342,7 +344,7 @@ class BrevoService {
                 total: result.count
             };
         } catch (error) {
-            console.error('Error fetching campaigns:', error);
+            logger.error('Error fetching campaigns', { error: error.message });
             throw error;
         }
     }
@@ -403,7 +405,7 @@ class BrevoService {
             const result = await this.emailCampaignsApi.createEmailCampaign(emailCampaign);
             return { success: true, id: result.id };
         } catch (error) {
-            console.error('Error creating campaign:', error);
+            logger.error('Error creating campaign', { error: error.message });
             throw error;
         }
     }
@@ -439,7 +441,7 @@ class BrevoService {
             await this.emailCampaignsApi.updateEmailCampaign(id, updateCampaign);
             return { success: true };
         } catch (error) {
-            console.error('Error updating campaign:', error);
+            logger.error('Error updating campaign', { error: error.message });
             throw error;
         }
     }
@@ -453,7 +455,7 @@ class BrevoService {
             await this.emailCampaignsApi.deleteEmailCampaign(id);
             return { success: true };
         } catch (error) {
-            console.error('Error deleting campaign:', error);
+            logger.error('Error deleting campaign', { error: error.message });
             throw error;
         }
     }
@@ -471,7 +473,7 @@ class BrevoService {
             await this.emailCampaignsApi.sendEmailCampaignNow(id);
             return { success: true };
         } catch (error) {
-            console.error('Error sending campaign:', error);
+            logger.error('Error sending campaign', { error: error.message });
             throw error;
         }
     }
@@ -488,7 +490,7 @@ class BrevoService {
             await this.emailCampaignsApi.scheduleEmailCampaign(id, scheduleData);
             return { success: true };
         } catch (error) {
-            console.error('Error scheduling campaign:', error);
+            logger.error('Error scheduling campaign', { error: error.message });
             throw error;
         }
     }
@@ -509,7 +511,7 @@ class BrevoService {
             await this.emailCampaignsApi.sendTestEmail(id, testData);
             return { success: true };
         } catch (error) {
-            console.error('Error sending test email:', error);
+            logger.error('Error sending test email', { error: error.message });
             throw error;
         }
     }
@@ -537,7 +539,7 @@ class BrevoService {
                 clickRate: stats.sent > 0 ? (stats.uniqueClicks / stats.sent) * 100 : 0
             };
         } catch (error) {
-            console.error('Error fetching campaign stats:', error);
+            logger.error('Error fetching campaign stats', { error: error.message });
             throw error;
         }
     }
@@ -558,7 +560,7 @@ class BrevoService {
             const result = await this.importSubscribers(contacts, [listId]);
             return { success: true, synced: contacts.length };
         } catch (error) {
-            console.error('Error syncing Ghost members:', error);
+            logger.error('Error syncing Ghost members', { error: error.message });
             throw error;
         }
     }
@@ -601,7 +603,7 @@ class BrevoService {
                 lastCampaignDate: campaigns.campaigns[0]?.sentDate || null
             };
         } catch (error) {
-            console.error('Error fetching stats:', error);
+            logger.error('Error fetching stats', { error: error.message });
             throw error;
         }
     }

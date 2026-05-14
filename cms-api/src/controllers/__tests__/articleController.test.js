@@ -137,7 +137,7 @@ describe('articleController', () => {
             await articleController.list(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'API Error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'API Error' } });
         });
     });
 
@@ -151,7 +151,7 @@ describe('articleController', () => {
             await articleController.get(req, res);
 
             expect(ghostApi.getPost).toHaveBeenCalledWith('abc123');
-            expect(res.json).toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
         it('should return 404 if article not found', async () => {
@@ -161,7 +161,7 @@ describe('articleController', () => {
             await articleController.get(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Article not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Article not found' } });
         });
 
         it('should handle other errors', async () => {
@@ -198,7 +198,7 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Title is required' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Title is required' } });
         });
 
         it('should return 400 if title is empty', async () => {
@@ -207,7 +207,7 @@ describe('articleController', () => {
             await articleController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Title is required' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Title is required' } });
         });
 
         it('should return 400 if title is too long', async () => {
@@ -217,7 +217,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Title must be less than 255 characters'
+                success: false, error: { message: 'Title must be less than 255 characters' }
             });
         });
 
@@ -228,7 +228,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Slug must be less than 191 characters'
+                success: false, error: { message: 'Slug must be less than 191 characters' }
             });
         });
 
@@ -239,7 +239,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Invalid status. Must be: draft, published, or scheduled'
+                success: false, error: { message: 'Invalid status. Must be: draft, published, or scheduled' }
             });
         });
 
@@ -250,7 +250,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Scheduled posts require a publish date'
+                success: false, error: { message: 'Scheduled posts require a publish date' }
             });
         });
 
@@ -261,7 +261,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Invalid visibility. Must be: public, members, or paid'
+                success: false, error: { message: 'Invalid visibility. Must be: public, members, or paid' }
             });
         });
 
@@ -272,7 +272,7 @@ describe('articleController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
-                error: 'Invalid article type. Must be: cronica, reportagem, or opiniao'
+                success: false, error: { message: 'Invalid article type. Must be: cronica, reportagem, or opiniao' }
             });
         });
 
@@ -334,7 +334,7 @@ describe('articleController', () => {
             await articleController.update(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Title cannot be empty' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Title cannot be empty' } });
         });
 
         it('should return 404 if article not found', async () => {
@@ -390,7 +390,7 @@ describe('articleController', () => {
             await articleController.delete(req, res);
 
             expect(ghostApi.deletePost).toHaveBeenCalledWith('abc123');
-            expect(res.json).toHaveBeenCalledWith({ message: 'Article deleted successfully' });
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: { message: 'Article deleted successfully' } });
         });
 
         it('should return 400 if no ID provided', async () => {
@@ -399,7 +399,7 @@ describe('articleController', () => {
             await articleController.delete(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Article ID is required' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Article ID is required' } });
         });
 
         it('should return 404 if article not found', async () => {
@@ -429,10 +429,13 @@ describe('articleController', () => {
 
             await articleController.getTags(req, res);
 
-            expect(res.json).toHaveBeenCalledWith([
-                { id: '1', name: 'News', slug: 'news', description: 'News articles', count: 10 },
-                { id: '2', name: 'Sports', slug: 'sports', description: null, count: 5 }
-            ]);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: [
+                    { id: '1', name: 'News', slug: 'news', description: 'News articles', count: 10 },
+                    { id: '2', name: 'Sports', slug: 'sports', description: null, count: 5 }
+                ]
+            });
         });
 
         it('should handle errors', async () => {
@@ -460,15 +463,18 @@ describe('articleController', () => {
 
             await articleController.getAuthors(req, res);
 
-            expect(res.json).toHaveBeenCalledWith([
-                {
-                    id: '1',
-                    name: 'John Doe',
-                    slug: 'john',
-                    email: 'john@test.com',
-                    profile_image: 'img.jpg'
-                }
-            ]);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: [
+                    {
+                        id: '1',
+                        name: 'John Doe',
+                        slug: 'john',
+                        email: 'john@test.com',
+                        profile_image: 'img.jpg'
+                    }
+                ]
+            });
         });
 
         it('should handle errors', async () => {
@@ -484,21 +490,24 @@ describe('articleController', () => {
         it('should return article types', async () => {
             await articleController.getTypes(req, res);
 
-            expect(res.json).toHaveBeenCalledWith([
-                {
-                    value: 'cronica',
-                    label: 'Cronica',
-                    tagName: '#Cronica',
-                    tagSlug: 'hash-cronica'
-                },
-                {
-                    value: 'reportagem',
-                    label: 'Reportagem',
-                    tagName: '#Reportagem',
-                    tagSlug: 'hash-reportagem'
-                },
-                { value: 'opiniao', label: 'Opiniao', tagName: '#Opiniao', tagSlug: 'hash-opiniao' }
-            ]);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                data: [
+                    {
+                        value: 'cronica',
+                        label: 'Cronica',
+                        tagName: '#Cronica',
+                        tagSlug: 'hash-cronica'
+                    },
+                    {
+                        value: 'reportagem',
+                        label: 'Reportagem',
+                        tagName: '#Reportagem',
+                        tagSlug: 'hash-reportagem'
+                    },
+                    { value: 'opiniao', label: 'Opiniao', tagName: '#Opiniao', tagSlug: 'hash-opiniao' }
+                ]
+            });
         });
     });
 
@@ -512,10 +521,13 @@ describe('articleController', () => {
             expect(ghostApi.createTag).toHaveBeenCalledTimes(3);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    message: 'Article type tags initialization complete',
-                    results: expect.arrayContaining([
-                        expect.objectContaining({ status: 'created' })
-                    ])
+                    success: true,
+                    data: expect.objectContaining({
+                        message: 'Article type tags initialization complete',
+                        results: expect.arrayContaining([
+                            expect.objectContaining({ status: 'created' })
+                        ])
+                    })
                 })
             );
         });
@@ -532,7 +544,10 @@ describe('articleController', () => {
             expect(ghostApi.createTag).not.toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    results: expect.arrayContaining([expect.objectContaining({ status: 'exists' })])
+                    success: true,
+                    data: expect.objectContaining({
+                        results: expect.arrayContaining([expect.objectContaining({ status: 'exists' })])
+                    })
                 })
             );
         });
@@ -569,7 +584,7 @@ describe('articleController', () => {
                 order: [['createdAt', 'DESC']],
                 attributes: ['id', 'revisionNumber', 'title', 'userName', 'status', 'createdAt']
             });
-            expect(res.json).toHaveBeenCalledWith(mockRevisions);
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: mockRevisions });
         });
 
         it('should handle errors', async () => {
@@ -599,7 +614,7 @@ describe('articleController', () => {
             expect(ArticleRevision.findOne).toHaveBeenCalledWith({
                 where: { id: '1', articleId: 'abc123' }
             });
-            expect(res.json).toHaveBeenCalledWith(mockRevision);
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: mockRevision });
         });
 
         it('should return 404 if revision not found', async () => {
@@ -609,7 +624,7 @@ describe('articleController', () => {
             await articleController.getRevision(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Revision not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Revision not found' } });
         });
     });
 
@@ -654,7 +669,10 @@ describe('articleController', () => {
                 feature_image: 'old.jpg'
             });
             expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({ message: 'Article restored successfully' })
+                expect.objectContaining({
+                    success: true,
+                    data: expect.objectContaining({ message: 'Article restored successfully' })
+                })
             );
         });
 

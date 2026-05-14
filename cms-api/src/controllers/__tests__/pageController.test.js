@@ -45,8 +45,11 @@ describe('pageController', () => {
 
             expect(ghostApi.listPages).toHaveBeenCalled();
             expect(res.json).toHaveBeenCalledWith({
-                pages: [{ id: '1', title: 'About', slug: 'about', status: 'published' }],
-                meta: mockPages.meta
+                success: true,
+                data: {
+                    pages: [{ id: '1', title: 'About', slug: 'about', status: 'published' }],
+                    meta: mockPages.meta
+                }
             });
         });
 
@@ -70,7 +73,7 @@ describe('pageController', () => {
             await pageController.list(req, res);
 
             expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ error: 'API Error' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'API Error' } });
         });
     });
 
@@ -84,7 +87,7 @@ describe('pageController', () => {
             await pageController.get(req, res);
 
             expect(ghostApi.getPage).toHaveBeenCalledWith('1');
-            expect(res.json).toHaveBeenCalled();
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
         });
 
         it('should return 404 if page not found', async () => {
@@ -94,7 +97,7 @@ describe('pageController', () => {
             await pageController.get(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Page not found' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Page not found' } });
         });
 
         it('should handle other errors', async () => {
@@ -126,7 +129,7 @@ describe('pageController', () => {
             await pageController.create(req, res);
 
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ error: 'Title is required' });
+            expect(res.json).toHaveBeenCalledWith({ success: false, error: { message: 'Title is required' } });
         });
 
         it('should handle API errors', async () => {
@@ -187,7 +190,7 @@ describe('pageController', () => {
             await pageController.delete(req, res);
 
             expect(ghostApi.deletePage).toHaveBeenCalledWith('1');
-            expect(res.json).toHaveBeenCalledWith({ message: 'Page deleted successfully' });
+            expect(res.json).toHaveBeenCalledWith({ success: true, data: { message: 'Page deleted successfully' } });
         });
 
         it('should return 404 if page not found', async () => {
