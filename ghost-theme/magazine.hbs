@@ -62,7 +62,7 @@
                             <img src="{{profile_image}}" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full object-cover">
                             {{else}}
                             <div class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-300 font-bold text-xs">
-                                {{truncate name 1 ""}}
+                                {{name}}
                             </div>
                             {{/if}}
                             <div>
