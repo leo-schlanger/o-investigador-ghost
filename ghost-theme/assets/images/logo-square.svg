@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Navy background -->
+  <rect width="1024" height="1024" rx="64" fill="#0d345e"/>
+
+  <!-- Magnifying glass icon centered upper -->
+  <g transform="translate(512, 360)" stroke="#ffffff" stroke-width="32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="0" cy="0" r="110"/>
+    <line x1="78" y1="78" x2="145" y2="145"/>
+  </g>
+
+  <!-- Red accent dot on glass -->
+  <circle cx="470" cy="315" r="15" fill="#c0392b"/>
+
+  <!-- Text: O INVESTIGADOR -->
+  <text x="512" y="620" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="800" font-size="72" fill="#ffffff" letter-spacing="5">
+    O INVESTIGADOR
+  </text>
+
+  <!-- Red accent bar -->
+  <rect x="312" y="640" width="400" height="3" fill="#c0392b" rx="1.5"/>
+
+  <!-- Tagline -->
+  <text x="512" y="690" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="28" fill="#b9d0e8" letter-spacing="10">
+    JORNAL ONLINE
+  </text>
+</svg>

@@ -9,32 +9,38 @@
   <!-- Background -->
   <rect width="1200" height="630" fill="url(#bg)"/>
 
-  <!-- Accent line top -->
+  <!-- Top accent line -->
   <rect x="0" y="0" width="1200" height="4" fill="#c0392b"/>
 
-  <!-- Accent line bottom -->
+  <!-- Bottom accent line -->
   <rect x="0" y="626" width="1200" height="4" fill="#c0392b"/>
 
+  <!-- Magnifying glass icon (subtle, left-center) -->
+  <g transform="translate(600, 190)" stroke="#ffffff" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.15">
+    <circle cx="0" cy="0" r="70"/>
+    <line x1="50" y1="50" x2="95" y2="95"/>
+  </g>
+
   <!-- Logo text: O INVESTIGADOR -->
-  <text x="600" y="270" text-anchor="middle" font-family="'Playfair Display', Georgia, serif" font-weight="800" font-size="72" fill="#ffffff" letter-spacing="4">
+  <text x="600" y="290" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="800" font-size="72" fill="#ffffff" letter-spacing="4">
     O INVESTIGADOR
   </text>
 
   <!-- Accent divider bar -->
-  <rect x="420" y="295" width="360" height="3" fill="#c0392b" rx="1.5"/>
+  <rect x="420" y="310" width="360" height="3" fill="#c0392b" rx="1.5"/>
 
   <!-- Tagline -->
-  <text x="600" y="340" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="600" font-size="20" fill="#b9d0e8" letter-spacing="8">
+  <text x="600" y="358" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="22" fill="#b9d0e8" letter-spacing="8">
     JORNAL ONLINE
   </text>
 
-  <!-- Subtitle -->
-  <text x="600" y="400" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="18" fill="#8fb4d9">
+  <!-- Description -->
+  <text x="600" y="415" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="18" fill="#8fb4d9">
     Jornalismo investigativo em portugues
   </text>
 
   <!-- URL -->
-  <text x="600" y="560" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="500" font-size="16" fill="#5e92c5">
+  <text x="600" y="565" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="500" font-size="16" fill="#5e92c5">
     jornalinvestigador.pt
   </text>
 </svg>
