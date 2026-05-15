@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { protect, authorize } = require('../authMiddleware');
+const { protect, authorize, checkArticleOwnership } = require('../authMiddleware');
 
 // Mock the config
 jest.mock('../../config/env', () => ({
@@ -149,6 +149,125 @@ describe('authMiddleware', () => {
             middleware(req, res, next);
 
             expect(next).toHaveBeenCalled();
+        });
+    });
+
+    describe('checkArticleOwnership', () => {
+        let mockGhostApi;
+
+        beforeEach(() => {
+            mockGhostApi = {
+                getPost: jest.fn()
+            };
+            req.params = { id: 'post-123' };
+        });
+
+        it('should allow admin to modify any article', async () => {
+            req.user = { id: 1, role: 'admin', email: 'admin@test.com' };
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).toHaveBeenCalled();
+            expect(mockGhostApi.getPost).not.toHaveBeenCalled();
+        });
+
+        it('should allow editor to modify any article', async () => {
+            req.user = { id: 2, role: 'editor', email: 'editor@test.com' };
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).toHaveBeenCalled();
+            expect(mockGhostApi.getPost).not.toHaveBeenCalled();
+        });
+
+        it('should allow author to modify their own article', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            mockGhostApi.getPost.mockResolvedValue({
+                id: 'post-123',
+                authors: [{ email: 'author@test.com' }, { email: 'other@test.com' }]
+            });
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).toHaveBeenCalled();
+            expect(mockGhostApi.getPost).toHaveBeenCalledWith('post-123');
+        });
+
+        it('should block author from modifying another users article', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            mockGhostApi.getPost.mockResolvedValue({
+                id: 'post-123',
+                authors: [{ email: 'other@test.com' }]
+            });
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(403);
+        });
+
+        it('should handle case-insensitive email matching', async () => {
+            req.user = { id: 3, role: 'author', email: 'Author@Test.COM' };
+            mockGhostApi.getPost.mockResolvedValue({
+                id: 'post-123',
+                authors: [{ email: 'author@test.com' }]
+            });
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).toHaveBeenCalled();
+        });
+
+        it('should return 404 when article not found', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            mockGhostApi.getPost.mockRejectedValue(new Error('Resource not found'));
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(404);
+        });
+
+        it('should return 500 on unexpected errors', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            mockGhostApi.getPost.mockRejectedValue(new Error('Connection failed'));
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(500);
+        });
+
+        it('should return 400 when article ID is missing', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            req.params = {};
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(400);
+        });
+
+        it('should block author when article has no authors', async () => {
+            req.user = { id: 3, role: 'author', email: 'author@test.com' };
+            mockGhostApi.getPost.mockResolvedValue({
+                id: 'post-123',
+                authors: []
+            });
+            const middleware = checkArticleOwnership(mockGhostApi);
+
+            await middleware(req, res, next);
+
+            expect(next).not.toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(403);
         });
     });
 });

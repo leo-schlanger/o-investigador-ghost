@@ -35,3 +35,48 @@ exports.authorize = (...roles) => {
         next();
     };
 };
+
+/**
+ * Middleware to enforce article ownership for authors.
+ * Admins and editors can modify any article.
+ * Authors can only modify articles they authored.
+ *
+ * Must be used after `protect` middleware (requires req.user).
+ * Expects req.params.id to be the Ghost post ID.
+ */
+exports.checkArticleOwnership = (ghostApiService) => {
+    return async (req, res, next) => {
+        // Admins and editors bypass ownership check
+        if (req.user.role === 'admin' || req.user.role === 'editor') {
+            return next();
+        }
+
+        const articleId = req.params.id;
+        if (!articleId) {
+            return res.status(400).json({ error: 'Article ID is required' });
+        }
+
+        try {
+            const post = await ghostApiService.getPost(articleId);
+            const authors = post.authors || [];
+            const userEmail = req.user.email;
+
+            const isAuthor = authors.some(
+                (a) => a.email && a.email.toLowerCase() === userEmail.toLowerCase()
+            );
+
+            if (!isAuthor) {
+                return res.status(403).json({
+                    error: 'Nao tem permissao para modificar este artigo. Apenas o autor pode editar ou eliminar os seus proprios artigos.'
+                });
+            }
+
+            next();
+        } catch (err) {
+            if (err.message && err.message.includes('not found')) {
+                return res.status(404).json({ error: 'Article not found' });
+            }
+            return res.status(500).json({ error: 'Error verifying article ownership' });
+        }
+    };
+};
