@@ -87,7 +87,10 @@ const deleteUserFromGhost = async (email) => {
 
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
+        // Security: public registration always creates 'author' role.
+        // Only admins can assign roles via POST /api/auth/users.
+        const role = 'author';
 
         // Check if user exists
         const existingUser = await User.findOne({ where: { email } });
@@ -104,7 +107,7 @@ exports.register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'author'
+            role
         });
 
         // Create user in Ghost CMS (non-blocking)
@@ -112,7 +115,7 @@ exports.register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'author'
+            role
         }).catch((err) => {
             logger.error('Failed to sync user to Ghost on register', { email, error: err.message });
         });
@@ -242,6 +245,7 @@ exports.me = async (req, res) => {
 
 exports.updateMe = async (req, res) => {
     try {
+        // Security: explicitly exclude 'role' — users cannot self-promote
         const { name, email, password, avatar } = req.body;
         const user = await User.findByPk(req.user.id);
 

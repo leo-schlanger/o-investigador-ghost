@@ -438,18 +438,22 @@ exports.deleteGhostUserDirect = async (email, sequelize) => {
  * @param {Object} data - Frontend data
  * @returns {Object} - Ghost API payload
  */
+function stripHtmlTags(str) {
+    return str.replace(/<[^>]*>/g, '');
+}
+
 function buildGhostPayload(data) {
     const payload = {};
 
-    // Required fields
-    if (data.title !== undefined) payload.title = data.title;
+    // Required fields — sanitize title to prevent XSS
+    if (data.title !== undefined) payload.title = stripHtmlTags(data.title);
     if (data.html !== undefined) payload.html = data.html;
     if (data.content !== undefined) payload.html = data.content; // Alias for backwards compat
 
-    // Optional fields
+    // Optional fields — sanitize text-only fields
     if (data.slug !== undefined) payload.slug = data.slug;
-    if (data.custom_excerpt !== undefined) payload.custom_excerpt = data.custom_excerpt;
-    if (data.excerpt !== undefined) payload.custom_excerpt = data.excerpt; // Alias
+    if (data.custom_excerpt !== undefined) payload.custom_excerpt = stripHtmlTags(data.custom_excerpt);
+    if (data.excerpt !== undefined) payload.custom_excerpt = stripHtmlTags(data.excerpt); // Alias
     if (data.feature_image !== undefined) payload.feature_image = data.feature_image || null;
     if (data.meta_title !== undefined) payload.meta_title = data.meta_title || null;
     if (data.meta_description !== undefined)
