@@ -20,28 +20,31 @@
 
     <div class="container-custom py-8 sm:py-12 md:py-16">
 
+        {{!-- Fetch magazine articles via #get (collection context may not pass posts) --}}
+        {{#get "posts" filter="tag:magazine" limit="20" include="authors,tags"}}
+
         {{!-- Section header --}}
         <div class="flex items-center justify-between mb-8 sm:mb-10">
             <h2 class="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-neutral-900 dark:text-neutral-100">
                 Reportagens
             </h2>
             <span class="text-sm text-neutral-500">
-                {{plural pagination.total empty='Nenhuma reportagem' singular='% reportagem' plural='% reportagens'}}
+                {{plural posts.length empty='Nenhuma reportagem' singular='% reportagem' plural='% reportagens'}}
             </span>
         </div>
 
-        {{!-- Articles Grid: first article spans full width, rest in 3-col --}}
+        {{!-- Articles Grid --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {{#foreach posts}}
             <article class="{{#if @first}}md:col-span-2 lg:col-span-3{{/if}} bg-white dark:bg-[#1a2332] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow group">
-                <a href="{{url}}" class="block {{#if @first}}grid grid-cols-1 lg:grid-cols-2{{/if}}">
+                <a href="{{url}}" class="block {{#if @first}}lg:grid lg:grid-cols-2{{/if}}">
                     {{#if feature_image}}
                     <div class="{{#if @first}}aspect-[16/10] lg:aspect-auto lg:min-h-[400px]{{else}}aspect-[16/10]{{/if}} overflow-hidden">
-                        <img src="{{img_url feature_image size='{{#if @first}}xl{{else}}m{{/if}}'}}" alt="{{title}}"
-                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        <img src="{{img_url feature_image size='l'}}" alt="{{title}}"
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
                     </div>
                     {{/if}}
-                    <div class="{{#if @first}}p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center{{else}}p-5 sm:p-6{{/if}}">
+                    <div class="{{#if @first}}p-6 sm:p-8 lg:p-12 flex flex-col justify-center{{else}}p-5 sm:p-6{{/if}}">
                         <div class="flex items-center gap-2 mb-3">
                             {{#if @first}}
                             <span class="px-3 py-1 bg-brand-accent text-white text-xs font-bold rounded-full uppercase">
@@ -50,28 +53,26 @@
                             {{/if}}
                             <span class="text-xs text-neutral-500">{{reading_time}} min de leitura</span>
                         </div>
-                        <h3 class="{{#if @first}}text-2xl sm:text-3xl md:text-4xl{{else}}text-lg sm:text-xl{{/if}} font-serif font-bold text-neutral-900 dark:text-neutral-100 mb-3 group-hover:text-brand-accent transition-colors leading-snug line-clamp-2">
+                        <h3 class="{{#if @first}}text-2xl sm:text-3xl lg:text-4xl{{else}}text-lg sm:text-xl{{/if}} font-serif font-bold text-neutral-900 dark:text-neutral-100 mb-3 group-hover:text-brand-accent transition-colors leading-snug line-clamp-2">
                             {{title}}
                         </h3>
                         <p class="text-neutral-600 dark:text-neutral-400 {{#if @first}}text-base sm:text-lg mb-6 line-clamp-3{{else}}text-sm mb-4 line-clamp-2{{/if}}">
-                            {{excerpt words="{{#if @first}}40{{else}}25{{/if}}"}}
+                            {{#if custom_excerpt}}{{custom_excerpt}}{{else}}{{excerpt words="30"}}{{/if}}
                         </p>
-                        <div class="flex items-center {{#if @first}}gap-3{{else}}justify-between{{/if}}">
-                            <div class="flex items-center gap-2">
-                                {{#primary_author}}
-                                {{#if profile_image}}
-                                <img src="{{profile_image}}" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full object-cover">
-                                {{else}}
-                                <div class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-300 font-bold text-xs">
-                                    {{truncate name 1 ""}}
-                                </div>
-                                {{/if}}
-                                <div>
-                                    <span class="block text-xs sm:text-sm font-semibold text-neutral-900 dark:text-neutral-200">{{name}}</span>
-                                    <span class="block text-xs text-neutral-500">{{date published_at format="D MMM YYYY"}}</span>
-                                </div>
-                                {{/primary_author}}
+                        <div class="flex items-center gap-2">
+                            {{#primary_author}}
+                            {{#if profile_image}}
+                            <img src="{{profile_image}}" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full object-cover">
+                            {{else}}
+                            <div class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-300 font-bold text-xs">
+                                {{truncate name 1 ""}}
                             </div>
+                            {{/if}}
+                            <div>
+                                <span class="block text-xs sm:text-sm font-semibold text-neutral-900 dark:text-neutral-200">{{name}}</span>
+                                <span class="block text-xs text-neutral-500">{{date published_at format="D MMM YYYY"}}</span>
+                            </div>
+                            {{/primary_author}}
                         </div>
                     </div>
                 </a>
@@ -79,26 +80,7 @@
             {{/foreach}}
         </div>
 
-        {{!-- Pagination --}}
-        {{#if pagination.pages}}
-        <nav class="mt-12 flex justify-center">
-            <div class="flex items-center gap-2">
-                {{#if pagination.prev}}
-                <a href="{{pagination.prev}}" class="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-[#1a2332] border border-neutral-200 dark:border-[#2a3442] rounded-lg hover:bg-neutral-50 transition">
-                    Anterior
-                </a>
-                {{/if}}
-                <span class="px-4 py-2 text-sm font-medium text-neutral-500">
-                    Página {{pagination.page}} de {{pagination.pages}}
-                </span>
-                {{#if pagination.next}}
-                <a href="{{pagination.next}}" class="px-4 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand/90 transition">
-                    Próxima
-                </a>
-                {{/if}}
-            </div>
-        </nav>
-        {{/if}}
+        {{/get}}
 
         {{!-- Newsletter CTA --}}
         <section class="mt-16 sm:mt-20 md:mt-24 bg-gradient-to-b from-brand-dark to-brand rounded-2xl p-8 sm:p-10 md:p-12 text-center text-white">
