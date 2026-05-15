@@ -4,6 +4,12 @@ routes:
   /account/: members/account
 
 collections:
+  /magazine/:
+    permalink: /magazine/{slug}/
+    filter: tag:magazine
+    template: magazine
+    posts_per_page: 12
+
   /:
     permalink: /{slug}/
     template: index
@@ -63,11 +69,6 @@ collections:
     permalink: /educacao/{slug}/
     filter: tag:educacao
     template: index
-
-  /magazine/:
-    permalink: /magazine/{slug}/
-    filter: tag:magazine
-    template: magazine
 
 taxonomies:
   tag: /tag/{slug}/

@@ -20,20 +20,17 @@
 
     <div class="container-custom py-8 sm:py-12 md:py-16">
 
-        {{!-- Fetch magazine articles via #get (collection context may not pass posts) --}}
-        {{#get "posts" filter="tag:magazine" limit="20" include="authors,tags"}}
-
         {{!-- Section header --}}
         <div class="flex items-center justify-between mb-8 sm:mb-10">
             <h2 class="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-neutral-900 dark:text-neutral-100">
                 Reportagens
             </h2>
             <span class="text-sm text-neutral-500">
-                {{plural posts.length empty='Nenhuma reportagem' singular='% reportagem' plural='% reportagens'}}
+                {{plural pagination.total empty='Nenhuma reportagem' singular='% reportagem' plural='% reportagens'}}
             </span>
         </div>
 
-        {{!-- Articles Grid --}}
+        {{!-- Articles Grid: first article featured (full width), rest in 3-col --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {{#foreach posts}}
             <article class="{{#if @first}}md:col-span-2 lg:col-span-3{{/if}} bg-white dark:bg-[#1a2332] rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow group">
@@ -80,7 +77,26 @@
             {{/foreach}}
         </div>
 
-        {{/get}}
+        {{!-- Pagination --}}
+        {{#if pagination.pages}}
+        <nav class="mt-12 flex justify-center">
+            <div class="flex items-center gap-2">
+                {{#if pagination.prev}}
+                <a href="{{pagination.prev}}" class="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-white dark:bg-[#1a2332] border border-neutral-200 dark:border-[#2a3442] rounded-lg hover:bg-neutral-50 transition">
+                    Anterior
+                </a>
+                {{/if}}
+                <span class="px-4 py-2 text-sm font-medium text-neutral-500">
+                    Página {{pagination.page}} de {{pagination.pages}}
+                </span>
+                {{#if pagination.next}}
+                <a href="{{pagination.next}}" class="px-4 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:bg-brand/90 transition">
+                    Próxima
+                </a>
+                {{/if}}
+            </div>
+        </nav>
+        {{/if}}
 
         {{!-- Newsletter CTA --}}
         <section class="mt-16 sm:mt-20 md:mt-24 bg-gradient-to-b from-brand-dark to-brand rounded-2xl p-8 sm:p-10 md:p-12 text-center text-white">
