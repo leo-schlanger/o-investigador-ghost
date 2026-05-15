@@ -61,9 +61,7 @@
                             {{#if profile_image}}
                             <img src="{{profile_image}}" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full object-cover">
                             {{else}}
-                            <div class="{{#if @first}}w-10 h-10 text-sm{{else}}w-7 h-7 text-xs{{/if}} rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-brand dark:text-primary-300 font-bold overflow-hidden" aria-hidden="true">
-                                <span class="avatar-initial">{{name}}</span>
-                            </div>
+                            <img src="https://ui-avatars.com/api/?name={{encode name}}&background=dce8f4&color=0d345e&size=80&bold=true&format=svg" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full" loading="lazy">
                             {{/if}}
                             <div>
                                 <span class="block text-xs sm:text-sm font-semibold text-neutral-900 dark:text-neutral-200">{{name}}</span>
