@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ["./*.hbs", "./**/*.hbs"],
   safelist: [
     // Responsive display utilities using pattern

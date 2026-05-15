@@ -8,6 +8,11 @@
   html {
     font-family: 'Open Sans', sans-serif;
     @apply text-neutral-900 antialiased bg-white overflow-x-hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark {
+    @apply bg-[#121820] text-neutral-200;
   }
 
   body {
@@ -19,6 +24,12 @@
   h3 {
     font-family: 'Merriweather', serif;
     @apply font-bold text-neutral-900 leading-tight;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3 {
+    @apply text-neutral-100;
   }
 
   img {
@@ -61,6 +72,60 @@
     @apply text-[10px] font-bold text-brand-accent uppercase tracking-widest mb-1 block;
   }
 }
+
+/* ============================================
+ * DARK MODE
+ * Background: #121820 (dark navy, not pure black)
+ * Surface: #1a2332 (cards, elevated elements)
+ * Border: #2a3442
+ * Text primary: #e1e5ea
+ * Text secondary: #9aa3b0
+ * ============================================ */
+
+/* Dark mode card/surface backgrounds */
+.dark .bg-white { background-color: #1a2332 !important; }
+.dark .bg-neutral-50 { background-color: #151d28 !important; }
+.dark .bg-neutral-100 { background-color: #1a2332 !important; }
+
+/* Dark mode text overrides */
+.dark .text-neutral-900 { color: #e1e5ea !important; }
+.dark .text-neutral-800 { color: #c8ced7 !important; }
+.dark .text-neutral-700 { color: #9aa3b0 !important; }
+.dark .text-neutral-600 { color: #9aa3b0 !important; }
+.dark .text-neutral-500 { color: #6b7685 !important; }
+
+/* Dark mode borders */
+.dark .border-neutral-200 { border-color: #2a3442 !important; }
+.dark .border-neutral-100 { border-color: #1f2937 !important; }
+
+/* Dark mode brand adjustments for readability */
+.dark .text-brand { color: #3670aa !important; }
+.dark .text-accent-500 { color: #e05a4f !important; }
+.dark .text-brand-accent { color: #e05a4f !important; }
+
+/* Dark mode inputs */
+.dark input, .dark textarea, .dark select {
+  background-color: #1a2332;
+  border-color: #2a3442;
+  color: #e1e5ea;
+}
+
+/* Dark mode shadows */
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important; }
+.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important; }
+
+/* Dark mode prose (article content) */
+.dark .prose { color: #c8ced7; }
+.dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4 { color: #e1e5ea; }
+.dark .prose a { color: #5e92c5; }
+.dark .prose blockquote { border-color: #2a3442; color: #9aa3b0; }
+.dark .prose code { background-color: #1a2332; color: #c8ced7; }
+.dark .prose strong { color: #e1e5ea; }
+.dark .prose img { opacity: 0.9; }
+
+/* Dark mode font weight bump for readability */
+.dark body { font-weight: 450; letter-spacing: 0.01em; }
 
 /* Hide scrollbar on horizontal scroll areas */
 .scrollbar-hide {

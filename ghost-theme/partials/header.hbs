@@ -106,6 +106,30 @@
                 </svg>
             </button>
 
+            {{!-- Dark Mode Toggle --}}
+            <button id="theme-toggle"
+                class="p-2 text-white hover:text-primary-200 transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                role="switch" aria-label="Alternar modo escuro">
+                {{!-- Sun icon (shown in dark mode) --}}
+                <svg id="theme-sun" class="hidden w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                {{!-- Moon icon (shown in light mode) --}}
+                <svg id="theme-moon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+
             {{!-- Member login/signup --}}
             {{#if @member}}
             <a href="{{@site.url}}/#/portal/account"
@@ -169,7 +193,7 @@
 {{!-- Mobile Menu Overlay --}}
 <div id="mobile-menu" class="hidden fixed inset-0 z-40 lg:hidden">
     <div class="fixed inset-0 bg-black/50" id="mobile-menu-overlay"></div>
-    <div class="fixed right-0 top-0 bottom-0 w-[85vw] max-w-[20rem] bg-white shadow-2xl p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden">
+    <div class="fixed right-0 top-0 bottom-0 w-[85vw] max-w-[20rem] bg-white dark:bg-[#1a2332] shadow-2xl p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden">
         <div class="flex items-center justify-between mb-8">
             <span class="font-logo font-extrabold text-brand text-xl tracking-tight uppercase">O Investigador</span>
             <button class="p-2 text-neutral-500 hover:text-brand transition" id="mobile-menu-close">
@@ -206,8 +230,20 @@
             </div>
         </nav>
 
+        {{!-- Dark mode toggle mobile --}}
+        <div class="mt-6 pt-4 border-t border-neutral-200">
+            <button id="theme-toggle-mobile"
+                class="flex items-center justify-between w-full px-3 py-3 text-sm font-semibold text-neutral-700 hover:text-brand hover:bg-primary-50 rounded-lg transition"
+                role="switch" aria-label="Alternar modo escuro">
+                <span id="theme-label-mobile">Modo Escuro</span>
+                <span class="relative inline-flex items-center justify-center w-10 h-6 bg-neutral-200 rounded-full transition-colors" id="theme-pill-mobile">
+                    <span class="absolute left-1 w-4 h-4 bg-white rounded-full shadow transition-transform" id="theme-dot-mobile"></span>
+                </span>
+            </button>
+        </div>
+
         {{!-- Menu mobile - Login/Signup --}}
-        <div class="mt-8 pt-6 border-t border-neutral-200 space-y-3">
+        <div class="mt-4 pt-4 border-t border-neutral-200 space-y-3">
             {{#if @member}}
             <a href="{{@site.url}}/#/portal/account"
                 class="block text-center w-full py-3 text-sm font-semibold text-brand border border-brand rounded-lg hover:bg-brand hover:text-white transition">
@@ -294,5 +330,61 @@
                 setTimeout(loadWeather, 100);
             });
         }
+    })();
+
+    // Dark mode toggle
+    (function() {
+        var html = document.documentElement;
+        var sun = document.getElementById('theme-sun');
+        var moon = document.getElementById('theme-moon');
+        var pill = document.getElementById('theme-pill-mobile');
+        var dot = document.getElementById('theme-dot-mobile');
+        var label = document.getElementById('theme-label-mobile');
+
+        function isDark() {
+            return html.classList.contains('dark');
+        }
+
+        function updateUI() {
+            if (isDark()) {
+                if (sun) sun.classList.remove('hidden');
+                if (moon) moon.classList.add('hidden');
+                if (pill) pill.style.backgroundColor = '#3670aa';
+                if (dot) dot.style.transform = 'translateX(16px)';
+                if (label) label.textContent = 'Modo Claro';
+            } else {
+                if (sun) sun.classList.add('hidden');
+                if (moon) moon.classList.remove('hidden');
+                if (pill) pill.style.backgroundColor = '';
+                if (dot) dot.style.transform = '';
+                if (label) label.textContent = 'Modo Escuro';
+            }
+        }
+
+        function toggle() {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark() ? 'dark' : 'light');
+            updateUI();
+        }
+
+        // Header toggle
+        var btn = document.getElementById('theme-toggle');
+        if (btn) btn.addEventListener('click', toggle);
+
+        // Mobile menu toggle
+        var btnMobile = document.getElementById('theme-toggle-mobile');
+        if (btnMobile) btnMobile.addEventListener('click', toggle);
+
+        // Listen for system preference changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) {
+                if (e.matches) html.classList.add('dark');
+                else html.classList.remove('dark');
+                updateUI();
+            }
+        });
+
+        // Initial UI sync
+        updateUI();
     })();
 </script>

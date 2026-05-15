@@ -22,6 +22,11 @@
     {{!-- Main CSS --}}
     <link rel="stylesheet" href="{{asset 'css/screen.css'}}">
 
+    {{!-- Dark mode: apply BEFORE first paint to avoid flash --}}
+    <script>
+    (function(){var t=localStorage.getItem('theme');if(t==='dark'||((!t)&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}})();
+    </script>
+
     {{!-- Ghost handles SEO: description, canonical, OG, Twitter Card, Schema.org --}}
     {{!-- og:image, twitter:image set via Ghost Admin (Settings > General > Social) --}}
     {{ghost_head}}
