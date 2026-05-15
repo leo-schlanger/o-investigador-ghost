@@ -407,7 +407,36 @@ O tema Ghost implementa a identidade visual atraves de:
 | Artigo | `post.hbs` | Badge de tipo, schema.org |
 | Homepage | `index.hbs` | Trending, hero, seccoes |
 
-### 9.2 Admin Panel
+### 9.2 Dark Mode (Site Publico)
+
+O site suporta dark mode com toggle no header e mobile menu.
+
+**Paleta Dark Mode:**
+
+| Elemento | Light | Dark | Justificacao |
+|----------|-------|------|-------------|
+| Background | `#ffffff` | `#121820` | Navy escuro, nao preto puro — reduz fadiga |
+| Surface/Cards | `#f8f9fb` | `#1a2332` | Elevacao sutil |
+| Text primary | `#1a1f28` | `#e1e5ea` | Contraste ~14:1 |
+| Text secondary | `#6b7685` | `#9aa3b0` | Legivel sem brilho |
+| Borders | `#e1e5ea` | `#2a3442` | Separacao sutil |
+| Brand | `#0d345e` | `#3670aa` | Mais claro para legibilidade |
+| Accent | `#c0392b` | `#e05a4f` | Mais claro em dark |
+| Links | `#3670aa` | `#5e92c5` | Contraste suficiente |
+
+**Principios:**
+- Navy escuro (`#121820`) em vez de preto puro para evitar "halation" (texto parece sangrar no fundo)
+- Font weight +50 em dark para compensar a aparencia optica mais fina de texto claro em fundo escuro
+- Imagens a 90% opacidade para reduzir brilho
+- Transicao suave de 200ms em background-color e color
+- Preferencia persistida em localStorage
+- Deteta `prefers-color-scheme` do sistema como default
+- Toggle: lua (= mudar para dark) / sol (= mudar para light)
+
+**Toggle (desktop):** Icone sol/lua no header, entre busca e login
+**Toggle (mobile):** Pill switch com label "Modo Escuro/Claro" no mobile menu
+
+### 9.3 Admin Panel
 
 O admin panel em React segue a mesma paleta via Tailwind CSS:
 - Cores de marca configuradas em `tailwind.config.js`
@@ -458,5 +487,7 @@ O admin panel em React segue a mesma paleta via Tailwind CSS:
 ## Historico de Versoes
 
 | Versao | Data | Alteracoes |
+| 1.0 | 2026-05-15 | Versao inicial do brandbook |
+| 1.1 | 2026-05-15 | Favicon lupa, logo square, dark mode, magazine hero, cores alinhadas |
 |--------|------|-----------|
 | 1.0 | 2026-05-15 | Versao inicial do brandbook |
