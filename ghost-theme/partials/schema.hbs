@@ -1,16 +1,30 @@
-{{!-- Schema.org JSON-LD: NewsMediaOrganization (Ghost already generates WebSite schema) --}}
+{{!-- Schema.org JSON-LD: NewsMediaOrganization --}}
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
     "name": "{{@site.title}}",
+    "alternateName": "O Investigador",
     "url": "{{@site.url}}",
-    {{#if @site.logo}}
+    "description": "Jornal online portugues dedicado ao jornalismo investigativo, analise critica e opiniao fundamentada.",
+    "inLanguage": "pt-PT",
     "logo": {
         "@type": "ImageObject",
-        "url": "{{@site.logo}}"
+        "url": "{{asset 'images/og-default.png'}}",
+        "width": 1200,
+        "height": 630
     },
-    {{/if}}
-    "sameAs": []
+    "image": {
+        "@type": "ImageObject",
+        "url": "{{asset 'images/og-default.png'}}",
+        "width": 1200,
+        "height": 630
+    },
+    "sameAs": [
+        {{#if @site.facebook}}"{{facebook_url}}"{{/if}}
+        {{#if @site.twitter}}{{#if @site.facebook}},{{/if}}"{{twitter_url}}"{{/if}}
+    ],
+    "foundingDate": "2026",
+    "publishingPrinciples": "{{@site.url}}/about/"
 }
 </script>
