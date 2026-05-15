@@ -61,8 +61,8 @@
                             {{#if profile_image}}
                             <img src="{{profile_image}}" alt="{{name}}" class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full object-cover">
                             {{else}}
-                            <div class="{{#if @first}}w-10 h-10{{else}}w-7 h-7{{/if}} rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-300 font-bold text-xs">
-                                {{name}}
+                            <div class="{{#if @first}}w-10 h-10 text-sm{{else}}w-7 h-7 text-xs{{/if}} rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-brand dark:text-primary-300 font-bold overflow-hidden" aria-hidden="true">
+                                <span class="avatar-initial">{{name}}</span>
                             </div>
                             {{/if}}
                             <div>

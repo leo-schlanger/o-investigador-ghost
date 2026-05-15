@@ -127,6 +127,15 @@
 /* Dark mode font weight bump for readability */
 .dark body { font-weight: 450; letter-spacing: 0.01em; }
 
+/* Avatar initial: show only first letter */
+.avatar-initial {
+  display: inline-block;
+  width: 1em;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* Hide scrollbar on horizontal scroll areas */
 .scrollbar-hide {
   -ms-overflow-style: none;
