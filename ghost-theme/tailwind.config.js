@@ -80,6 +80,7 @@ module.exports = {
         sans: ['Inter', 'sans-serif'],
         serif: ['Merriweather', 'serif'],
         display: ['Outfit', 'sans-serif'],
+        logo: ['"Playfair Display"', 'serif'],
       }
     },
   },
