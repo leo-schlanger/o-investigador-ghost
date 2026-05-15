@@ -33,9 +33,11 @@
     <meta name="twitter:label1" content="Escrito por">
     <meta name="twitter:label2" content="Categoria">
 
-    {{!-- Fallback og:image for pages without images (categories, tags, authors) --}}
+    {{!-- Fallback og:image for ANY page without a feature image --}}
     {{#unless feature_image}}
-    {{#is "tag, author, home, page"}}
+    {{#is "post"}}
+    {{!-- Articles without feature_image: Ghost already outputs og:image from cover_image --}}
+    {{else}}
     <meta property="og:image" content="{{@site.url}}/assets/images/og-default.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -44,7 +46,7 @@
     {{/is}}
     {{/unless}}
 
-    {{!-- Better og:description for category/tag pages --}}
+    {{!-- Better og:description for tag pages --}}
     {{#is "tag"}}
     {{#tag}}
     <meta property="og:description" content="{{#if description}}{{description}}{{else}}Artigos sobre {{name}} no jornal O Investigador.{{/if}}">
