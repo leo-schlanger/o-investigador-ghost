@@ -23,6 +23,28 @@ const generateRefreshToken = (user) => {
     });
 };
 
+// Refresh token guardado em cookie httpOnly (inacessivel a JS -> imune a XSS).
+// COOKIE_DOMAIN deve ser ".jornalinvestigador.pt" em producao (partilha entre subdominios admin/api).
+const REFRESH_COOKIE = 'refreshToken';
+const refreshCookieOptions = () => ({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    domain: process.env.COOKIE_DOMAIN || undefined,
+    path: '/api/auth',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
+});
+const setRefreshCookie = (res, token) => {
+    if (res && typeof res.cookie === 'function') res.cookie(REFRESH_COOKIE, token, refreshCookieOptions());
+};
+const clearRefreshCookie = (res) => {
+    if (res && typeof res.clearCookie === 'function') {
+        const opts = refreshCookieOptions();
+        delete opts.maxAge;
+        res.clearCookie(REFRESH_COOKIE, opts);
+    }
+};
+
 /**
  * Create user in Ghost CMS (non-blocking)
  * @param {Object} userData - User data with name, email, password (hashed), role
@@ -211,6 +233,9 @@ exports.login = async (req, res) => {
         // Generate token
         const token = generateToken(user);
         const refreshToken = generateRefreshToken(user);
+
+        // Refresh token tambem em cookie httpOnly (alem do body, p/ retrocompat)
+        setRefreshCookie(res, refreshToken);
 
         res.json({
             success: true,
@@ -414,7 +439,8 @@ exports.deleteUser = async (req, res) => {
 
 exports.refresh = async (req, res) => {
     try {
-        const { refreshToken } = req.body;
+        // Le do cookie httpOnly (preferencial) com fallback para o body (retrocompat)
+        const refreshToken = (req.cookies && req.cookies[REFRESH_COOKIE]) || req.body.refreshToken;
         if (!refreshToken) {
             return apiResponse.error(res, 'Refresh token is required', 400);
         }
@@ -435,6 +461,9 @@ exports.refresh = async (req, res) => {
         const newToken = generateToken(user);
         const newRefreshToken = generateRefreshToken(user);
 
+        // Rotaciona o cookie httpOnly
+        setRefreshCookie(res, newRefreshToken);
+
         res.json({
             success: true,
             data: { token: newToken, refreshToken: newRefreshToken }
@@ -445,4 +474,10 @@ exports.refresh = async (req, res) => {
         }
         return apiResponse.error(res, 'Invalid refresh token', 401);
     }
+};
+
+// Logout: limpa o cookie httpOnly do refresh token
+exports.logout = async (req, res) => {
+    clearRefreshCookie(res);
+    res.json({ success: true, message: 'Logged out' });
 };

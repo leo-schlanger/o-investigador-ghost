@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { login as loginApi, getMe, refreshToken as refreshTokenApi } from '../services/auth';
+import { login as loginApi, getMe, refreshToken as refreshTokenApi, logout as logoutApi } from '../services/auth';
 
 const AuthContext = createContext();
 
@@ -53,8 +53,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     clearRefreshTimer();
+    logoutApi(); // limpa o cookie httpOnly no servidor (fire-and-forget)
     safeStorage.removeItem('token');
-    safeStorage.removeItem('refreshToken');
+    safeStorage.removeItem('refreshToken'); // limpa residuos de versoes antigas
     setUser(null);
   }, [clearRefreshTimer]);
 
@@ -68,15 +69,9 @@ export const AuthProvider = ({ children }) => {
     if (refreshIn <= 0) return; // Token already expired or about to
 
     refreshTimerRef.current = setTimeout(async () => {
-      const storedRefreshToken = safeStorage.getItem('refreshToken');
-      if (!storedRefreshToken) {
-        logout();
-        return;
-      }
       try {
-        const data = await refreshTokenApi(storedRefreshToken);
+        const data = await refreshTokenApi(); // refresh token vem do cookie httpOnly
         safeStorage.setItem('token', data.token);
-        safeStorage.setItem('refreshToken', data.refreshToken);
         scheduleRefresh(data.token);
       } catch {
         logout();
@@ -91,21 +86,17 @@ export const AuthProvider = ({ children }) => {
         // Check if token is expired
         const expiry = getTokenExpiry(token);
         if (expiry && expiry < Date.now()) {
-          // Try refresh
-          const storedRefreshToken = safeStorage.getItem('refreshToken');
-          if (storedRefreshToken) {
-            try {
-              const data = await refreshTokenApi(storedRefreshToken);
-              safeStorage.setItem('token', data.token);
-              safeStorage.setItem('refreshToken', data.refreshToken);
-              const userData = await getMe();
-              setUser(userData);
-              scheduleRefresh(data.token);
-              setLoading(false);
-              return;
-            } catch {
-              // Refresh failed
-            }
+          // Token expirado — tentar refresh via cookie httpOnly
+          try {
+            const data = await refreshTokenApi();
+            safeStorage.setItem('token', data.token);
+            const userData = await getMe();
+            setUser(userData);
+            scheduleRefresh(data.token);
+            setLoading(false);
+            return;
+          } catch {
+            // Refresh falhou
           }
           safeStorage.removeItem('token');
           safeStorage.removeItem('refreshToken');
@@ -132,9 +123,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const data = await loginApi(email, password);
     safeStorage.setItem('token', data.token);
-    if (data.refreshToken) {
-      safeStorage.setItem('refreshToken', data.refreshToken);
-    }
+    // refresh token fica no cookie httpOnly (definido pelo servidor) — nao em localStorage
     setUser(data.user);
     scheduleRefresh(data.token);
     return data;

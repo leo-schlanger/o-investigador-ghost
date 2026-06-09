@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  withCredentials: true, // envia/recebe o cookie httpOnly do refresh token
   headers: {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
@@ -77,18 +78,19 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) throw new Error('No refresh token');
-
+        // O refresh token vem do cookie httpOnly (withCredentials); nao e lido de localStorage
         const { data } = await axios.post(
           `${api.defaults.baseURL}/api/auth/refresh`,
-          { refreshToken },
-          { headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }
+          {},
+          {
+            withCredentials: true,
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+          }
         );
 
         const result = data.data || data;
         localStorage.setItem('token', result.token);
-        localStorage.setItem('refreshToken', result.refreshToken);
+        // refresh token permanece no cookie httpOnly (nao guardar em localStorage)
 
         processQueue(null, result.token);
         originalRequest.headers.Authorization = `Bearer ${result.token}`;
