@@ -35,6 +35,27 @@ Correções aplicadas e validadas (245 testes backend a passar):
 - Restam apenas vulnerabilidades **moderate** que exigem breaking changes (`sequelize`/`uuid`/`exceljs`) — adiadas.
 - ⚠️ **AÇÃO MANUAL:** rotacionar a Ghost Admin API key continua pendente (decisão do utilizador).
 
+**3ª ronda — itens MÉDIOS resolvidos:**
+
+- [x] **#5 Índices de performance nunca criados** — migration 003 corrigida (nomes reais; cria os índices em falta de Media/MediaTagAssignments/view_logs; os de post_views/view_logs/article_revisions já vêm dos modelos).
+- [x] **#10 Contador de views com race** — `increment()` atómico em `public.js`.
+- [x] **#16 Charset utf8mb4 não garantido** — Sequelize com `dialectOptions`/`define` utf8mb4_unicode_ci.
+- [x] **#25 Upload inline partido no editor** — `PageEditor` e `useEditorJs` corrigidos para `/api/media/upload`.
+- [x] **#27 Dashboard com reload total** — Quick Actions usam `<Link>` (SPA).
+- [x] **#30 Email de contacto com domínio errado** — corrigido para `contacto@jornalinvestigador.pt`.
+- [x] **#47 Audit não registava falhas de login** — `auditFailures` regista tentativas falhadas (email+IP).
+
+**Médios ainda pendentes (priorizados p/ próximas rondas — risco/esforço maior):**
+- Transações em operações multi-tabela (#7 user+Ghost, #8 updateMedia, #9 deleteFolder, #11 revisionNumber)
+- Vazamento de `err.message` e respostas inconsistentes (#4/#18/#19/#58) — refactor amplo dos controllers
+- Validação Joi em rotas mutadoras em falta (#20/#22)
+- Paginação/limites e retenção de `view_logs` (#14/#15)
+- UX do admin: newsletter `'new'` literal (#23), botão editar morto (#24), reload do perfil (#26), bulk-move só hover (#28), erros engolidos (#29)
+- Infra: imagens não pinadas por digest (#35), deploy sem rollback/zero-downtime (#36), health check do CI não-bloqueante e com porta errada (#37), containers como root (#39), secrets default no compose dev (#41)
+- Ops: backups não encriptados (#42), sem alerta de falha de backup (#43), alerting desativado (#44), audit log mutável/sem retenção (#46), PII em logs (#49), restore não testado (#50)
+- Qualidade: cobertura de testes baixa (#52/#53), **lint não corre no CI (#55 — bloqueado por 174 warnings a limpar primeiro)**, schema management frágil (#54)
+- Tema: empty states (#32), hero dependente de featured (#33), routes.yaml (#34)
+
 ---
 
 ## 🔴 P0 — Crítico (resolver imediatamente)  (1)
