@@ -55,3 +55,7 @@ backups/
 *.key
 id_rsa*
 github_deploy*
+
+# Testes de integracao locais — contem credenciais hardcoded (Ghost Admin API key).
+# Rotacionar a chave e mover para variavel de ambiente antes de versionar.
+tests/
