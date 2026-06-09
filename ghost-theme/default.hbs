@@ -11,6 +11,10 @@
     <link rel="icon" type="image/png" sizes="512x512" href="{{asset 'images/favicon-512.png'}}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{asset 'images/favicon-180.png'}}">
     <meta name="api-url" content="https://api.jornalinvestigador.pt">
+    {{!-- Content API key para a pesquisa publica (configurar em Settings > Design > custom) --}}
+    {{#if @custom.content_api_key}}
+    <meta name="ghost-search-key" content="{{@custom.content_api_key}}">
+    {{/if}}
 
     {{!-- Fonts (preconnect required for theme-loaded Google Fonts) --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

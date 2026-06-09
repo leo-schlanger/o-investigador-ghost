@@ -225,8 +225,10 @@ services:
       - grafana_data:/var/lib/grafana
       - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./infrastructure/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
-    ports:
-      - "3002:3000"
+    # Sem porta exposta no host: acesso apenas via nginx (https://.../grafana/),
+    # mantendo TLS e evitando exposicao direta do Grafana na porta 3002.
+    expose:
+      - "3000"
     healthcheck:
       test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
       interval: 10s
