@@ -14,6 +14,7 @@ router.post('/login', validateBody(loginSchema), auditLog('login', 'auth', {
     getDetails: (req) => ({ email: req.body.email })
 }), authController.login);
 router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
 
 // Protected (Any authenticated user)
 router.get('/me', protect, authController.me);

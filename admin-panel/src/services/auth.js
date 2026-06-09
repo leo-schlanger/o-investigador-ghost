@@ -23,8 +23,18 @@ export const updateProfile = async (data) => {
   return response.data;
 };
 
-export const refreshToken = async (token) => {
-  const response = await api.post('/api/auth/refresh', { refreshToken: token });
+export const refreshToken = async () => {
+  // O refresh token vem do cookie httpOnly (api tem withCredentials)
+  const response = await api.post('/api/auth/refresh', {});
   const result = response.data;
   return result.data || result;
+};
+
+export const logout = async () => {
+  // Limpa o cookie httpOnly do refresh token no servidor
+  try {
+    await api.post('/api/auth/logout', {});
+  } catch {
+    // ignorar — logout local prossegue de qualquer forma
+  }
 };

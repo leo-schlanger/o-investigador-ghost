@@ -115,6 +115,8 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CORS_ORIGIN: https://jornalinvestigador.pt,https://admin.jornalinvestigador.pt
       PUBLIC_API_URL: https://api.jornalinvestigador.pt
+      # Partilha do cookie httpOnly do refresh token entre admin. e api. (mesmo site)
+      COOKIE_DOMAIN: .jornalinvestigador.pt
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       RATE_LIMIT_WINDOW: 15m
       RATE_LIMIT_MAX_REQUESTS: 100
