@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Navy blue circle background -->
+  <circle cx="256" cy="256" r="256" fill="#0d345e"/>
+
+  <!-- Magnifying glass icon (investigator theme) -->
+  <g transform="translate(256, 240)" stroke="#ffffff" stroke-width="28" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Glass circle -->
+    <circle cx="-20" cy="-20" r="95"/>
+    <!-- Handle -->
+    <line x1="47" y1="47" x2="120" y2="120"/>
+  </g>
+
+  <!-- Small accent dot on the glass (brand accent red) -->
+  <circle cx="200" cy="185" r="12" fill="#c0392b"/>
+</svg>

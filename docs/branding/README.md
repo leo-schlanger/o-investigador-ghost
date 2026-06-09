@@ -11,6 +11,19 @@ Documentação completa da identidade visual do projeto O Investigador.
 - [Badges de Tipo](brandbook.md#badges-de-tipo-de-artigo) — Crónica, Reportagem, Opinião
 - [Referências](brandbook.md#referencias-e-inspiracoes) — Publicações e padrões de referência
 
+## Logo (ficheiros vetorizados)
+
+Wordmark oficial — texto em curvas (SVG, independente de fontes) e PNG transparente.
+Réplica exata do cabeçalho do site. Ver [Brandbook §4.6](brandbook.md#46-ficheiros-oficiais-vetorizados).
+
+| Ficheiro | Variação | Fundo |
+|----------|----------|-------|
+| `logo-oficial.svg` / `.png` | Branca | Navy / escuro (versão do site) |
+| `logo-oficial-dark.svg` / `.png` | Navy | Branco / claro |
+
+Disponíveis em `docs/branding/` e `ghost-theme/assets/images/`.
+Para favicon / ícone de app usar a **lupa** (`logo-square.svg`, `favicon.svg`), não o wordmark.
+
 ## Ficheiros Técnicos
 
 | Ficheiro | Localização | Descrição |

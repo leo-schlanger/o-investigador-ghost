@@ -263,6 +263,28 @@ A zona de protecao minima em torno do logo e equivalente a altura da letra "O" e
 - Nunca colocar sobre fundos com baixo contraste
 - Nunca usar outra fonte que nao Playfair Display
 
+### 4.6 Ficheiros Oficiais (Vetorizados)
+
+O wordmark oficial esta disponivel em SVG (texto convertido em curvas/paths,
+independente de fontes) e PNG de alta resolucao transparente. Reproduz
+exatamente o cabecalho do site (`partials/header.hbs`).
+
+| Ficheiro | Variacao | Fundo recomendado |
+|----------|----------|-------------------|
+| `logo-oficial.svg` | Branca (texto branco + `#b9d0e8`) | Navy `#0d345e` / escuro |
+| `logo-oficial-dark.svg` | Escura (texto navy + `#3670aa`) | Branco / claro |
+| `logo-oficial.png` | Branca, 2400px, transparente | Navy / escuro |
+| `logo-oficial-dark.png` | Escura, 2400px, transparente | Branco / claro |
+
+**Localizacao:** `docs/branding/` (dossier) e `ghost-theme/assets/images/`
+(acessivel no site via `{{asset 'images/logo-oficial.svg'}}`).
+
+> **Nota — barra divisoria:** a versao **wordmark** usada no cabecalho do site
+> (e nestes ficheiros) NAO inclui a barra divisoria vermelha descrita em 4.1.
+> A barra aparece apenas na versao **icone** (`logo-square.svg` / favicon), que
+> combina a lupa + wordmark num quadrado. Para material de marca, usar o
+> wordmark vetorizado acima; para favicon / app icon, usar a lupa.
+
 ---
 
 ## 5. Badges de Tipo de Artigo
@@ -487,7 +509,7 @@ O admin panel em React segue a mesma paleta via Tailwind CSS:
 ## Historico de Versoes
 
 | Versao | Data | Alteracoes |
-| 1.0 | 2026-05-15 | Versao inicial do brandbook |
-| 1.1 | 2026-05-15 | Favicon lupa, logo square, dark mode, magazine hero, cores alinhadas |
 |--------|------|-----------|
 | 1.0 | 2026-05-15 | Versao inicial do brandbook |
+| 1.1 | 2026-05-15 | Favicon lupa, logo square, dark mode, magazine hero, cores alinhadas |
+| 1.2 | 2026-06-09 | Wordmark oficial vetorizado (SVG/PNG, claro+escuro); remocao da logo antiga sans-serif; favicon do admin passa a lupa |
