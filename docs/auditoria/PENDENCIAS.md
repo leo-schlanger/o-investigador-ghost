@@ -6,6 +6,24 @@
 
 **Totais:** P0 1 · P1 12 · P2 58 · P3 84 · TODOs no código 9
 
+---
+
+## ✅ Resolvido em 2026-06-09 (commit de correções)
+
+Correções aplicadas e validadas (245 testes backend a passar):
+
+- [x] 🔴 **Chave Ghost Admin API hardcoded** — removida de `tests/integration/full-system-test.mjs` (passa a ler `process.env.TEST_GHOST_ADMIN_KEY`); `tests/` adicionado ao `.gitignore`. **⚠️ AÇÃO MANUAL PENDENTE: rotacionar/revogar a chave no Ghost Admin** (esteve em claro no disco).
+- [x] 🟠 **RBAC no backend** — `authorize()` aplicado em `articles.js` (sync/sync-status/types-init → admin), `pages.js` e `tags.js` (mutações → admin/editor), `reports.js` (router inteiro → admin/editor; PII protegida).
+- [x] 🟠 **`reports.js` crash** — removido import morto `Article`; coluna `lastLogin` agora existe (campo no modelo `User` + migration `005` idempotente + registo no login).
+- [x] 🟠 **Deploy desacoplado do CI** — `deploy.yml` passa a usar `workflow_run` (só faz deploy se "CI - Tests & Build" concluir com `success`; mantém disparo manual).
+- [x] 🟠 **`aspect-video` ausente do CSS** — `post-card.hbs` passa a usar `aspect-ratio:16/9` inline (robusto, sem depender do Tailwind compilado).
+- [x] 🟠 **Build contexts sem `.dockerignore`** — criados `cms-api/.dockerignore` e `admin-panel/.dockerignore` (excluem `.env`, `node_modules`, `.git`, etc.).
+- [x] 🟡 **Sem error handler global / 404** — adicionados em `server.js` (evita queda do processo e vazamento de stack; em produção mascara erros 500).
+- [x] 🟡 **`/register` e `/refresh` sem rate-limit** — `authLimiter` aplicado a ambos.
+
+**Ainda pendentes (maior esforço/risco — ver abaixo):** tokens em `localStorage` → cookie httpOnly (L); backup só cobre MySQL, falta media+uploads (M); pesquisa pública do site sem Content API key (M); `axios`/`multer` com CVEs (requer `npm install` + teste cuidadoso para não dessincronizar o lockfile); endurecer `npm audit` no CI (depende do anterior).
+
+---
 
 ## 🔴 P0 — Crítico (resolver imediatamente)  (1)
 

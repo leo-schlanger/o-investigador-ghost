@@ -92,7 +92,8 @@ describe('authController', () => {
                 name: 'Test User',
                 email: 'test@example.com',
                 password: hashedPassword,
-                role: 'author'
+                role: 'author',
+                update: jest.fn().mockResolvedValue(true)
             });
 
             await authController.login(req, res);

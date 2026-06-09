@@ -203,6 +203,11 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        // Registar ultimo login (nao-bloqueante)
+        user.update({ lastLogin: new Date() }).catch((e) =>
+            logger.warn('Falha ao registar lastLogin', { error: e.message })
+        );
+
         // Generate token
         const token = generateToken(user);
         const refreshToken = generateRefreshToken(user);

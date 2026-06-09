@@ -29,6 +29,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
             comment: 'URL da foto de perfil do usuario'
+        },
+        lastLogin: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            comment: 'Data/hora do ultimo login bem-sucedido'
         }
     });
 

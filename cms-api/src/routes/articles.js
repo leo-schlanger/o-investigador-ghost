@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/articleController');
-const { protect, checkArticleOwnership } = require('../middleware/authMiddleware');
+const { protect, authorize, checkArticleOwnership } = require('../middleware/authMiddleware');
 const { auditLog } = require('../middleware/auditMiddleware');
 const { validateQuery } = require('../middleware/validateRequest');
 const { articleQuerySchema } = require('../validators/schemas');
@@ -13,10 +13,11 @@ const ownershipCheck = checkArticleOwnership(ghostApi);
 // Tags, Authors and Types routes (must be before /:id to avoid conflict)
 router.get('/tags', protect, articleController.getTags);
 router.get('/authors', protect, articleController.getAuthors);
-router.get('/authors/sync-status', protect, articleController.getAuthorSyncStatus);
-router.post('/authors/sync', protect, articleController.syncAuthorsToGhost);
+// Administrative/maintenance endpoints: admin only (sync-status lista todos os utilizadores)
+router.get('/authors/sync-status', protect, authorize('admin'), articleController.getAuthorSyncStatus);
+router.post('/authors/sync', protect, authorize('admin'), articleController.syncAuthorsToGhost);
 router.get('/types', protect, articleController.getTypes);
-router.post('/types/init', protect, articleController.initTypes);
+router.post('/types/init', protect, authorize('admin'), articleController.initTypes);
 
 // CRUD routes
 router.get('/', protect, validateQuery(articleQuerySchema), articleController.list);

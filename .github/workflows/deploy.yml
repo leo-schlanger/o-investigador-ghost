@@ -1,7 +1,11 @@
 name: Deploy to VPS
 
 on:
-  push:
+  # So faz deploy depois do CI ("CI - Tests & Build") concluir com SUCESSO no main
+  workflow_run:
+    workflows: ["CI - Tests & Build"]
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:  # Permite deploy manual pelo GitHub
@@ -13,6 +17,8 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
+    # Deploy apenas se o CI passou, ou se for disparo manual
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code

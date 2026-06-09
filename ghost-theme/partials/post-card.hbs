@@ -1,7 +1,7 @@
 <div class="group cursor-pointer min-w-0">
     {{#if feature_image}}
     <a href="{{url}}" class="block mb-3 sm:mb-4 overflow-hidden rounded-md sm:rounded-lg bg-neutral-100">
-        <div class="aspect-video relative">
+        <div class="relative" style="aspect-ratio:16/9">
             <img src="{{img_url feature_image size='sm'}}" alt="{{title}}"
                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
         </div>

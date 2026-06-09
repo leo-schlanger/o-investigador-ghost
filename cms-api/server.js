@@ -96,6 +96,8 @@ const adminLimiter = rateLimit({
 // Apply rate limiting
 app.use('/api/', generalLimiter);
 app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/refresh', authLimiter);
 app.use('/api/auth/users', adminLimiter);
 app.use('/api/settings', adminLimiter);
 
@@ -124,6 +126,26 @@ app.use('/api', routes);
 // Health Check
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date() });
+});
+
+// 404 handler (rotas nao encontradas)
+app.use((req, res) => {
+    res.status(404).json({ success: false, error: { message: 'Recurso nao encontrado' } });
+});
+
+// Global error handler — evita queda do processo e vazamento de stack/mensagens internas
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+    logger.error('Unhandled error', { error: err.message, stack: err.stack, path: req.path });
+    if (res.headersSent) return next(err);
+    const status = err.status || err.statusCode || 500;
+    const isProd = process.env.NODE_ENV === 'production';
+    res.status(status).json({
+        success: false,
+        error: {
+            message: status === 500 && isProd ? 'Erro interno do servidor' : err.message
+        }
+    });
 });
 
 // Sync Database & Start Server
@@ -161,6 +183,16 @@ sequelize
         } catch (migrationError) {
             logger.warn('Migration warning', {
                 migration: 'performance_indexes',
+                error: migrationError.message
+            });
+        }
+
+        try {
+            const lastLoginMigration = require('./src/migrations/005_add_lastlogin_to_users');
+            await lastLoginMigration.up();
+        } catch (migrationError) {
+            logger.warn('Migration warning', {
+                migration: 'lastlogin',
                 error: migrationError.message
             });
         }

@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
-const { PostView, ViewLog, User, Article } = require('../models');
-const { protect } = require('../middleware/authMiddleware');
+const { PostView, ViewLog, User } = require('../models');
+const { protect, authorize } = require('../middleware/authMiddleware');
 const ghostApi = require('../services/ghostApi');
 const logger = require('../utils/logger');
+
+// Relatorios contem PII (emails de toda a equipa) — restrito a admin/editor
+router.use(protect);
+router.use(authorize('admin', 'editor'));
 
 // Optional dependencies for exports
 let PDFDocument = null;
