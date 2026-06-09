@@ -19,12 +19,17 @@ function auditLog(action, resource, options = {}) {
         const originalJson = res.json.bind(res);
 
         res.json = function (body) {
-            // Only log successful operations (2xx status)
-            if (res.statusCode >= 200 && res.statusCode < 300) {
+            const ok = res.statusCode >= 200 && res.statusCode < 300;
+            // Com auditFailures, regista tambem respostas 4xx (ex: login falhado) como '<action>_failed'
+            const isAuditableFailure =
+                options.auditFailures && res.statusCode >= 400 && res.statusCode < 500;
+
+            if (ok || isAuditableFailure) {
                 const logEntry = {
                     userId: req.user?.id || null,
-                    userName: req.user?.name || req.user?.email || null,
-                    action,
+                    userName:
+                        req.user?.name || req.user?.email || (req.body && req.body.email) || null,
+                    action: ok ? action : `${action}_failed`,
                     resource,
                     resourceId: options.getResourceId
                         ? options.getResourceId(req)

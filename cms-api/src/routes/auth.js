@@ -11,6 +11,7 @@ router.post('/register', validateBody(registerSchema), auditLog('register', 'aut
     getDetails: (req) => ({ email: req.body.email })
 }), authController.register);
 router.post('/login', validateBody(loginSchema), auditLog('login', 'auth', {
+    auditFailures: true, // regista tambem tentativas falhadas (deteccao de brute-force)
     getDetails: (req) => ({ email: req.body.email })
 }), authController.login);
 router.post('/refresh', authController.refresh);
