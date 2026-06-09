@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getStats, getTopArticles, getViewsByCountry } from '../services/stats';
 import { Eye, FileText, Users, TrendingUp, Globe, Calendar, RefreshCw } from 'lucide-react';
 
@@ -252,15 +253,15 @@ const Dashboard = () => {
       <div className="mt-6 sm:mt-8">
         <h2 className="text-base sm:text-lg font-semibold mb-4">Acoes Rapidas</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <a
-            href="/articles/new"
+          <Link
+            to="/articles/new"
             className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:border-brand hover:shadow-sm transition-all text-center"
           >
             <FileText className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-gray-400 mb-2" />
             <span className="text-xs sm:text-sm font-medium text-gray-700">Novo Artigo</span>
-          </a>
-          <a
-            href="/media"
+          </Link>
+          <Link
+            to="/media"
             className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:border-brand hover:shadow-sm transition-all text-center"
           >
             <svg
@@ -277,9 +278,9 @@ const Dashboard = () => {
               />
             </svg>
             <span className="text-xs sm:text-sm font-medium text-gray-700">Midia</span>
-          </a>
-          <a
-            href="/tags"
+          </Link>
+          <Link
+            to="/tags"
             className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:border-brand hover:shadow-sm transition-all text-center"
           >
             <svg
@@ -296,9 +297,9 @@ const Dashboard = () => {
               />
             </svg>
             <span className="text-xs sm:text-sm font-medium text-gray-700">Tags</span>
-          </a>
-          <a
-            href="/settings"
+          </Link>
+          <Link
+            to="/settings"
             className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 hover:border-brand hover:shadow-sm transition-all text-center"
           >
             <svg
@@ -321,7 +322,7 @@ const Dashboard = () => {
               />
             </svg>
             <span className="text-xs sm:text-sm font-medium text-gray-700">Configuracoes</span>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

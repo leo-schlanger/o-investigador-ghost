@@ -101,8 +101,10 @@ router.post('/track-view', async (req, res) => {
         });
 
         if (!created) {
+            // Incremento atomico (UPDATE ... SET view_count = view_count + 1) evita
+            // race condition / undercounting com pedidos concorrentes
+            await postView.increment('viewCount');
             await postView.update({
-                viewCount: postView.viewCount + 1,
                 lastViewedAt: new Date(),
                 postSlug: postSlug || postView.postSlug,
                 postTitle: postTitle || postView.postTitle

@@ -7,27 +7,22 @@
 
 const logger = require('../utils/logger');
 
+// NOTA: os indices de post_views, view_logs e article_revisions ja sao criados
+// pelo Sequelize via a opcao `indexes` nos respetivos modelos. Esta migration cobre
+// apenas as lacunas reais (Media e MediaTagAssignments nao definem indexes no modelo,
+// e o composto post_id+viewed_at de view_logs nao existe). Nomes de tabela/coluna
+// correspondem ao schema real (Media usa camelCase; tabelas de views usam snake_case).
 const indexes = [
-    // Media table
+    // Media table (camelCase, sem underscored)
     { table: 'Media', name: 'idx_media_folder_id', column: 'folderId' },
     { table: 'Media', name: 'idx_media_created_at', column: 'createdAt' },
     { table: 'Media', name: 'idx_media_mimetype', column: 'mimetype' },
 
-    // MediaTagAssignment table (composite index for queries)
+    // MediaTagAssignment (indice composto para joins de tags)
     { table: 'MediaTagAssignments', name: 'idx_mta_media_tag', columns: ['mediaId', 'tagId'] },
 
-    // PostView table
-    { table: 'PostViews', name: 'idx_postview_post_id', column: 'postId' },
-    { table: 'PostViews', name: 'idx_postview_viewed_at', column: 'viewedAt' },
-
-    // ViewLog table
-    { table: 'ViewLogs', name: 'idx_viewlog_post_id', column: 'postId' },
-    { table: 'ViewLogs', name: 'idx_viewlog_timestamp', column: 'timestamp' },
-    { table: 'ViewLogs', name: 'idx_viewlog_post_timestamp', columns: ['postId', 'timestamp'] },
-
-    // ArticleRevision table
-    { table: 'ArticleRevisions', name: 'idx_revision_post_id', column: 'postId' },
-    { table: 'ArticleRevisions', name: 'idx_revision_created_at', column: 'createdAt' }
+    // view_logs: composto para consultas por artigo ao longo do tempo
+    { table: 'view_logs', name: 'idx_viewlog_post_viewed', columns: ['post_id', 'viewed_at'] }
 ];
 
 /**

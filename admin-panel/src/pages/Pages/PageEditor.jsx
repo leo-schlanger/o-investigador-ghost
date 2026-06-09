@@ -71,7 +71,7 @@ const PageEditor = () => {
                   try {
                     const formData = new FormData();
                     formData.append('file', file);
-                    const response = await api.post('/api/media', formData, {
+                    const response = await api.post('/api/media/upload', formData, {
                       headers: { 'Content-Type': 'multipart/form-data' }
                     });
                     return { success: 1, file: { url: response.data.url } };
