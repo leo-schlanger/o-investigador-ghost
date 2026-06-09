@@ -21,7 +21,19 @@ Correções aplicadas e validadas (245 testes backend a passar):
 - [x] 🟡 **Sem error handler global / 404** — adicionados em `server.js` (evita queda do processo e vazamento de stack; em produção mascara erros 500).
 - [x] 🟡 **`/register` e `/refresh` sem rate-limit** — `authLimiter` aplicado a ambos.
 
-**Ainda pendentes (maior esforço/risco — ver abaixo):** tokens em `localStorage` → cookie httpOnly (L); backup só cobre MySQL, falta media+uploads (M); pesquisa pública do site sem Content API key (M); `axios`/`multer` com CVEs (requer `npm install` + teste cuidadoso para não dessincronizar o lockfile); endurecer `npm audit` no CI (depende do anterior).
+**2ª ronda (mesma data):**
+
+- [x] 🟠 **Backup só cobria MySQL** — `backup.sh` passa a incluir os volumes `ghost_content` (media) e `api_uploads`; S3 e retenção cobrem os `.tar.gz`.
+- [x] 🟠 **Pesquisa pública sem Content API key** — tema injeta `<meta name="ghost-search-key">` via custom setting `content_api_key` (configurar em Settings → Design).
+- [x] 🟠 **axios com CVEs high** — atualizado para 1.17.0 (admin direto; backend via `overrides`); `tmp`/`qs` corrigidos. **0 high/critical em produção** em ambos os projetos.
+- [x] 🟠 **`npm audit` mascarado no CI** — gate agora efetivo: `npm audit --omit=dev --audit-level=high` (sem `|| true`).
+- [x] 🟡 **Grafana exposto na porta 3002** — removido o mapping; acesso só via nginx `/grafana/` com TLS.
+- [~] 🟠 **Tokens em `localStorage` → cookie httpOnly** — implementado no **PR #1** (`security/httponly-refresh-token`). NÃO está em produção: requer validação do fluxo de cookie cross-subdomínio antes do merge.
+
+**Notas:**
+- `multer` mantido em 1.4.5-lts.1 — já **não** apresenta vulnerabilidades high (2.x seria breaking, evitado).
+- Restam apenas vulnerabilidades **moderate** que exigem breaking changes (`sequelize`/`uuid`/`exceljs`) — adiadas.
+- ⚠️ **AÇÃO MANUAL:** rotacionar a Ghost Admin API key continua pendente (decisão do utilizador).
 
 ---
 
