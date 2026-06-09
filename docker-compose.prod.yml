@@ -160,6 +160,9 @@ services:
     volumes:
       - ./infrastructure/nginx/nginx-prod.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt/:/etc/letsencrypt/:ro
+      # Webroot partilhado para o desafio ACME do Let's Encrypt (renovacao zero-downtime).
+      # O certbot (host) escreve em /var/www/certbot/.well-known/acme-challenge/ e o nginx serve-o.
+      - /var/www/certbot:/var/www/certbot:ro
     networks:
       - o-investigador-network
 

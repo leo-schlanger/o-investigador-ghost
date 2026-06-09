@@ -219,6 +219,14 @@ infrastructure/monitoring/
 - Backup: `infrastructure/scripts/backup.sh` (automático via cron às 3h)
 - Restore: `infrastructure/scripts/restore.sh <file.sql.gz>`
 
+## SSL / HTTPS (Let's Encrypt)
+- Certificado SAN (NÃO wildcard) para 4 domínios: `jornalinvestigador.pt`, `www`, `admin`, `api`
+- **Renovação zero-downtime via webroot:** o nginx serve `/.well-known/acme-challenge/` a partir de `/var/www/certbot` (montado no container via `docker-compose.prod.yml`); o certbot renova sem parar o nginx e recarrega-o com `--deploy-hook`
+- Setup/reconfiguração reproduzível: `infrastructure/scripts/setup-ssl-renewal.sh` (correr como root na VPS)
+- Cron (crontab do root, NÃO versionado): `0 3 * * * certbot renew --quiet`. O reload do nginx vem do `--deploy-hook` guardado no `renewal.conf` (definido por `setup-ssl-renewal.sh`)
+- **IMPORTANTE:** o método `standalone` NÃO funciona aqui (colide com a porta 80 do Docker → falhava silenciosamente e o cert expirou em 2026-05). Manter sempre `webroot`.
+- Renovar/diagnosticar manualmente: `certbot certificates`, `certbot renew --dry-run`
+
 ## Observações Importantes
 - Editar código LOCALMENTE, não no servidor
 - Confiar no deploy automático após push
