@@ -36,8 +36,8 @@ jobs:
         working-directory: ./cms-api
         run: npm test
 
-      - name: Security audit
-        run: npm audit --audit-level=high || true
+      - name: Security audit (production deps)
+        run: npm audit --omit=dev --audit-level=high
         working-directory: cms-api
 
   # -------------------------------------------------
@@ -66,8 +66,8 @@ jobs:
         working-directory: ./admin-panel
         run: npm test -- --run
 
-      - name: Security audit
-        run: npm audit --audit-level=high || true
+      - name: Security audit (production deps)
+        run: npm audit --omit=dev --audit-level=high
         working-directory: admin-panel
 
   # -------------------------------------------------
