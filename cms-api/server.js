@@ -15,6 +15,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const { csrfProtection } = require('./src/middleware/csrfMiddleware');
 const { sequelize } = require('./src/models');
 const routes = require('./src/routes');
@@ -102,6 +103,7 @@ app.use('/api/auth/users', adminLimiter);
 app.use('/api/settings', adminLimiter);
 
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
 
 // CSRF Protection for state-changing operations
 app.use(csrfProtection);
