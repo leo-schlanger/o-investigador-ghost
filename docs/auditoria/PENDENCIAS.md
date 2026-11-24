@@ -28,7 +28,7 @@ Correções aplicadas e validadas (245 testes backend a passar):
 - [x] 🟠 **axios com CVEs high** — atualizado para 1.17.0 (admin direto; backend via `overrides`); `tmp`/`qs` corrigidos. **0 high/critical em produção** em ambos os projetos.
 - [x] 🟠 **`npm audit` mascarado no CI** — gate agora efetivo: `npm audit --omit=dev --audit-level=high` (sem `|| true`).
 - [x] 🟡 **Grafana exposto na porta 3002** — removido o mapping; acesso só via nginx `/grafana/` com TLS.
-- [~] 🟠 **Tokens em `localStorage` → cookie httpOnly** — implementado no **PR #1** (`security/httponly-refresh-token`). NÃO está em produção: requer validação do fluxo de cookie cross-subdomínio antes do merge.
+- [~] 🟠 **Tokens em `localStorage` → cookie httpOnly** — implementado no **PR #1** (`security/httponly-refresh-token`), revisto e rebaseado a 24/11/2026: refresh token só em cookie httpOnly host-only de `api.` (Secure, SameSite=Strict, Path=/api/auth), nunca no JSON; refresh/logout restritos à origem do admin (`ADMIN_ORIGIN`, sem Origin → 403); `protect` recusa refresh tokens como Bearer. Fica por fazer: revogação server-side (JWT stateless) e o access token de 2h, que continua em localStorage. Validar em produção depois do merge (login → reload → refresh → logout).
 
 **Notas:**
 - `multer` mantido em 1.4.5-lts.1 — já **não** apresenta vulnerabilidades high (2.x seria breaking, evitado).

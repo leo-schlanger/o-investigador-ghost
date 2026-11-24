@@ -15,6 +15,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const { corsOptions } = require('./src/config/cors');
 const { csrfProtection } = require('./src/middleware/csrfMiddleware');
 const { sequelize } = require('./src/models');
 const routes = require('./src/routes');
@@ -34,36 +36,11 @@ app.use(
 );
 
 // CORS configuration - requires explicit CORS_ORIGIN in production
-const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-    : [];
-
-if (allowedOrigins.length === 0 && process.env.NODE_ENV === 'production') {
+if (!process.env.CORS_ORIGIN && process.env.NODE_ENV === 'production') {
     logger.warn('CORS_ORIGIN not configured - CORS will reject all cross-origin requests in production');
 }
 
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            // Allow requests with no origin (same-origin, curl, mobile apps)
-            if (!origin) return callback(null, true);
-
-            // In development, allow all origins if CORS_ORIGIN is not set
-            if (allowedOrigins.length === 0 && process.env.NODE_ENV !== 'production') {
-                return callback(null, true);
-            }
-
-            // Check if origin is in allowed list
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
-
-            callback(new Error('Not allowed by CORS'));
-        },
-        credentials: true,
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token']
-    })
-);
+app.use(cors(corsOptions()));
 
 // Trust proxy (nginx) - required for rate limiting behind reverse proxy
 app.set('trust proxy', 1);
@@ -102,6 +79,7 @@ app.use('/api/auth/users', adminLimiter);
 app.use('/api/settings', adminLimiter);
 
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
 
 // CSRF Protection for state-changing operations
 app.use(csrfProtection);

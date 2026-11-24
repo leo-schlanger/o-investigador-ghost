@@ -195,10 +195,14 @@ infrastructure/monitoring/
 
 ## Autenticação (JWT + Refresh Token)
 - Token de acesso expira em 2h (anteriormente 24h)
-- Refresh token expira em 7 dias
-- Endpoint: `POST /api/auth/refresh` com `{ refreshToken }` → retorna novo token + refreshToken
-- Frontend faz refresh automático 5 min antes do token expirar
-- Interceptor axios tenta refresh antes de redirecionar para login em 401
+- Refresh token expira em 7 dias e vive **só num cookie httpOnly** `refreshToken` (`Secure` em produção, `SameSite=Strict`, `Path=/api/auth`, host-only em `api.`, sem `Domain`); nunca no JSON nem em localStorage (24/11/2026)
+- `login`/`register`/`refresh` definem o cookie; `POST /api/auth/refresh` (body vazio) lê só o cookie, devolve `{ token }` e roda o cookie; `POST /api/auth/logout` limpa-o
+- `refresh`/`logout` exigem `Origin` em `ADMIN_ORIGIN` (fallback `CORS_ORIGIN`; sem `Origin` → 403): o site Ghost é same-site com a API e está no CORS, por isso um script lá podia usar o cookie (`adminOriginOnly` em `csrfMiddleware.js`)
+- `protect` recusa refresh tokens (`type: 'refresh'`) como Bearer
+- Armadilha: o JWT é stateless — rodar/limpar o cookie NÃO revoga o refresh antigo (vale até expirar); revogação exigiria versão por utilizador (migração)
+- O access token (2h) continua em localStorage (resíduo conhecido da auditoria)
+- Frontend: axios com `withCredentials`; refresh automático 5 min antes do token expirar; interceptor tenta refresh antes de redirecionar para login em 401
+- Deploy: utilizadores com sessão de antes do cookie fazem login uma vez quando o access token expira
 
 ## Notificações (Admin Panel)
 - `NotificationProvider` em `admin-panel/src/context/NotificationContext.jsx`

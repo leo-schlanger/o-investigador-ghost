@@ -18,6 +18,7 @@
     "dependencies": {
         "@tryghost/admin-api": "^1.13.7",
         "bcryptjs": "^2.4.3",
+        "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "dotenv": "^16.3.1",
         "exceljs": "^4.4.0",
@@ -47,6 +48,9 @@
         "supertest": "^6.3.3"
     },
     "overrides": {
-        "axios": ">=1.15.3"
+        "axios": ">=1.15.3",
+        "geoip-lite": {
+            "ip-address": "^10.7.6"
+        }
     }
 }
