@@ -25,7 +25,9 @@ describe('authController', () => {
         };
         res = {
             status: jest.fn().mockReturnThis(),
-            json: jest.fn()
+            json: jest.fn(),
+            cookie: jest.fn(),
+            clearCookie: jest.fn()
         };
         jest.clearAllMocks();
     });
@@ -56,10 +58,16 @@ describe('authController', () => {
                     success: true,
                     data: expect.objectContaining({
                         user: expect.objectContaining({ email: 'test@example.com' }),
-                        token: expect.any(String),
-                        refreshToken: expect.any(String)
+                        token: expect.any(String)
                     })
                 })
+            );
+            // Refresh token only as httpOnly cookie, never in the body
+            expect(res.json.mock.calls[0][0].data.refreshToken).toBeUndefined();
+            expect(res.cookie).toHaveBeenCalledWith(
+                'refreshToken',
+                expect.any(String),
+                expect.objectContaining({ httpOnly: true, sameSite: 'strict', path: '/api/auth' })
             );
         });
 
@@ -103,10 +111,16 @@ describe('authController', () => {
                     success: true,
                     data: expect.objectContaining({
                         user: expect.objectContaining({ email: 'test@example.com' }),
-                        token: expect.any(String),
-                        refreshToken: expect.any(String)
+                        token: expect.any(String)
                     })
                 })
+            );
+            // Refresh token only as httpOnly cookie, never in the body
+            expect(res.json.mock.calls[0][0].data.refreshToken).toBeUndefined();
+            expect(res.cookie).toHaveBeenCalledWith(
+                'refreshToken',
+                expect.any(String),
+                expect.objectContaining({ httpOnly: true, sameSite: 'strict', path: '/api/auth' })
             );
         });
 

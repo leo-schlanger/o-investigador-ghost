@@ -129,8 +129,29 @@ const csrfOriginOnly = (req, res, next) => {
     next();
 };
 
+/**
+ * Restricts cookie-authenticated auth endpoints (refresh/logout) to the admin origin(s).
+ * The public site is same-site with the API and in CORS_ORIGIN, so without this a script
+ * running on it could use the refresh cookie and read a fresh access token.
+ * ADMIN_ORIGIN (comma list) falls back to CORS_ORIGIN. Origin is mandatory when a list is
+ * configured (the admin always sends it; only an unconfigured dev setup skips the check).
+ */
+const adminOriginOnly = (req, res, next) => {
+    const configured = process.env.ADMIN_ORIGIN || process.env.CORS_ORIGIN || '';
+    const allowed = configured.split(',').map((o) => o.trim()).filter(Boolean);
+    const origin = req.get('Origin');
+    if (allowed.length === 0 || (origin && allowed.includes(origin))) {
+        return next();
+    }
+    return res.status(403).json({
+        error: 'Requisicao bloqueada: origem nao autorizada',
+        code: 'CSRF_ORIGIN_INVALID'
+    });
+};
+
 module.exports = {
     csrfProtection,
     csrfOriginOnly,
+    adminOriginOnly,
     validateOrigin
 };

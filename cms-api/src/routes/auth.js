@@ -4,6 +4,7 @@ const authController = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { auditLog } = require('../middleware/auditMiddleware');
 const { validateBody } = require('../middleware/validateRequest');
+const { adminOriginOnly } = require('../middleware/csrfMiddleware');
 const { loginSchema, registerSchema } = require('../validators/schemas');
 
 // Public
@@ -14,8 +15,8 @@ router.post('/login', validateBody(loginSchema), auditLog('login', 'auth', {
     auditFailures: true, // regista tambem tentativas falhadas (deteccao de brute-force)
     getDetails: (req) => ({ email: req.body.email })
 }), authController.login);
-router.post('/refresh', authController.refresh);
-router.post('/logout', authController.logout);
+router.post('/refresh', adminOriginOnly, authController.refresh);
+router.post('/logout', adminOriginOnly, authController.logout);
 
 // Protected (Any authenticated user)
 router.get('/me', protect, authController.me);

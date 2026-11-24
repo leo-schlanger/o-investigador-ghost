@@ -81,6 +81,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUser = async () => {
+      // Purge refresh tokens left in localStorage by older versions (now httpOnly cookie)
+      safeStorage.removeItem('refreshToken');
       const token = safeStorage.getItem('token');
       if (token) {
         // Check if token is expired

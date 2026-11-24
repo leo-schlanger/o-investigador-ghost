@@ -23,26 +23,21 @@ const generateRefreshToken = (user) => {
     });
 };
 
-// Refresh token guardado em cookie httpOnly (inacessivel a JS -> imune a XSS).
-// COOKIE_DOMAIN deve ser ".jornalinvestigador.pt" em producao (partilha entre subdominios admin/api).
+// Refresh token lives only in an httpOnly cookie (never in a JSON body -> unreachable by XSS).
+// Host-only cookie on the API host: the admin calls api.<domain> directly, so no Domain is set.
 const REFRESH_COOKIE = 'refreshToken';
+const REFRESH_COOKIE_PATH = '/api/auth';
 const refreshCookieOptions = () => ({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    domain: process.env.COOKIE_DOMAIN || undefined,
-    path: '/api/auth',
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
+    sameSite: 'strict',
+    path: REFRESH_COOKIE_PATH
 });
 const setRefreshCookie = (res, token) => {
-    if (res && typeof res.cookie === 'function') res.cookie(REFRESH_COOKIE, token, refreshCookieOptions());
+    res.cookie(REFRESH_COOKIE, token, { ...refreshCookieOptions(), maxAge: 7 * 24 * 60 * 60 * 1000 });
 };
 const clearRefreshCookie = (res) => {
-    if (res && typeof res.clearCookie === 'function') {
-        const opts = refreshCookieOptions();
-        delete opts.maxAge;
-        res.clearCookie(REFRESH_COOKIE, opts);
-    }
+    res.clearCookie(REFRESH_COOKIE, refreshCookieOptions());
 };
 
 /**
@@ -144,7 +139,7 @@ exports.register = async (req, res) => {
 
         // Generate token
         const token = generateToken(user);
-        const refreshToken = generateRefreshToken(user);
+        setRefreshCookie(res, generateRefreshToken(user));
 
         res.status(201).json({
             success: true,
@@ -156,8 +151,7 @@ exports.register = async (req, res) => {
                     role: user.role,
                     avatar: user.avatar
                 },
-                token,
-                refreshToken
+                token
             }
         });
     } catch (err) {
@@ -232,10 +226,7 @@ exports.login = async (req, res) => {
 
         // Generate token
         const token = generateToken(user);
-        const refreshToken = generateRefreshToken(user);
-
-        // Refresh token tambem em cookie httpOnly (alem do body, p/ retrocompat)
-        setRefreshCookie(res, refreshToken);
+        setRefreshCookie(res, generateRefreshToken(user));
 
         res.json({
             success: true,
@@ -247,8 +238,7 @@ exports.login = async (req, res) => {
                     role: user.role,
                     avatar: user.avatar
                 },
-                token,
-                refreshToken
+                token
             }
         });
     } catch (err) {
@@ -439,8 +429,8 @@ exports.deleteUser = async (req, res) => {
 
 exports.refresh = async (req, res) => {
     try {
-        // Le do cookie httpOnly (preferencial) com fallback para o body (retrocompat)
-        const refreshToken = (req.cookies && req.cookies[REFRESH_COOKIE]) || req.body.refreshToken;
+        // Cookie only: a token in the body is not accepted
+        const refreshToken = req.cookies && req.cookies[REFRESH_COOKIE];
         if (!refreshToken) {
             return apiResponse.error(res, 'Refresh token is required', 400);
         }
@@ -455,20 +445,19 @@ exports.refresh = async (req, res) => {
         });
 
         if (!user) {
+            clearRefreshCookie(res);
             return apiResponse.notFound(res, 'User');
         }
 
-        const newToken = generateToken(user);
-        const newRefreshToken = generateRefreshToken(user);
-
-        // Rotaciona o cookie httpOnly
-        setRefreshCookie(res, newRefreshToken);
+        // Sliding session: rotate the cookie on every refresh
+        setRefreshCookie(res, generateRefreshToken(user));
 
         res.json({
             success: true,
-            data: { token: newToken, refreshToken: newRefreshToken }
+            data: { token: generateToken(user) }
         });
     } catch (err) {
+        clearRefreshCookie(res);
         if (err.name === 'TokenExpiredError') {
             return apiResponse.error(res, 'Refresh token expired. Please login again.', 401);
         }
@@ -476,7 +465,7 @@ exports.refresh = async (req, res) => {
     }
 };
 
-// Logout: limpa o cookie httpOnly do refresh token
+// Logout: clears the refresh cookie (stateless JWT: the old token is not revoked server-side)
 exports.logout = async (req, res) => {
     clearRefreshCookie(res);
     res.json({ success: true, message: 'Logged out' });
