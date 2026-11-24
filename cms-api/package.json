@@ -48,6 +48,9 @@
         "supertest": "^6.3.3"
     },
     "overrides": {
-        "axios": ">=1.15.3"
+        "axios": ">=1.15.3",
+        "geoip-lite": {
+            "ip-address": "^10.7.6"
+        }
     }
 }
